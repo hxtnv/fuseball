@@ -1,5 +1,4 @@
-let player, ball, scene;
-// let button;
+let player, ball, scene, hud;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -31,6 +30,8 @@ function setup() {
     size: 1200
   });
 
+  hud = new Hud();
+
   // button = createButton('submit');
   // button.position(200, 65);
   // button.mousePressed(() => {
@@ -51,6 +52,7 @@ function draw() {
   scene.update();
   player.update();
   ball.update();
+  hud.update();
 
   camera.position = player.sprite.position; // follow player
 
@@ -64,12 +66,6 @@ function draw() {
   //   text('RED SCORE', 50, 400);
   // })
 
-  /*player.sprite.collide(ball.sprite, () => {
-    let angle = Math.atan2(ball.sprite.position.y - player.sprite.position.y, ball.sprite.position.x - player.sprite.position.x) * 180 / Math.PI;
-    
-    ball.sprite.addSpeed(2, angle);
-  });*/
-
   player.sprite.overlap(ball.hitCollider, () => {
     let angle = Math.atan2(ball.sprite.position.y - player.sprite.position.y, ball.sprite.position.x - player.sprite.position.x) * 180 / Math.PI;
 
@@ -77,7 +73,4 @@ function draw() {
       if(player.keys[KEYS.KICK[i]]) return ball.sprite.addSpeed(10, angle);
     }
   });
-
-
-  // text('testtt', 50, 50);
 }

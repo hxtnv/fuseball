@@ -1,4 +1,7 @@
-let player, ball, scene, hud;
+let player, ball, scene, hud, goals = [false, false], prevGoals = [false, false];
+
+let hit = false;
+let prevHit = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -10,7 +13,7 @@ function setup() {
     speed: 5,
     friction: .7,
     pos: {
-      x: -100,
+      x: 100,
       y: 0
     }
   });
@@ -43,8 +46,6 @@ function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
 
-
-
 function draw() {
   // 84, 144, 52
   background(scene.props.background);
@@ -61,10 +62,25 @@ function draw() {
 
   ball.sprite.bounce(scene.col);
 
-  // ball.sprite.overlap(scene.goals[0], () => {
-  //   textSize(40);
-  //   text('RED SCORE', 50, 400);
-  // })
+  // detect goals
+  goals[0] = false;
+  goals[1] = false;
+
+  ball.sprite.overlap(scene.goals[0], () => {
+    goals[0] = true;
+  });
+
+  goal(0);
+
+  ball.sprite.overlap(scene.goals[1], () => {
+    goals[1] = true;
+  });
+
+  goal(1);
+
+  prevGoals[0] = goals[0];
+  prevGoals[1] = goals[1];
+  
 
   player.sprite.overlap(ball.hitCollider, () => {
     let angle = Math.atan2(ball.sprite.position.y - player.sprite.position.y, ball.sprite.position.x - player.sprite.position.x) * 180 / Math.PI;
@@ -73,4 +89,11 @@ function draw() {
       if(player.keys[KEYS.KICK[i]]) return ball.sprite.addSpeed(10, angle);
     }
   });
+}
+
+function goal(side) {
+  if(!goals[side]) return;
+  if(goals[side] && prevGoals[side]) return;
+
+  hud.score[side == 0 ? 1 : 0]++;
 }

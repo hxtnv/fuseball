@@ -96,4 +96,15 @@ function goal(side) {
   if(goals[side] && prevGoals[side]) return;
 
   hud.score[side == 0 ? 1 : 0]++;
+
+  clearTimeout(this.goalTimeout);
+  this.goalTimeout = null;
+
+  this.goalTimeout = setTimeout(() => {
+    ball.sprite.position.x = 0;
+    ball.sprite.position.y = 0;
+
+    ball.sprite.velocity.x = 0;
+    ball.sprite.velocity.y = 0;
+  }, 2000);
 }

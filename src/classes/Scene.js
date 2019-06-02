@@ -96,7 +96,7 @@ class Scene {
   drawBorder() {
     this.fillLines();
 
-    p5.rect(0, 0, this.border.width, this.border.height);
+    p5.rect(0, 0, this.border.width, this.border.height, 10);
   }
 
   drawMiddle() {
@@ -109,7 +109,12 @@ class Scene {
   drawGoal(side) {
     this.fillLines();
 
-    p5.rect(0, 0, this.goals[side].width, this.goals[side].height);
+    p5.rect(0, 0, this.goals[side].width, this.goals[side].height,
+      side === 0 ? 10 : 0,
+      side === 1 ? 10 : 0,
+      side === 1 ? 10 : 0,
+      side === 0 ? 10 : 0
+    );
   }
 
   update() {

@@ -1,7 +1,5 @@
 class Hud {
   constructor() {
-    // this.font = p5.loadFont('./fonts/Itim.ttf');
-
     this.score = [0, 0];
     this.timer = 300;
 
@@ -50,11 +48,9 @@ class Hud {
 
     p5.fill(255);
     p5.strokeWeight(4);
-    p5.stroke(51);
-
+    p5.stroke(65);
 
     p5.textSize(32);
-    // p5.textFont(this.font);
     p5.textFont('Itim');
     p5.text(timerText, p5.windowWidth / 2 - p5.textWidth(timerText) / 2, 70);
 

@@ -17,9 +17,13 @@ class Ball {
   }
 
   draw() {
+    p5.noStroke();
+    p5.fill(0, 0, 0, 35);
+    p5.ellipse(0, 0, this.props.size + 17);
+
     p5.fill(255);
-    p5.strokeWeight(3);
-    p5.stroke(25);
+    p5.strokeWeight(4);
+    p5.stroke(51);
     p5.ellipse(0, 0, this.props.size, this.props.size);
   }
 

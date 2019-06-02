@@ -1,7 +1,7 @@
-let player, ball, scene, hud, goals = [false, false], prevGoals = [false, false];
+let player, ball, scene, hud;
 
-let hit = false;
-let prevHit = false;
+let goals = [false, false], prevGoals = [false, false];
+let isReset = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -94,8 +94,14 @@ function draw() {
 function goal(side) {
   if(!goals[side]) return;
   if(goals[side] && prevGoals[side]) return;
+  if(isReset) return;
 
   hud.score[side == 0 ? 1 : 0]++;
+
+  isReset = true;
+
+  hud.teamScore(0, side);
+
 
   clearTimeout(this.goalTimeout);
   this.goalTimeout = null;
@@ -106,5 +112,14 @@ function goal(side) {
 
     ball.sprite.velocity.x = 0;
     ball.sprite.velocity.y = 0;
+
+
+    player.sprite.position.x = 100;
+    player.sprite.position.y = 0;
+
+    player.sprite.velocity.x = 0;
+    player.sprite.velocity.y = 0;
+
+    isReset = false;
   }, 2000);
 }

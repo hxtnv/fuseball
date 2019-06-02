@@ -1,14 +1,9 @@
-const KEYS = {
-  KEY_UP: [87, 38],
-  KEY_RIGHT: [68, 39],
-  KEY_DOWN: [83, 40],
-  KEY_LEFT: [65, 37],
-  KICK: [88, 32, 17, 16] // x, space, lctrl, lshift
-}
+import keys from '../const/keys';
 
 class Player {
   constructor(props) {
     this.props = props;
+    // this.p = p;
 
     this.velocity = {
       x: 0,
@@ -17,7 +12,7 @@ class Player {
 
     this.keys = [];
 
-    this.sprite = createSprite(this.props.pos.x, this.props.pos.y, this.props.size, this.props.size);
+    this.sprite = p5.createSprite(this.props.pos.x, this.props.pos.y, this.props.size, this.props.size);
     this.sprite.setCollider('circle');
     this.sprite.draw = () => this.draw();
 
@@ -30,22 +25,22 @@ class Player {
   }
 
   move() {
-    if(this.keys[KEYS.KEY_UP[0]] || this.keys[KEYS.KEY_UP[1]]) {
+    if(this.keys[keys.KEY_UP[0]] || this.keys[keys.KEY_UP[1]]) {
       // if (this.velocity.y > -this.props.speed) this.velocity.y--;
       this.sprite.velocity.y = -this.props.speed;
     }
     
-    if(this.keys[KEYS.KEY_DOWN[0]] || this.keys[KEYS.KEY_DOWN[1]]) {
+    if(this.keys[keys.KEY_DOWN[0]] || this.keys[keys.KEY_DOWN[1]]) {
       // if (this.velocity.y < this.props.speed) this.velocity.y++;
       this.sprite.velocity.y = this.props.speed;
     }
 
-    if(this.keys[KEYS.KEY_RIGHT[0]] || this.keys[KEYS.KEY_RIGHT[1]]) {
+    if(this.keys[keys.KEY_RIGHT[0]] || this.keys[keys.KEY_RIGHT[1]]) {
       // if (this.velocity.x < this.props.speed) this.velocity.x++;
       this.sprite.velocity.x = this.props.speed;
     }
 
-    if(this.keys[KEYS.KEY_LEFT[0]] || this.keys[KEYS.KEY_LEFT[1]]) {
+    if(this.keys[keys.KEY_LEFT[0]] || this.keys[keys.KEY_LEFT[1]]) {
       // if (this.velocity.x > -this.props.speed) this.velocity.x--;
       this.sprite.velocity.x = -this.props.speed;
     }
@@ -59,20 +54,22 @@ class Player {
 
   draw() {
     // shadow
-    noStroke();
-    fill(0, 0, 0, 35);
-    ellipse(0, 0, this.props.size + 17);
+    p5.noStroke();
+    p5.fill(0, 0, 0, 35);
+    p5.ellipse(0, 0, this.props.size + 17);
 
     // core
-    stroke(51);
-    strokeWeight(4);
-    fill(253, 200, 118);
-    ellipse(0, 0, this.props.size);
+    p5.stroke(51);
+    p5.strokeWeight(4);
+    p5.fill(253, 200, 118);
+    p5.ellipse(0, 0, this.props.size);
   }
 
   update() {
     this.move();
 
-    drawSprite(this.sprite);
+    p5.drawSprite(this.sprite);
   }
 }
+
+export default Player;

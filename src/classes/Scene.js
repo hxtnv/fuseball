@@ -14,16 +14,16 @@ class Scene {
 
     this.goals = [];
 
-    this.border = createSprite(0, 0, this.size.x, this.size.y);
+    this.border = p5.createSprite(0, 0, this.size.x, this.size.y);
     this.border.draw = () => this.drawBorder();
 
-    this.middle = createSprite(0, 0, this.size.y * .5, this.size.y * .5);
+    this.middle = p5.createSprite(0, 0, this.size.y * .5, this.size.y * .5);
     this.middle.draw = () => this.drawMiddle();
 
-    this.goals[0] = createSprite(-(this.size.x / 2) - (this.goalSize.x / 2), 0, this.goalSize.x, this.goalSize.y);
+    this.goals[0] = p5.createSprite(-(this.size.x / 2) - (this.goalSize.x / 2), 0, this.goalSize.x, this.goalSize.y);
     this.goals[0].draw = () => this.drawGoal(0);
 
-    this.goals[1] = createSprite((this.size.x / 2) + (this.goalSize.x / 2), 0, this.goalSize.x, this.goalSize.y);
+    this.goals[1] = p5.createSprite((this.size.x / 2) + (this.goalSize.x / 2), 0, this.goalSize.x, this.goalSize.y);
     this.goals[1].draw = () => this.drawGoal(1);
 
 
@@ -41,45 +41,45 @@ class Scene {
 
   initColliders() {
     this.colSize = 200;
-    this.col = new Group();
+    this.col = new p5.Group();
 
-    this.col.add(createSprite(0, -(this.size.y / 2) - (this.colSize / 2), this.size.x, this.colSize)); // top
-    this.col.add(createSprite(0, (this.size.y / 2) + (this.colSize / 2), this.size.x, this.colSize)); // bottom
+    this.col.add(p5.createSprite(0, -(this.size.y / 2) - (this.colSize / 2), this.size.x, this.colSize)); // top
+    this.col.add(p5.createSprite(0, (this.size.y / 2) + (this.colSize / 2), this.size.x, this.colSize)); // bottom
 
 
-    this.col.add(createSprite(
+    this.col.add(p5.createSprite(
       -(this.size.x / 2) - (this.goalSize.x / 2),
       -(this.size.y / 2) + ((this.size.y - this.goalSize.y) / 2) / 2,
       this.goalSize.x,
       (this.size.y - this.goalSize.y) / 2)
     ); // left top
 
-    this.col.add(createSprite(
+    this.col.add(p5.createSprite(
       -(this.size.x / 2) - (this.goalSize.x / 2),
       (this.size.y / 2) - ((this.size.y - this.goalSize.y) / 2) / 2,
       this.goalSize.x,
       (this.size.y - this.goalSize.y) / 2)
     ); // left bottom
 
-    this.col.add(createSprite(-(this.size.x / 2) - (this.goalSize.x * 1.5), 0, this.goalSize.x, this.goalSize.y)); // left middle
+    this.col.add(p5.createSprite(-(this.size.x / 2) - (this.goalSize.x * 1.5), 0, this.goalSize.x, this.goalSize.y)); // left middle
 
 
 
-    this.col.add(createSprite(
+    this.col.add(p5.createSprite(
       (this.size.x / 2) + (this.goalSize.x / 2),
       -(this.size.y / 2) + ((this.size.y - this.goalSize.y) / 2) / 2,
       this.goalSize.x,
       (this.size.y - this.goalSize.y) / 2)
     ); // right top
 
-    this.col.add(createSprite(
+    this.col.add(p5.createSprite(
       (this.size.x / 2) + (this.goalSize.x / 2),
       (this.size.y / 2) - ((this.size.y - this.goalSize.y) / 2) / 2,
       this.goalSize.x,
       (this.size.y - this.goalSize.y) / 2)
     ); // right bottom
 
-    this.col.add(createSprite((this.size.x / 2) + (this.goalSize.x * 1.5), 0, this.goalSize.x, this.goalSize.y)); // right middle
+    this.col.add(p5.createSprite((this.size.x / 2) + (this.goalSize.x * 1.5), 0, this.goalSize.x, this.goalSize.y)); // right middle
 
 
     for(let i in this.col.toArray()) {
@@ -88,38 +88,40 @@ class Scene {
   }
 
   fillLines() {
-    stroke(225);
-    strokeWeight(5);
-    noFill();
+    p5.stroke(225);
+    p5.strokeWeight(5);
+    p5.noFill();
   }
 
   drawBorder() {
     this.fillLines();
 
-    rect(0, 0, this.border.width, this.border.height);
+    p5.rect(0, 0, this.border.width, this.border.height);
   }
 
   drawMiddle() {
     this.fillLines();
 
-    rect(0, 0, 0, this.size.y);
-    ellipse(0, 0, this.middle.width);
+    p5.rect(0, 0, 0, this.size.y);
+    p5.ellipse(0, 0, this.middle.width);
   }
 
   drawGoal(side) {
     this.fillLines();
 
-    rect(0, 0, this.goals[side].width, this.goals[side].height);
+    p5.rect(0, 0, this.goals[side].width, this.goals[side].height);
   }
 
   update() {
-    stroke(225);
-    strokeWeight(5);
-    noFill();
+    p5.stroke(225);
+    p5.strokeWeight(5);
+    p5.noFill();
 
-    drawSprite(this.border);
-    drawSprite(this.middle);
-    drawSprite(this.goals[0]);
-    drawSprite(this.goals[1]);
+    p5.drawSprite(this.border);
+    p5.drawSprite(this.middle);
+    p5.drawSprite(this.goals[0]);
+    p5.drawSprite(this.goals[1]);
   }
 }
+
+export default Scene;

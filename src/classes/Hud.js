@@ -1,6 +1,6 @@
 class Hud {
   constructor() {
-    this.font = loadFont('./fonts/Itim.ttf');
+    // this.font = p5.loadFont('./fonts/Itim.ttf');
 
     this.score = [0, 0];
     this.timer = 300;
@@ -40,7 +40,7 @@ class Hud {
   }
 
   update() {
-    camera.off();
+    p5.camera.off();
 
     // timer
     let minutes = Math.floor(this.timer / 60);
@@ -48,31 +48,32 @@ class Hud {
 
     let timerText = `${minutes <= 9 ? 0 : ''}${minutes}:${seconds <= 9 ? 0 : ''}${seconds}`;
 
-    fill(255);
-    strokeWeight(4);
-    stroke(51);
+    p5.fill(255);
+    p5.strokeWeight(4);
+    p5.stroke(51);
 
 
-    textSize(32);
-    textFont(this.font);
-    text(timerText, windowWidth / 2 - textWidth(timerText) / 2, 70);
+    p5.textSize(32);
+    // p5.textFont(this.font);
+    p5.textFont('Itim');
+    p5.text(timerText, p5.windowWidth / 2 - p5.textWidth(timerText) / 2, 70);
 
     // score
     let scorePadding = 90;
 
-    textSize(48);
+    p5.textSize(48);
 
-    fill(255, 75, 75); // red
-    text(this.score[0], windowWidth / 2 - scorePadding - textWidth(this.score[0].toString()), 74);
+    p5.fill(255, 75, 75); // red
+    p5.text(this.score[0], p5.windowWidth / 2 - scorePadding - p5.textWidth(this.score[0].toString()), 74);
 
-    fill(67, 149, 249); // blue
-    text(this.score[1], windowWidth / 2 + scorePadding, 74);
+    p5.fill(67, 149, 249); // blue
+    p5.text(this.score[1], p5.windowWidth / 2 + scorePadding, 74);
 
 
     if(this.sAlpha > 0 || this.sHeight > 0) {
-      noStroke();
-      fill(0, 0, 0, 120);
-      rect(0, (windowHeight - this.sHeight) / 2, windowWidth, this.sHeight);
+      p5.noStroke();
+      p5.fill(0, 0, 0, 120);
+      p5.rect(0, (p5.windowHeight - this.sHeight) / 2, p5.windowWidth, this.sHeight);
 
 
       let winnerString = {
@@ -88,9 +89,9 @@ class Hud {
 
       let scoreText = string[0][0] + string[1][0] + string[2][0];
 
-      fill(255, 20, 20, this.sAlpha);
-      textSize(48);
-      drawtext(windowWidth / 2 - textWidth(scoreText) / 2, windowHeight / 2 + 15, string);
+      p5.fill(255, 20, 20, this.sAlpha);
+      p5.textSize(48);
+      drawtext(p5.windowWidth / 2 - p5.textWidth(scoreText) / 2, p5.windowHeight / 2 + 15, string);
     }
   }
 }
@@ -110,10 +111,12 @@ function drawtext(x, y, text_array) {
     let part = text_array[i];
     let t = part[0];
     let c = part[1];
-    let w = textWidth(t);
+    let w = p5.textWidth(t);
 
-    fill(c);
-    text(t, pos_x, y);
+    p5.fill(c);
+    p5.text(t, pos_x, y);
     pos_x += w;
   }
 }
+
+export default Hud;

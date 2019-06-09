@@ -41,7 +41,7 @@ const sketch = (p) => {
       name: 'test bot 1',
       color: p.color(86, 139, 231),
       size: 40,
-      speed: 3,
+      speed: 2.5,
       friction: .7,
       pos: {
         x: -100,
@@ -82,21 +82,33 @@ const sketch = (p) => {
 
     p.camera.position = state.players[0].sprite.position; // follow player
 
-    // state.players[0].sprite.bounce(state.ball.sprite);
-    // state.players[0].sprite.collide(state.scene.col);
     for(let i=0; i<state.players.length; i++) {
+      // collisions
       state.players[i].sprite.bounce(state.ball.sprite);
       state.players[i].sprite.collide(state.scene.col);
 
       let nextPlayer = state.players[i + 1];
-      // console.log(nextPlayer);
       if(nextPlayer) state.players[i].sprite.bounce(nextPlayer.sprite);
 
 
       // simple ai
       if(state.players[i].isBot) {
-        state.players[i].follow(state.ball.sprite.position)
+        state.players[i].follow(state.ball.sprite.position);
       }
+
+
+      // kick action
+      state.players[i].sprite.overlap(state.ball.hitCollider, () => {
+        let angle = Math.atan2(state.ball.sprite.position.y - state.players[i].sprite.position.y, state.ball.sprite.position.x - state.players[i].sprite.position.x) * 180 / Math.PI;
+
+        if(!state.players[i].isBot) {
+          for(let j in keys.KICK) {
+            if(state.players[i].keys[keys.KICK[j]]) return state.ball.sprite.addSpeed(10, angle);
+          }
+        } else {
+          return state.ball.sprite.addSpeed(10, angle);
+        }
+      });
     }
 
     state.ball.sprite.bounce(state.scene.col);
@@ -113,15 +125,6 @@ const sketch = (p) => {
 
     state.prevGoals[0] = state.goals[0];
     state.prevGoals[1] = state.goals[1];
-    
-
-    state.players[0].sprite.overlap(state.ball.hitCollider, () => {
-      let angle = Math.atan2(state.ball.sprite.position.y - state.players[0].sprite.position.y, state.ball.sprite.position.x - state.players[0].sprite.position.x) * 180 / Math.PI;
-
-      for(let i in keys.KICK) {
-        if(state.players[0].keys[keys.KICK[i]]) return state.ball.sprite.addSpeed(10, angle);
-      }
-    });
 
     // ball fail-safe
     if(state.ball.sprite.position.x <= -(state.scene.size.x / 2) - state.scene.goalSize.x) state.ball.reset();

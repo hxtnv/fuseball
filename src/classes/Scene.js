@@ -89,7 +89,7 @@ class Scene {
 
   fillLines() {
     p5.stroke(225);
-    p5.strokeWeight(5);
+    p5.strokeWeight(7);
     p5.noFill();
   }
 

@@ -16,6 +16,14 @@ class Ball {
     this.sprite.velocity.y *= this.props.friction;
   }
 
+  reset() {
+    this.sprite.position.x = 0;
+    this.sprite.position.y = 0;
+
+    this.sprite.velocity.x = 0;
+    this.sprite.velocity.y = 0;
+  }
+
   draw() {
     p5.noStroke();
     p5.fill(0, 0, 0, 35);

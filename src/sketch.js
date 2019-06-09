@@ -95,6 +95,12 @@ const sketch = (p) => {
         if(state.player.keys[keys.KICK[i]]) return state.ball.sprite.addSpeed(10, angle);
       }
     });
+
+    // ball fail-safe
+    if(state.ball.sprite.position.x <= -(state.scene.size.x / 2) - state.scene.goalSize.x) state.ball.reset();
+    if(state.ball.sprite.position.x >= (state.scene.size.x / 2) + state.scene.goalSize.x) state.ball.reset();
+    if(state.ball.sprite.position.y <= -(state.scene.size.y / 2)) state.ball.reset();
+    if(state.ball.sprite.position.y >= state.scene.size.y / 2) state.ball.reset();
   };
 };
 
@@ -114,12 +120,7 @@ const goal = (side) => {
   state.goalTimeout = null;
 
   state.goalTimeout = setTimeout(() => {
-    state.ball.sprite.position.x = 0;
-    state.ball.sprite.position.y = 0;
-
-    state.ball.sprite.velocity.x = 0;
-    state.ball.sprite.velocity.y = 0;
-
+    state.ball.reset();
 
     state.player.sprite.position.x = 100;
     state.player.sprite.position.y = 0;

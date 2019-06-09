@@ -2,6 +2,7 @@ import Player from './classes/Player';
 import Ball from './classes/Ball';
 import Scene from './classes/Scene';
 import Hud from './classes/Hud';
+import Bot from './classes/Bot';
 
 import keys from './const/keys';
 
@@ -23,8 +24,9 @@ const sketch = (p) => {
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
 
-    state.player = new Player({
+    state.players[0] = new Player({
       name: 'test1',
+      controllable: true,
       color: p.color(86, 139, 231),
       size: 40,
       speed: 5,
@@ -35,6 +37,17 @@ const sketch = (p) => {
       }
     });
 
+    state.players.push(new Bot({
+      name: 'test bot 1',
+      color: p.color(86, 139, 231),
+      size: 40,
+      speed: 3,
+      friction: .7,
+      pos: {
+        x: -100,
+        y: 0
+      }
+    }));
 
     state.ball = new Ball({
       size: 30,
@@ -62,15 +75,29 @@ const sketch = (p) => {
     p.background(state.scene.props.background);
 
     state.scene.update();
-    state.player.update();
     state.ball.update();
+    for(let i in state.players) state.players[i].update();
     state.hud.update();
 
 
-    p.camera.position = state.player.sprite.position; // follow player
+    p.camera.position = state.players[0].sprite.position; // follow player
 
-    state.player.sprite.bounce(state.ball.sprite);
-    state.player.sprite.collide(state.scene.col);
+    // state.players[0].sprite.bounce(state.ball.sprite);
+    // state.players[0].sprite.collide(state.scene.col);
+    for(let i=0; i<state.players.length; i++) {
+      state.players[i].sprite.bounce(state.ball.sprite);
+      state.players[i].sprite.collide(state.scene.col);
+
+      let nextPlayer = state.players[i + 1];
+      // console.log(nextPlayer);
+      if(nextPlayer) state.players[i].sprite.bounce(nextPlayer.sprite);
+
+
+      // simple ai
+      if(state.players[i].isBot) {
+        state.players[i].follow(state.ball.sprite.position)
+      }
+    }
 
     state.ball.sprite.bounce(state.scene.col);
 
@@ -88,11 +115,11 @@ const sketch = (p) => {
     state.prevGoals[1] = state.goals[1];
     
 
-    state.player.sprite.overlap(state.ball.hitCollider, () => {
-      let angle = Math.atan2(state.ball.sprite.position.y - state.player.sprite.position.y, state.ball.sprite.position.x - state.player.sprite.position.x) * 180 / Math.PI;
+    state.players[0].sprite.overlap(state.ball.hitCollider, () => {
+      let angle = Math.atan2(state.ball.sprite.position.y - state.players[0].sprite.position.y, state.ball.sprite.position.x - state.players[0].sprite.position.x) * 180 / Math.PI;
 
       for(let i in keys.KICK) {
-        if(state.player.keys[keys.KICK[i]]) return state.ball.sprite.addSpeed(10, angle);
+        if(state.players[0].keys[keys.KICK[i]]) return state.ball.sprite.addSpeed(10, angle);
       }
     });
 
@@ -122,11 +149,15 @@ const goal = (side) => {
   state.goalTimeout = setTimeout(() => {
     state.ball.reset();
 
-    state.player.sprite.position.x = 100;
-    state.player.sprite.position.y = 0;
+    for(let i in state.players) {
+      state.players[i].sprite.position.x = i == 0 ? 100 : -100; // IMPORTANT: save position somewhere
+      state.players[i].sprite.position.y = 0; // this too
 
-    state.player.sprite.velocity.x = 0;
-    state.player.sprite.velocity.y = 0;
+      state.players[i].sprite.velocity.x = 0;
+      state.players[i].sprite.velocity.y = 0;
+    }
+    
+
 
     state.isReset = false;
   }, 2000);

@@ -13,6 +13,7 @@ class Player {
     this.keys = [];
 
     this.sprite = p5.createSprite(this.props.pos.x, this.props.pos.y, this.props.size, this.props.size);
+    this.sprite.restitution = .1;
     this.sprite.setCollider('circle');
     this.sprite.draw = () => this.draw();
 
@@ -20,8 +21,10 @@ class Player {
   }
 
   init() {
-    window.addEventListener('keydown', e => this.keys[e.keyCode] = true);
-    window.addEventListener('keyup', e => this.keys[e.keyCode] = false);
+    if(this.props.controllable) {
+      window.addEventListener('keydown', e => this.keys[e.keyCode] = true);
+      window.addEventListener('keyup', e => this.keys[e.keyCode] = false);
+    }
   }
 
   move() {

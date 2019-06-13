@@ -8,8 +8,6 @@ class Bot extends Player {
 
     this.isBot = true;
     this.shouldMove = {x: false, y: false}; // 0 = x, 1 = y
-    
-    console.log('hey');
   }
 
   follow(target) {

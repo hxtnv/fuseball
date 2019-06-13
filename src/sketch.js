@@ -4,11 +4,15 @@ import Scene from './classes/Scene';
 import Hud from './classes/Hud';
 import Bot from './classes/Bot';
 
+import goal from './helpers/goal';
+
 import keys from './const/keys';
 
 let state = {
   players: [],
-  teams: [[], []],
+
+  teamTurn: 1, // 0 is red, 1 is blue
+  isStarted: false,
 
   ball: undefined,
   scene: undefined,
@@ -34,7 +38,7 @@ const sketch = (p) => {
       speed: 5,
       friction: .7,
       pos: {
-        x: 100,
+        x: 300,
         y: 0
       },
       team: 1
@@ -47,7 +51,7 @@ const sketch = (p) => {
       speed: 2.5,
       friction: .7,
       pos: {
-        x: -100,
+        x: -300,
         y: 0
       },
       team: 0
@@ -87,32 +91,52 @@ const sketch = (p) => {
     p.camera.position = state.players[0].sprite.position; // follow player
 
     for(let i=0; i<state.players.length; i++) {
-      // collisions
-      state.players[i].sprite.bounce(state.ball.sprite);
-      state.players[i].sprite.collide(state.scene.col);
+      let player = state.players[i];
 
-      let nextPlayer = state.players[i + 1];
-      if(nextPlayer) state.players[i].sprite.bounce(nextPlayer.sprite);
+      // collisions
+      player.sprite.collide(state.scene.col);
+      player.sprite.bounce(state.ball.sprite, () => {
+        if(!state.isStarted) state.isStarted = true;
+      });
 
 
       // simple ai
-      if(state.players[i].isBot) {
-        state.players[i].follow(state.ball.sprite.position);
+      if(player.isBot) {
+        if(state.isStarted || !state.isStarted && state.teamTurn === player.props.team) {
+          player.follow(state.ball.sprite.position);
+        }
       }
 
 
       // kick action
-      state.players[i].sprite.overlap(state.ball.hitCollider, () => {
-        let angle = Math.atan2(state.ball.sprite.position.y - state.players[i].sprite.position.y, state.ball.sprite.position.x - state.players[i].sprite.position.x) * 180 / Math.PI;
+      player.sprite.overlap(state.ball.hitCollider, () => {
+        let angle = Math.atan2(state.ball.sprite.position.y - player.sprite.position.y, state.ball.sprite.position.x - player.sprite.position.x) * 180 / Math.PI;
 
-        if(!state.players[i].isBot) {
+        if(!player.isBot) {
           for(let j in keys.KICK) {
-            if(state.players[i].keys[keys.KICK[j]]) return state.ball.sprite.addSpeed(10, angle);
+            if(player.keys[keys.KICK[j]]) {
+              if(!state.isStarted) state.isStarted = true; // mark game as started aswell
+              return state.ball.sprite.addSpeed(10, angle);
+            }
           }
         } else {
+          // bot never actually touches the ball so the .collide() and .bounce() events dont work
+          if(!state.isStarted) state.isStarted = true;
           return state.ball.sprite.addSpeed(10, angle);
         }
       });
+
+
+      // middle border collision
+      if(player.props.team !== state.teamTurn && !state.isStarted) {
+        player.sprite.collide(state.scene.middle);
+      }
+
+
+      // sides collision
+      if (!state.isStarted) {
+        player.sprite.collide(state.scene.sides[player.props.team === 0 ? 1 : 0]);
+      }
     }
 
     state.ball.sprite.bounce(state.scene.col);
@@ -122,10 +146,10 @@ const sketch = (p) => {
     state.goals[1] = false;
 
     state.ball.sprite.overlap(state.scene.goals[0], () => state.goals[0] = true);
-    goal(0);
+    goal(0, state);
 
     state.ball.sprite.overlap(state.scene.goals[1], () => state.goals[1] = true);
-    goal(1);
+    goal(1, state);
 
     state.prevGoals[0] = state.goals[0];
     state.prevGoals[1] = state.goals[1];
@@ -138,47 +162,5 @@ const sketch = (p) => {
   };
 };
 
-const goal = (side) => {
-  if(!state.goals[side]) return;
-  if(state.goals[side] && state.prevGoals[side]) return;
-  if(state.isReset) return;
-
-  state.hud.score[side == 0 ? 1 : 0]++;
-
-  state.isReset = true;
-
-  state.hud.teamScore(0, side);
-
-
-  clearTimeout(state.goalTimeout);
-  state.goalTimeout = null;
-
-  state.goalTimeout = setTimeout(() => {
-    state.ball.reset();
-
-    for(let i in state.players) {
-      state.players[i].sprite.position.x = i == 0 ? 100 : -100; // IMPORTANT: save position somewhere
-      state.players[i].sprite.position.y = 0; // this too
-
-      state.players[i].sprite.velocity.x = 0;
-      state.players[i].sprite.velocity.y = 0;
-    }
-    
-
-
-    state.isReset = false;
-  }, 2000);
-}
-
-// todo: move functions to a helpers folder
-const getTeamPlayers = (index) => {
-  let list = [];
-
-  for(let i in state.players) {
-    if(state.players[i].team === index) list.push(state.players[i]);
-  }
-
-  return list;
-}
 
 export default sketch;

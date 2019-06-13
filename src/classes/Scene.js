@@ -13,6 +13,7 @@ class Scene {
     }
 
     this.goals = [];
+    this.sides = [];
 
     this.border = p5.createSprite(0, 0, this.size.x, this.size.y);
     this.border.draw = () => this.drawBorder();
@@ -26,11 +27,19 @@ class Scene {
     this.goals[1] = p5.createSprite((this.size.x / 2) + (this.goalSize.x / 2), 0, this.goalSize.x, this.goalSize.y);
     this.goals[1].draw = () => this.drawGoal(1);
 
+    this.sides[0] = p5.createSprite(-(this.size.x / 4), 0, this.size.x / 2, this.size.y);
+    this.sides[0].draw = () => {};
+
+    this.sides[1] = p5.createSprite(this.size.x / 4, 0, this.size.x / 2, this.size.y);
+    this.sides[1].draw = () => {};
+
 
     this.border.setCollider('rectangle');
     this.middle.setCollider('circle');
     this.goals[0].setCollider('rectangle');
     this.goals[1].setCollider('rectangle');
+    this.sides[0].setCollider('rectangle');
+    this.sides[1].setCollider('rectangle');
 
     this.initColliders();
   }
@@ -126,6 +135,9 @@ class Scene {
     p5.drawSprite(this.middle);
     p5.drawSprite(this.goals[0]);
     p5.drawSprite(this.goals[1]);
+
+    p5.drawSprite(this.sides[0]);
+    p5.drawSprite(this.sides[1]);
   }
 }
 

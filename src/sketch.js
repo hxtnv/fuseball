@@ -36,7 +36,8 @@ const sketch = (p) => {
       pos: {
         x: 100,
         y: 0
-      }
+      },
+      team: 1
     });
 
     state.players.push(new Bot({
@@ -48,7 +49,8 @@ const sketch = (p) => {
       pos: {
         x: -100,
         y: 0
-      }
+      },
+      team: 0
     }));
 
     state.ball = new Ball({
@@ -166,6 +168,17 @@ const goal = (side) => {
 
     state.isReset = false;
   }, 2000);
+}
+
+// todo: move functions to a helpers folder
+const getTeamPlayers = (index) => {
+  let list = [];
+
+  for(let i in state.players) {
+    if(state.players[i].team === index) list.push(state.players[i]);
+  }
+
+  return list;
 }
 
 export default sketch;

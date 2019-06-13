@@ -70,11 +70,14 @@ class Player {
     p5.ellipse(0, 0, this.props.size);
 
     // name tag
-    
-
     p5.textSize(21);
-    p5.fill(255);
-    p5.text(this.props.name, -(p5.textWidth(this.props.name) / 2), -this.props.size);
+    // p5.fill(255); // this.isBot ? [0, 0, 128] : 255
+    p5.fill(this.props.team === 0 ? [255, 75, 75] : [67, 149, 249]);
+    p5.text(this.props.name, -(p5.textWidth(this.props.name) / 2), -this.props.size * 0.8);
+
+    // p5.textSize(14);
+    // p5.fill(this.team === 0 ? [255, 75, 75] : [67, 149, 249]);
+    // p5.text(this.team === 0 ? 'Red' : 'Blue', -(p5.textWidth(this.team === 0 ? 'Red' : 'Blue') / 2), -this.props.size + 15);
   }
 
   update() {

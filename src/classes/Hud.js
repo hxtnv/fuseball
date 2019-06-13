@@ -1,3 +1,5 @@
+import drawMultiColorText from '../helpers/drawMultiColorText';
+
 class Hud {
   constructor() {
     this.score = [0, 0];
@@ -87,31 +89,8 @@ class Hud {
 
       p5.fill(255, 20, 20, this.sAlpha);
       p5.textSize(48);
-      drawtext(p5.windowWidth / 2 - p5.textWidth(scoreText) / 2, p5.windowHeight / 2 + 15, string);
+      drawMultiColorText(string, p5.windowWidth / 2 - p5.textWidth(scoreText) / 2, p5.windowHeight / 2 + 15);
     }
-  }
-}
-
-
-
-
-
-
-
-
-// move to helpers  
-function drawtext(x, y, text_array) {
-  let pos_x = x;
-  
-  for(let i=0; i<text_array.length; i++) {
-    let part = text_array[i];
-    let t = part[0];
-    let c = part[1];
-    let w = p5.textWidth(t);
-
-    p5.fill(c);
-    p5.text(t, pos_x, y);
-    pos_x += w;
   }
 }
 

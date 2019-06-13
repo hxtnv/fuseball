@@ -1,10 +1,12 @@
 import Player from './Player';
+import assignRandomName from '../helpers/assignRandomName';
 
 class Bot extends Player {
-  constructor(props) {
+  constructor(props, players) {
     super(props);
 
     this.props = props;
+    this.props.name = assignRandomName(players);
 
     this.isBot = true;
     this.shouldMove = {x: false, y: false}; // 0 = x, 1 = y

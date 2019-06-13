@@ -45,7 +45,6 @@ const sketch = (p) => {
     });
 
     state.players.push(new Bot({
-      // name: '[Bot] Gustav',
       color: p.color(86, 139, 231),
       size: 40,
       speed: 2.5,

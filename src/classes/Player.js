@@ -4,12 +4,6 @@ import keys from '../const/keys';
 class Player {
   constructor(props) {
     this.props = props;
-    // this.p = p;
-
-    this.velocity = {
-      x: 0,
-      y: 0
-    }
 
     this.keys = [];
 
@@ -32,30 +26,23 @@ class Player {
 
   move() {
     if(this.keys[keys.KEY_UP[0]] || this.keys[keys.KEY_UP[1]]) {
-      // if (this.velocity.y > -this.props.speed) this.velocity.y--;
       this.sprite.velocity.y = -this.props.speed;
     }
     
     if(this.keys[keys.KEY_DOWN[0]] || this.keys[keys.KEY_DOWN[1]]) {
-      // if (this.velocity.y < this.props.speed) this.velocity.y++;
       this.sprite.velocity.y = this.props.speed;
     }
 
     if(this.keys[keys.KEY_RIGHT[0]] || this.keys[keys.KEY_RIGHT[1]]) {
-      // if (this.velocity.x < this.props.speed) this.velocity.x++;
       this.sprite.velocity.x = this.props.speed;
     }
 
     if(this.keys[keys.KEY_LEFT[0]] || this.keys[keys.KEY_LEFT[1]]) {
-      // if (this.velocity.x > -this.props.speed) this.velocity.x--;
       this.sprite.velocity.x = -this.props.speed;
     }
 
     this.sprite.velocity.y *= this.props.friction;
     this.sprite.velocity.x *= this.props.friction;
-
-    // this.sprite.position.y += this.velocity.y;
-    // this.sprite.position.x += this.velocity.x;
   }
 
   draw() {

@@ -81,7 +81,7 @@ const sketch = (p) => {
 
     state.scene = new Scene({
       background: p.color(92, 134, 70), /* 81, 140, 50 */
-      size: 1300
+      size: 1400
     });
 
     state.hud = new Hud();

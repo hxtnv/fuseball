@@ -145,8 +145,24 @@ class Hud {
     p5.stroke(25, 25, 25, this.sbAlpha);
     p5.strokeWeight(8);
 
-    let scoreText = `${state.score[0]} - ${state.score[1]}`;
+    let scoreText = `${state.score[0] > state.score[1] ? state.score[0] : state.score[1]} - ${state.score[0] > state.score[1] ? state.score[1] : state.score[0]}`;
     p5.text(scoreText, p5.windowWidth / 2 - p5.textWidth(scoreText) / 2, p5.windowHeight * .35);
+  }
+
+  drawDebug(state) {
+    let fps = parseInt(p5.frameRate());
+
+    p5.push();
+    p5.noStroke();
+    p5.textFont('Courier New');
+    p5.textSize(16);
+    p5.fill(255);
+
+
+    p5.text(`FPS: ${fps}`, 20, 40);
+    if(state.players[0]) p5.text(`Pos: ${state.players[0].sprite.position.x.toFixed(2)} / ${state.players[0].sprite.position.y.toFixed(2)}`, 20, 55);
+    
+    p5.pop();
   }
 
   update(state) {
@@ -154,6 +170,7 @@ class Hud {
 
     this.drawTimer(state);
     this.drawScore(state);
+    this.drawDebug(state);
     if(!state.isLive && !this.shouldDrawScoreboard) {
       this.shouldDrawScoreboard = true;
       this.initScoreBoard(state);

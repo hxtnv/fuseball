@@ -1,3 +1,21 @@
+import getPositions from './getPositions';
+
+const findUnusedPosId = (usedPos, team, state, callback) => {
+  let pos = getPositions(state.scene.size);
+
+  let id = Math.floor(Math.random() * pos[team].length);
+  let taken = false;
+
+  for(let i in usedPos) {
+    if(usedPos[i] == pos[team][id]) taken = true;
+  }
+
+  if(taken) return findUnusedPosId(usedPos, team, state, callback);
+  else return callback(pos[team][id]);
+}
+
+
+
 const goal = (side, state) => {
   if(!state.goals[side]) return;
   if(state.goals[side] && state.prevGoals[side]) return;
@@ -16,12 +34,21 @@ const goal = (side, state) => {
   state.goalTimeout = setTimeout(() => {
     state.ball.reset();
 
-    for(let i in state.players) {
-      state.players[i].sprite.position.x = i == 0 ? 300 : -300; // todo IMPORTANT: save position somewhere
-      state.players[i].sprite.position.y = 0; // this too
+    // reset player positions
+    let usedPos = [[], []];
 
-      state.players[i].sprite.velocity.x = 0;
-      state.players[i].sprite.velocity.y = 0;
+    for(let i=0; i<state.players.length; i++) {
+      let player = state.players[i];
+
+      let id = findUnusedPosId(usedPos, player.props.team, state, (newPos) => {
+        usedPos.push(newPos);
+
+        player.sprite.position.x = newPos.x;
+        player.sprite.position.y = newPos.y;
+      });
+
+      player.sprite.velocity.x = 0;
+      player.sprite.velocity.y = 0;
     }
     
     state.isReset = false;

@@ -1,3 +1,5 @@
+import getPositions from '../helpers/getPositions';
+
 class Scene {
   constructor(props) {
     this.props = props;
@@ -42,6 +44,8 @@ class Scene {
     this.sides[1].setCollider('rectangle');
 
     this.initColliders();
+
+    this.positions = getPositions(this.size);
   }
 
   calculateRatioHeight(width) {
@@ -138,6 +142,23 @@ class Scene {
 
     p5.drawSprite(this.sides[0]);
     p5.drawSprite(this.sides[1]);
+
+    p5.noStroke();
+
+    // draw spawn points
+    /*for(let i in this.positions[0]) {
+      let pos = this.positions[0][i];
+
+      p5.fill(255, 0, 0);
+      p5.ellipse(pos.x, pos.y,  40);
+    }
+
+    for(let i in this.positions[1]) {
+      let pos = this.positions[1][i];
+
+      p5.fill(0, 0, 255);
+      p5.ellipse(pos.x, pos.y,  40);
+    }*/
   }
 }
 

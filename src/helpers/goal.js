@@ -2,11 +2,12 @@ const goal = (side, state) => {
   if(!state.goals[side]) return;
   if(state.goals[side] && state.prevGoals[side]) return;
   if(state.isReset) return;
+  if(!state.isLive) return;
 
-  state.hud.score[side == 0 ? 1 : 0]++;
+  state.score[side == 0 ? 1 : 0]++;
 
   state.isReset = true;
-  state.hud.teamScore(0, side);
+  state.hud.teamScore(0, side, 2000);
 
 
   clearTimeout(state.goalTimeout);

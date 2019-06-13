@@ -70,7 +70,7 @@ class Player {
     p5.strokeWeight(4);
     p5.textSize(21);
     p5.fill(teamColor);
-    drawMultiColorText(text, this.sprite.position.x - (p5.textWidth(this.props.name) / 2), this.sprite.position.y - this.props.size * 0.8);
+    drawMultiColorText(text, this.sprite.position.x - (p5.textWidth(text[0][0] + text[1][0]) / 2), this.sprite.position.y - this.props.size * 0.8);
   }
 
   update() {

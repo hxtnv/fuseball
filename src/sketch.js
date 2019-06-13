@@ -13,6 +13,9 @@ let state = {
 
   teamTurn: 1, // 0 is red, 1 is blue
   isStarted: false,
+  score: [0, 0],
+  timer: 60,
+  isLive: true,
 
   ball: undefined,
   scene: undefined,
@@ -30,6 +33,16 @@ const sketch = (p) => {
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
 
+    // setup timer
+    state.timerInterval = setInterval(() => {
+      if(state.timer <= 1) {
+        state.isLive = false;
+        clearInterval(state.timerInterval);
+      }
+      state.timer--;
+    }, 1000);
+
+    // init game objects
     state.players[0] = new Player({
       name: 'test1',
       controllable: true,
@@ -52,18 +65,6 @@ const sketch = (p) => {
       pos: {
         x: -300,
         y: 0
-      },
-      team: 0
-    }, state.players));
-
-    state.players.push(new Bot({
-      color: p.color(0, 139, 231),
-      size: 40,
-      speed: 2.5,
-      friction: .7,
-      pos: {
-        x: -300,
-        y: -100
       },
       team: 0
     }, state.players));
@@ -97,8 +98,7 @@ const sketch = (p) => {
     state.ball.update();
     for(let i in state.players) state.players[i].update();
     for(let i in state.players) state.players[i].drawNameTag(); // should probably figure out a better way to do this
-
-    state.hud.update();
+    state.hud.update(state);
 
 
     p.camera.position = state.players[0].sprite.position; // follow player

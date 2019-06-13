@@ -56,8 +56,9 @@ class Player {
     p5.strokeWeight(4);
     p5.fill(253, 200, 118);
     p5.ellipse(0, 0, this.props.size);
+  }
 
-    // name tag
+  drawNameTag() {
     let teamColor = this.props.team === 0 ? [255, 75, 75] : [67, 149, 249];
 
     let text = [
@@ -65,9 +66,11 @@ class Player {
       [this.props.name, teamColor]
     ];
     
+    p5.stroke(51);
+    p5.strokeWeight(4);
     p5.textSize(21);
     p5.fill(teamColor);
-    drawMultiColorText(text, -(p5.textWidth(this.props.name) / 2), -this.props.size * 0.8);
+    drawMultiColorText(text, this.sprite.position.x - (p5.textWidth(this.props.name) / 2), this.sprite.position.y - this.props.size * 0.8);
   }
 
   update() {

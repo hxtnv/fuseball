@@ -56,6 +56,18 @@ const sketch = (p) => {
       team: 0
     }, state.players));
 
+    state.players.push(new Bot({
+      color: p.color(0, 139, 231),
+      size: 40,
+      speed: 2.5,
+      friction: .7,
+      pos: {
+        x: -300,
+        y: -100
+      },
+      team: 0
+    }, state.players));
+
     state.ball = new Ball({
       size: 30,
       hitbox: 30,
@@ -84,6 +96,8 @@ const sketch = (p) => {
     state.scene.update();
     state.ball.update();
     for(let i in state.players) state.players[i].update();
+    for(let i in state.players) state.players[i].drawNameTag(); // should probably figure out a better way to do this
+
     state.hud.update();
 
 
@@ -135,6 +149,12 @@ const sketch = (p) => {
       // sides collision
       if (!state.isStarted) {
         player.sprite.collide(state.scene.sides[player.props.team === 0 ? 1 : 0]);
+      }
+
+
+      // player collision
+      for(let j=0; j<state.players.length; j++) {
+        if(state.players[j].id !== player.id) player.sprite.bounce(state.players[j].sprite);
       }
     }
 

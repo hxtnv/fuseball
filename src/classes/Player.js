@@ -17,6 +17,8 @@ class Player {
     this.sprite.setCollider('circle');
     this.sprite.draw = () => this.draw();
 
+    this.id = '_' + Math.random().toString(36).substr(2, 9);
+
     this.init();
   }
 
@@ -66,6 +68,13 @@ class Player {
     p5.strokeWeight(4);
     p5.fill(253, 200, 118);
     p5.ellipse(0, 0, this.props.size);
+
+    // name tag
+    
+
+    p5.textSize(21);
+    p5.fill(255);
+    p5.text(this.props.name, -(p5.textWidth(this.props.name) / 2), -this.props.size);
   }
 
   update() {

@@ -8,6 +8,8 @@ import keys from './const/keys';
 
 let state = {
   players: [],
+  teams: [[], []],
+
   ball: undefined,
   scene: undefined,
   hud: undefined,
@@ -15,7 +17,7 @@ let state = {
   goals: [false, false],
   prevGoals: [false, false],
 
-  isReset: false
+  isReset: false,
 }
 
 const sketch = (p) => {
@@ -61,7 +63,7 @@ const sketch = (p) => {
 
     state.scene = new Scene({
       background: p.color(92, 134, 70), /* 81, 140, 50 */
-      size: 1200
+      size: 1300
     });
 
     state.hud = new Hud();

@@ -103,6 +103,7 @@ const sketch = (p) => {
     for(let i in state.players) state.players[i].drawNameTag(); // should probably figure out a better way to do this
     state.hud.update(state);
 
+    p5.camera.on();
 
     p.camera.position = state.players[0].sprite.position; // follow player
 
@@ -138,7 +139,25 @@ const sketch = (p) => {
         } else {
           // bot never actually touches the ball so the .collide() and .bounce() events dont work
           if(!state.isStarted) state.isStarted = true;
-          return state.ball.sprite.addSpeed(10, angle);
+
+          let raycastSize = 1800;
+          let enemyTeam = player.props.team === 0 ? 1 : 0;
+          let enemyGoal = state.scene.goals[enemyTeam];
+
+          let x = Math.cos(angle * Math.PI / 180) * raycastSize + state.ball.sprite.position.x;
+          let y = Math.sin(angle * Math.PI / 180) * raycastSize + state.ball.sprite.position.y;
+
+          let shouldKick = false;
+
+          if(enemyGoal.position.x >= state.ball.sprite.position.x) {
+            shouldKick = enemyGoal.position.x >= state.ball.sprite.position.x && enemyGoal.position.x <= x;
+          } else {
+            shouldKick = state.ball.sprite.position.x >= enemyGoal.position.x && x <= enemyGoal.position.x;
+          }
+
+          if(shouldKick) return state.ball.sprite.addSpeed(10, angle);
+
+          // p5.line(state.ball.sprite.position.x, state.ball.sprite.position.y, x, y);
         }
       });
 

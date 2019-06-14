@@ -46,7 +46,7 @@ class Hud {
 
     if(this.sAlpha > 0 || this.sHeight > 0) {
       p5.noStroke();
-      p5.fill(0, 0, 0, 120);
+      p5.fill(0, 0, 0, 160);
       p5.rect(0, (p5.windowHeight - this.sHeight) / 2, p5.windowWidth, this.sHeight);
 
 

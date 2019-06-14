@@ -5,6 +5,7 @@ import Hud from './classes/Hud';
 import Bot from './classes/Bot';
 
 import goal from './helpers/goal';
+import getPositions from './helpers/getPositions';
 
 import keys from './const/keys';
 
@@ -14,7 +15,7 @@ let state = {
   teamTurn: 1, // 0 is red, 1 is blue
   isStarted: false,
   score: [0, 0],
-  timer: 60,
+  timer: 600,
   isLive: true,
 
   ball: undefined,
@@ -24,7 +25,7 @@ let state = {
   goals: [false, false],
   prevGoals: [false, false],
 
-  isReset: false,
+  isReset: false
 }
 
 const sketch = (p) => {
@@ -43,6 +44,13 @@ const sketch = (p) => {
     }, 1000);
 
     // init game objects
+    state.scene = new Scene({
+      background: p.color(92, 134, 70), /* 81, 140, 50 */
+      size: 1400
+    });
+
+    let pos = getPositions(state.scene.size);
+
     state.players[0] = new Player({
       name: 'test1',
       controllable: true,
@@ -51,8 +59,8 @@ const sketch = (p) => {
       speed: 5,
       friction: .7,
       pos: {
-        x: 300,
-        y: 0
+        x: pos[1][0].x,
+        y: pos[1][0].y
       },
       team: 1
     });
@@ -63,8 +71,8 @@ const sketch = (p) => {
       speed: 2.5,
       friction: .7,
       pos: {
-        x: -300,
-        y: 0
+        x: pos[0][0].x,
+        y: pos[0][0].y
       },
       team: 0
     }, state.players));
@@ -77,11 +85,6 @@ const sketch = (p) => {
         x: 0,
         y: 0
       }
-    });
-
-    state.scene = new Scene({
-      background: p.color(92, 134, 70), /* 81, 140, 50 */
-      size: 1400
     });
 
     state.hud = new Hud();

@@ -39,6 +39,8 @@ const goal = (side, state) => {
     state.isReset = false;
     state.isStarted = false;
     state.teamTurn = side;
+
+    state.timerRoundStart = parseInt(state.timer);
   }, 2000);
 }
 

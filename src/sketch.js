@@ -15,8 +15,10 @@ let state = {
   teamTurn: 1, // 0 is red, 1 is blue
   isStarted: false,
   score: [0, 0],
-  timer: 600,
+  timer: 30,
+  timerRoundStart: 30,
   isLive: true,
+  isOver: false,
 
   ball: undefined,
   scene: undefined,
@@ -38,6 +40,7 @@ const sketch = (p) => {
     state.timerInterval = setInterval(() => {
       if(state.timer <= 1) {
         state.isLive = false;
+        state.isOver = true;
         clearInterval(state.timerInterval);
       }
       state.timer--;
@@ -200,6 +203,11 @@ const sketch = (p) => {
     if(state.ball.sprite.position.x >= (state.scene.size.x / 2) + state.scene.goalSize.x) state.ball.reset();
     if(state.ball.sprite.position.y <= -(state.scene.size.y / 2)) state.ball.reset();
     if(state.ball.sprite.position.y >= state.scene.size.y / 2) state.ball.reset();
+
+    // auto start after 8 seconds
+    if(state.timerRoundStart - state.timer >= 8) {
+      if(!state.isStarted) state.isStarted = true;
+    }
   };
 };
 

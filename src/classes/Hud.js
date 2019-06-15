@@ -8,6 +8,8 @@ class Hud {
     this.sHeight = 0;
     this.sAlpha = 0;
     this.sWinner = 0; // 0 = red, 1 = blue
+
+    this.blinkAlpha = 255;
   }
 
   teamScore(mode, winner, time) {
@@ -36,6 +38,8 @@ class Hud {
     let scorePadding = 90;
 
     p5.textSize(48);
+    p5.strokeWeight(4);
+    p5.stroke(65);
 
     p5.fill(255, 75, 75); // red
     p5.text(state.score[0], p5.windowWidth / 2 - scorePadding - p5.textWidth(state.score[0].toString()), 74);
@@ -75,9 +79,28 @@ class Hud {
 
     let timerText = `${minutes <= 9 ? 0 : ''}${minutes}:${seconds <= 9 ? 0 : ''}${seconds}`;
 
-    p5.fill(255);
-    p5.strokeWeight(4);
-    p5.stroke(65);
+    // timer blink thing
+    let _timeSinceRoundStart = state.timerRoundStart - state.timer;
+
+    if(state.timer <= 10 || (_timeSinceRoundStart >= 5 && _timeSinceRoundStart <= 7)) {
+      this.shouldBlink = true;
+    } else {
+      this.shouldBlink = false;
+    }
+
+    p5.fill(255, 255, 255, this.shouldBlink ? this.blinkAlpha : 255);
+
+    if(this.shouldBlink) {
+      if(this.blinkAlpha > 0) {
+        p5.strokeWeight(4);
+        p5.stroke(65);
+      } else {
+        p5.noStroke();
+      }
+    } else {
+      p5.strokeWeight(4);
+      p5.stroke(65);
+    }
 
     p5.textSize(32);
     p5.textFont('Itim');
@@ -106,6 +129,19 @@ class Hud {
         this.sbaInterval = null;
       }
     }, 1000 / 60);
+  }
+
+  initBlinker(state) {
+    this.blinkTimer = setInterval(() => {
+      this.blinkAlpha = this.blinkAlpha === 255 ? 0 : 255;
+
+      if(state.isOver) {
+        clearInterval(this.blinkTimer);
+        this.blinkTimer = null;
+
+        this.blinkAlpha = 255;
+      }
+    }, 500);
   }
 
   drawScoreBoard(state) {
@@ -177,6 +213,7 @@ class Hud {
     }
 
     if(!state.isLive) this.drawScoreBoard(state);
+    if(!this.blinkTimer) this.initBlinker(state);
   }
 }
 

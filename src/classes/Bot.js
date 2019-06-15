@@ -2,14 +2,16 @@ import Player from './Player';
 import assignRandomName from '../helpers/assignRandomName';
 
 class Bot extends Player {
-  constructor(props, players) {
+  constructor(props, state) {
     super(props);
 
     this.props = props;
-    this.props.name = assignRandomName(players);
+    this.props.name = assignRandomName(state.players);
 
     this.isBot = true;
     this.shouldMove = {x: false, y: false}; // 0 = x, 1 = y
+
+    this.init(state);
   }
 
   follow(target) {
@@ -45,8 +47,8 @@ class Bot extends Player {
       else if(sign.y === 1) this.sprite.velocity.y = this.props.speed;
     }
 
-    this.sprite.velocity.y *= this.props.friction;
-    this.sprite.velocity.x *= this.props.friction;
+    this.sprite.velocity.y *= this._props.friction;
+    this.sprite.velocity.x *= this._props.friction;
   }
 }
 

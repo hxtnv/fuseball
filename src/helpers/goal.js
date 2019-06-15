@@ -21,7 +21,6 @@ const goal = (side, state) => {
     // reset player positions
     let pos = getPositions(state.scene.size);
 
-    let usedPos = [[], []];
     let playerIdInTeam = [0, 0];
 
     for(let i=0; i<state.players.length; i++) {

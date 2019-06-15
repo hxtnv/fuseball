@@ -5,18 +5,18 @@ import Hud from './classes/Hud';
 import Bot from './classes/Bot';
 
 import goal from './helpers/goal';
-import getPositions from './helpers/getPositions';
 
 import keys from './const/keys';
 
 let state = {
   players: [],
+  playerSpawns: [0, 0],
 
-  teamTurn: 1, // 0 is red, 1 is blue
+  teamTurn: 0, // 0 is red, 1 is blue
   isStarted: false,
   score: [0, 0],
-  timer: 30,
-  timerRoundStart: 30,
+  timer: 180,
+  timerRoundStart: 180,
   isLive: true,
   isOver: false,
 
@@ -52,33 +52,10 @@ const sketch = (p) => {
       size: 1400
     });
 
-    let pos = getPositions(state.scene.size);
-
-    state.players[0] = new Player({
-      name: 'test1',
-      controllable: true,
-      color: p.color(86, 139, 231),
-      size: 40,
-      speed: 5,
-      friction: .7,
-      pos: {
-        x: pos[1][0].x,
-        y: pos[1][0].y
-      },
-      team: 1
-    });
-
-    state.players.push(new Bot({
-      color: p.color(86, 139, 231),
-      size: 40,
-      speed: 2.5,
-      friction: .7,
-      pos: {
-        x: pos[0][0].x,
-        y: pos[0][0].y
-      },
-      team: 0
-    }, state.players));
+    state.players.push(
+      new Player({name: 'test1', controllable: true, speed: 5, team: 1}, state),
+      new Bot({speed: 2.5, team: 0}, state)
+    );
 
     state.ball = new Ball({
       size: 30,

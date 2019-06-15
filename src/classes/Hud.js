@@ -82,7 +82,7 @@ class Hud {
     // timer blink thing
     let _timeSinceRoundStart = state.timerRoundStart - state.timer;
 
-    if(state.timer <= 10 || (_timeSinceRoundStart >= 5 && _timeSinceRoundStart <= 7)) {
+    if(state.timer <= 10 || (_timeSinceRoundStart >= 5 && _timeSinceRoundStart <= 7 && !state.isStarted)) {
       this.shouldBlink = true;
     } else {
       this.shouldBlink = false;

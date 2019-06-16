@@ -9,6 +9,10 @@ class Ball {
     this.hitCollider = p5.createSprite(this.props.pos.x, this.props.pos.y, this.props.size + this.props.hitbox, this.props.size + this.props.hitbox);
     this.hitCollider.setCollider('circle');
     this.hitCollider.draw = () => {};
+
+    this.goalCollider = p5.createSprite(this.props.pos.x, this.props.pos.y, this.props.size / 2, this.props.size / 2);
+    this.goalCollider.setCollider('circle');
+    this.goalCollider.draw = () => {};
   }
 
   move() {
@@ -41,8 +45,12 @@ class Ball {
     this.hitCollider.position.x = this.sprite.position.x;
     this.hitCollider.position.y = this.sprite.position.y;
 
+    this.goalCollider.position.x = this.sprite.position.x;
+    this.goalCollider.position.y = this.sprite.position.y;
+
     p5.drawSprite(this.sprite);
     p5.drawSprite(this.hitCollider);
+    p5.drawSprite(this.goalCollider);
   }
 }
 

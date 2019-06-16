@@ -37,13 +37,11 @@ class Bot extends Player {
     if(!state.isStarted && state.teamTurn !== this.props.team) return;
 
     this._shouldMove('x', target, state, (shouldMove, sign) => {
-      if(shouldMove) this.sprite.velocity.x = this.props.speed * (sign === 0 ? -1 : 1);
-      else this.sprite.velocity.x = 0;
+      this.sprite.velocity.x = shouldMove ? this.props.speed * (sign === 0 ? -1 : 1) : 0;
     });
 
     this._shouldMove('y', target, state, (shouldMove, sign) => {
-      if(shouldMove) this.sprite.velocity.y = this.props.speed * (sign === 0 ? -1 : 1);
-      else this.sprite.velocity.y = 0;
+      this.sprite.velocity.y = shouldMove ? this.props.speed * (sign === 0 ? -1 : 1) : 0;
     });
 
 

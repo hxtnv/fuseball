@@ -86,8 +86,9 @@ class Player {
     drawMultiColorText(text, this.sprite.position.x - (p5.textWidth(text[0][0] + text[1][0]) / 2), this.sprite.position.y - this._props.size * 0.8);
   }
 
-  update() {
+  update(state) {
     this.move();
+    if(this.isBot) this.follow(state.ball.sprite.position, state);
 
     p5.drawSprite(this.sprite);
   }

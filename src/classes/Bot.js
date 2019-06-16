@@ -14,41 +14,59 @@ class Bot extends Player {
     this.init(state);
   }
 
-  follow(target) {
-    let pos = this.sprite.position;
-    let sign = {x: 0, y: 0}; // 0 = -, 1 = +
+  isInRange(state, angle) {
+    let raycastSize = 1800;
+    let enemyTeam = this.props.team === 0 ? 1 : 0;
+    let enemyGoal = state.scene.goals[enemyTeam];
 
-    
-    // x
-    if(this.sprite.position.x > target.x) sign.x = 0;
-    else sign.x = 1;
+    let x = Math.cos(angle * Math.PI / 180) * raycastSize + state.ball.sprite.position.x;
+    let y = Math.sin(angle * Math.PI / 180) * raycastSize + state.ball.sprite.position.y;
 
-    if(pos.x <= target.x + this.props.speed && pos.x >= target.x - this.props.speed) this.shouldMove.x = false;
-    else this.shouldMove.x = true;
+    let shouldKick = false;
 
-    this.sprite.velocity.x = 0;
-
-    if(this.shouldMove.x) {
-      if(sign.x === 0) this.sprite.velocity.x = -this.props.speed;
-      else if(sign.x === 1) this.sprite.velocity.x = this.props.speed;
+    if(enemyGoal.position.x >= state.ball.sprite.position.x) {
+      shouldKick = enemyGoal.position.x >= state.ball.sprite.position.x && enemyGoal.position.x <= x;
+    } else {
+      shouldKick = state.ball.sprite.position.x >= enemyGoal.position.x && x <= enemyGoal.position.x;
     }
 
-    // y
-    if(this.sprite.position.y > target.y) sign.y = 0;
-    else sign.y = 1;
+    // if(shouldKick) return state.ball.sprite.addSpeed(10, angle);
+  }
 
-    if(pos.y <= target.y + this.props.speed && pos.y >= target.y - this.props.speed) this.shouldMove.y = false;
-    else this.shouldMove.y = true;
+  follow(target, state) {
+    if(!state.isStarted && state.teamTurn !== this.props.team) return;
 
-    this.sprite.velocity.y = 0;
+    this._shouldMove('x', target, state, (shouldMove, sign) => {
+      if(shouldMove) this.sprite.velocity.x = this.props.speed * (sign === 0 ? -1 : 1);
+      else this.sprite.velocity.x = 0;
+    });
 
-    if(this.shouldMove.y) {
-      if(sign.y === 0) this.sprite.velocity.y = -this.props.speed;
-      else if(sign.y === 1) this.sprite.velocity.y = this.props.speed;
-    }
+    this._shouldMove('y', target, state, (shouldMove, sign) => {
+      if(shouldMove) this.sprite.velocity.y = this.props.speed * (sign === 0 ? -1 : 1);
+      else this.sprite.velocity.y = 0;
+    });
+
 
     this.sprite.velocity.y *= this._props.friction;
     this.sprite.velocity.x *= this._props.friction;
+  }
+
+  _shouldMove(axis, target, state, callback) {
+    // default values
+    let shouldMove = true;
+    let sign = 0;
+
+    let pos = this.sprite.position;
+    let _target = {x: target.x, y: target.y};
+
+    if(target[axis] <= pos[axis]) _target[axis] = _target[axis] + this._props.size - (state.ball.props.size / 2);
+    else if(target[axis] > pos[axis]) _target[axis] = target[axis] - this._props.size + (state.ball.props.size / 2);
+
+    sign = this.sprite.position[axis] > _target[axis] ? 0 : 1;
+
+    if(Math.abs(_target[axis] - pos[axis]) <= 5) shouldMove = false; // if distance is less than 4, dont move
+
+    return callback(shouldMove, sign);
   }
 }
 

@@ -12,7 +12,7 @@ let state = {
   players: [],
   playerSpawns: [0, 0],
 
-  teamTurn: 0, // 0 is red, 1 is blue
+  teamTurn: 1, // 0 is red, 1 is blue
   isStarted: false,
   score: [0, 0],
   timer: 180,
@@ -54,9 +54,9 @@ const sketch = (p) => {
 
     state.players.push(
       new Player({name: 'test1', controllable: true, speed: 5, team: 1}, state),
-      new Bot({speed: 2.5, team: 0}, state),
-      new Bot({speed: 2.5, team: 0}, state),
-      new Bot({speed: 2.5, team: 0}, state)
+      new Bot({speed: 2.5, team: 1}, state),
+      // new Bot({speed: 2.5, team: 0}, state),
+      // new Bot({speed: 2.5, team: 0}, state)
     );
 
     state.ball = new Ball({
@@ -81,7 +81,7 @@ const sketch = (p) => {
 
     state.scene.update();
     state.ball.update();
-    for(let i in state.players) state.players[i].update();
+    for(let i in state.players) state.players[i].update(state);
     for(let i in state.players) state.players[i].drawNameTag(); // should probably figure out a better way to do this
     state.hud.update(state);
 
@@ -99,14 +99,6 @@ const sketch = (p) => {
       });
 
 
-      // simple ai
-      if(player.isBot) {
-        if(state.isStarted || !state.isStarted && state.teamTurn === player.props.team) {
-          player.follow(state.ball.sprite.position);
-        }
-      }
-
-
       // kick action
       player.sprite.overlap(state.ball.hitCollider, () => {
         let angle = Math.atan2(state.ball.sprite.position.y - player.sprite.position.y, state.ball.sprite.position.x - player.sprite.position.x) * 180 / Math.PI;
@@ -121,24 +113,7 @@ const sketch = (p) => {
         } else {
           // bot never actually touches the ball so the .collide() and .bounce() events dont work
           if(!state.isStarted) state.isStarted = true;
-
-          let raycastSize = 1800;
-          let enemyTeam = player.props.team === 0 ? 1 : 0;
-          let enemyGoal = state.scene.goals[enemyTeam];
-
-          let x = Math.cos(angle * Math.PI / 180) * raycastSize + state.ball.sprite.position.x;
-          let y = Math.sin(angle * Math.PI / 180) * raycastSize + state.ball.sprite.position.y;
-
-          let shouldKick = false;
-
-          if(enemyGoal.position.x >= state.ball.sprite.position.x) {
-            shouldKick = enemyGoal.position.x >= state.ball.sprite.position.x && enemyGoal.position.x <= x;
-          } else {
-            shouldKick = state.ball.sprite.position.x >= enemyGoal.position.x && x <= enemyGoal.position.x;
-          }
-
-          if(shouldKick) return state.ball.sprite.addSpeed(10, angle);
-
+          player.isInRange(state, angle);
           // p5.line(state.ball.sprite.position.x, state.ball.sprite.position.y, x, y);
         }
       });

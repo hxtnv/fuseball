@@ -9,7 +9,7 @@ class Hud {
     this.sAlpha = 0;
     this.sWinner = 0; // 0 = red, 1 = blue
 
-    this.blinkAlpha = 255;
+    this.blinkAlpha = 0;
   }
 
   teamScore(mode, winner, time) {

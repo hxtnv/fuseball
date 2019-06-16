@@ -1,3 +1,5 @@
+import Raycast from './Raycast';
+
 import drawMultiColorText from '../helpers/drawMultiColorText';
 import getPositions from '../helpers/getPositions';
 
@@ -19,6 +21,11 @@ class Player {
     this.sprite.draw = () => this.draw();
 
     this.id = '_' + Math.random().toString(36).substr(2, 9);
+
+    this.ray = new Raycast(0, 0);
+    this._ray = 0;
+
+    this.enemy = this.props.team === 0 ? 1 : 0;
 
     if(state) this.init(state);
   }
@@ -95,6 +102,8 @@ class Player {
     if(this.isBot) this.follow(state.ball.sprite.position, state);
 
     // kick
+    this.rayInit = false;
+
     this.sprite.overlap(state.ball.hitCollider, () => {
       let angle = Math.atan2(state.ball.sprite.position.y - this.sprite.position.y, state.ball.sprite.position.x - this.sprite.position.x) * 180 / Math.PI;
 
@@ -111,7 +120,25 @@ class Player {
         this.isInRange(state, angle);
         // p5.line(state.ball.sprite.position.x, state.ball.sprite.position.y, x, y);
       }
+
+      // raycast
+      if(this.isBot) {
+        let x = Math.cos(angle * Math.PI / 180) * this._ray + state.ball.sprite.position.x;
+        let y = Math.sin(angle * Math.PI / 180) * this._ray + state.ball.sprite.position.y;
+
+        this._ray += 100; // speed
+        if(x <= -1000 || x >= 1000 || y <= -500 || y >= 500) this._ray = 0; // reset
+
+        this.ray.sprite.position.x = x;
+        this.ray.sprite.position.y = y;
+
+        this.ray.update(state, this.enemy, this.id, (shouldKick) => {
+          if(shouldKick) return state.ball.sprite.addSpeed(10, angle);
+        });
+      }
     });
+
+
 
     // ball interaction
     this.sprite.collide(state.scene.col);

@@ -115,18 +115,15 @@ class Player {
           }
         }
       } else {
-        // bot never actually touches the ball so the .collide() and .bounce() events dont work
         if(!state.isStarted) state.isStarted = true;
-        this.isInRange(state, angle);
-        // p5.line(state.ball.sprite.position.x, state.ball.sprite.position.y, x, y);
       }
 
       // raycast
       if(this.isBot) {
-        let x = Math.cos(angle * Math.PI / 180) * this._ray + state.ball.sprite.position.x;
-        let y = Math.sin(angle * Math.PI / 180) * this._ray + state.ball.sprite.position.y;
+        let x = Math.cos(angle * Math.PI / 180) * this._ray + this.sprite.position.x;
+        let y = Math.sin(angle * Math.PI / 180) * this._ray + this.sprite.position.y;
 
-        this._ray += 100; // speed
+        this._ray += 50; // speed
         if(x <= -1000 || x >= 1000 || y <= -500 || y >= 500) this._ray = 0; // reset
 
         this.ray.sprite.position.x = x;

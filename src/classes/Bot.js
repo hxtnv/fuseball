@@ -14,25 +14,6 @@ class Bot extends Player {
     this.init(state);
   }
 
-  isInRange(state, angle) {
-    let raycastSize = 1800;
-    let enemyTeam = this.props.team === 0 ? 1 : 0;
-    let enemyGoal = state.scene.goals[enemyTeam];
-
-    let x = Math.cos(angle * Math.PI / 180) * raycastSize + state.ball.sprite.position.x;
-    let y = Math.sin(angle * Math.PI / 180) * raycastSize + state.ball.sprite.position.y;
-
-    let shouldKick = false;
-
-    if(enemyGoal.position.x >= state.ball.sprite.position.x) {
-      shouldKick = enemyGoal.position.x >= state.ball.sprite.position.x && enemyGoal.position.x <= x;
-    } else {
-      shouldKick = state.ball.sprite.position.x >= enemyGoal.position.x && x <= enemyGoal.position.x;
-    }
-
-    // if(shouldKick) return state.ball.sprite.addSpeed(10, angle);
-  }
-
   follow(target, state) {
     if(!state.isStarted && state.teamTurn !== this.props.team) return;
 

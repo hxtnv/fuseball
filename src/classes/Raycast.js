@@ -3,8 +3,9 @@ let friction = .99;
 class Raycast {
   constructor(x, y) {
     this.sprite = p5.createSprite(x, y, 250, 250);
-    this.sprite.setCollider('circle');
+    this.sprite.setCollider('rectangle');
     this.sprite.draw = () => {};
+    this.sprite.debug = true;
   }
 
   update(state, enemy, id, callback) {

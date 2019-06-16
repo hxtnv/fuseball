@@ -2,15 +2,15 @@ class Ball {
   constructor(props) {
     this.props = props;
 
-    this.sprite = p5.createSprite(this.props.pos.x, this.props.pos.y, this.props.size, this.props.size);
+    this.sprite = p5.createSprite(0, 0, this.props.size, this.props.size);
     this.sprite.setCollider('circle');
     this.sprite.draw = () => this.draw();
 
-    this.hitCollider = p5.createSprite(this.props.pos.x, this.props.pos.y, this.props.size + this.props.hitbox, this.props.size + this.props.hitbox);
+    this.hitCollider = p5.createSprite(0, 0, this.props.size + this.props.hitbox, this.props.size + this.props.hitbox);
     this.hitCollider.setCollider('circle');
     this.hitCollider.draw = () => {};
 
-    this.goalCollider = p5.createSprite(this.props.pos.x, this.props.pos.y, this.props.size / 2, this.props.size / 2);
+    this.goalCollider = p5.createSprite(0, 0, this.props.size / 2, this.props.size / 2);
     this.goalCollider.setCollider('circle');
     this.goalCollider.draw = () => {};
   }

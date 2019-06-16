@@ -86,9 +86,55 @@ class Player {
     drawMultiColorText(text, this.sprite.position.x - (p5.textWidth(text[0][0] + text[1][0]) / 2), this.sprite.position.y - this._props.size * 0.8);
   }
 
+  kick(state) {
+    
+  }
+
   update(state) {
     this.move();
     if(this.isBot) this.follow(state.ball.sprite.position, state);
+
+    // kick
+    this.sprite.overlap(state.ball.hitCollider, () => {
+      let angle = Math.atan2(state.ball.sprite.position.y - this.sprite.position.y, state.ball.sprite.position.x - this.sprite.position.x) * 180 / Math.PI;
+
+      if(!this.isBot) {
+        for(let j in keys.KICK) {
+          if(this.keys[keys.KICK[j]]) {
+            if(!state.isStarted) state.isStarted = true; // mark game as started aswell
+            return state.ball.sprite.addSpeed(10, angle);
+          }
+        }
+      } else {
+        // bot never actually touches the ball so the .collide() and .bounce() events dont work
+        if(!state.isStarted) state.isStarted = true;
+        this.isInRange(state, angle);
+        // p5.line(state.ball.sprite.position.x, state.ball.sprite.position.y, x, y);
+      }
+    });
+
+    // ball interaction
+    this.sprite.collide(state.scene.col);
+    this.sprite.bounce(state.ball.sprite, () => {
+      if(!state.isStarted) state.isStarted = true;
+    });
+
+    // middle border collision
+    if(this.props.team !== state.teamTurn && !state.isStarted) {
+      this.sprite.collide(state.scene.middle);
+    }
+
+    // sides collision
+    if (!state.isStarted) {
+      this.sprite.collide(state.scene.sides[this.props.team === 0 ? 1 : 0]);
+    }
+
+    // player collision
+    for(let j=0; j<state.players.length; j++) {
+      if(state.players[j].id !== this.id) this.sprite.bounce(state.players[j].sprite);
+    }
+
+    if(this.props.controllable) p5.camera.position = this.sprite.position; // follow player
 
     p5.drawSprite(this.sprite);
   }

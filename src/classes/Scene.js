@@ -1,12 +1,10 @@
 import getPositions from '../helpers/getPositions';
 
 class Scene {
-  constructor(props) {
-    this.props = props;
-
+  constructor(size) {
     this.size = {
-      x: this.props.size,
-      y: this.calculateRatioHeight(this.props.size) // should be in resize event
+      x: size,
+      y: this.calculateRatioHeight(size) // should be in resize event
     };
 
     this.goalSize = {

@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server",
-    "build": "webpack"
+    "build": "webpack --mode production",
+    "deploy": "gh-pages -d build",
+    "publish": "npm run build && npm run deploy"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +17,7 @@
     "p5": "^0.8.0"
   },
   "devDependencies": {
+    "gh-pages": "^2.0.1",
     "webpack": "^4.32.2",
     "webpack-cli": "^3.3.2",
     "webpack-dev-server": "^3.5.1"

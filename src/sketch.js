@@ -53,7 +53,7 @@ const sketch = (p) => {
     state.hud = new Hud();
 
     state.players.push(
-      new Player({name: 'test1', controllable: true, speed: 5, team: 1}, state),
+      new Player({name: 'theneuetimes', controllable: true, speed: 5, team: 1}, state),
       new Bot({speed: 2.5, team: 0}, state),
       // new Bot({speed: 2.5, team: 0}, state),
       // new Bot({speed: 2.5, team: 0}, state)

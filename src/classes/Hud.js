@@ -206,7 +206,7 @@ class Hud {
 
     this.drawTimer(state);
     this.drawScore(state);
-    this.drawDebug(state);
+    // this.drawDebug(state);
     if(!state.isLive && !this.shouldDrawScoreboard) {
       this.shouldDrawScoreboard = true;
       this.initScoreBoard(state);

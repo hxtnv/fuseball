@@ -31,6 +31,6 @@
     "webpack-dev-server": "^3.5.1"
   },
   "engines": {
-    "npm": ">=6.9.0",
+    "npm": ">=6.9.0"
   }
 }

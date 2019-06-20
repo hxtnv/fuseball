@@ -13,7 +13,8 @@
 </p>
 
 > Fuseball is a browser based, top down football game built with webpack and p5.js. <br />
-> It features a single player mode aswell as (soon) multiplayer mode.
+> It features a single player mode aswell as (soon) multiplayer mode. <br />
+> The game itself is inspired by haxball, but built to be more modern and have more features (e.g bots).
 
 ## ✨ Demo
 
@@ -41,7 +42,7 @@ Navigate to your browser and go to `http://localhost:8080` - you should see the 
 ## 🤝 Contributing
 
 Contributions, issues and feature requests are welcome.<br />
-Feel free to check [issues page](https://github.com/kefranabg/readme-md-generator/issues) if you want to contribute.
+Feel free to check [issues page](https://github.com/theneuetimes/fuseball/issues) if you want to contribute.
 
 
 

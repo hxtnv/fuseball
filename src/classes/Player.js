@@ -1,5 +1,3 @@
-import Raycast from './Raycast';
-
 import drawMultiColorText from '../helpers/drawMultiColorText';
 import getPositions from '../helpers/getPositions';
 
@@ -22,12 +20,7 @@ class Player {
 
     this.id = '_' + Math.random().toString(36).substr(2, 9);
 
-    this.ray = new Raycast(0, 0);
-    this._ray = 0;
-
-    this.enemy = this.props.team === 0 ? 1 : 0;
-
-    if(state) this.init(state);
+    this.init(state);
   }
 
   init(state) {
@@ -93,25 +86,22 @@ class Player {
     drawMultiColorText(text, this.sprite.position.x - (p5.textWidth(text[0][0] + text[1][0]) / 2), this.sprite.position.y - this._props.size * 0.8);
   }
 
-  kick(state) {
-    
-  }
-
   update(state) {
     this.move();
-    if(this.isBot) this.follow(state.ball.sprite.position, state);
+    if(this.isBot) this._update(state);
 
     // kick
-    this.rayInit = false;
+    this.isInRange = false;
 
     this.sprite.overlap(state.ball.hitCollider, () => {
-      let angle = Math.atan2(state.ball.sprite.position.y - this.sprite.position.y, state.ball.sprite.position.x - this.sprite.position.x) * 180 / Math.PI;
+      this.isInRange = true;
+      this.angle = Math.atan2(state.ball.sprite.position.y - this.sprite.position.y, state.ball.sprite.position.x - this.sprite.position.x) * 180 / Math.PI;
 
       if(!this.isBot) {
         for(let j in keys.KICK) {
           if(this.keys[keys.KICK[j]]) {
             if(!state.isStarted) state.isStarted = true; // mark game as started aswell
-            return state.ball.sprite.addSpeed(10, angle);
+            return state.ball.sprite.addSpeed(10, this.angle);
           }
         }
       } else {
@@ -119,20 +109,20 @@ class Player {
       }
 
       // raycast
-      if(this.isBot) {
-        let x = Math.cos(angle * Math.PI / 180) * this._ray + this.sprite.position.x;
-        let y = Math.sin(angle * Math.PI / 180) * this._ray + this.sprite.position.y;
+      // if(this.isBot) {
+      //   let x = Math.cos(angle * Math.PI / 180) * this._ray + this.sprite.position.x;
+      //   let y = Math.sin(angle * Math.PI / 180) * this._ray + this.sprite.position.y;
 
-        this._ray += 50; // speed
-        if(x <= -1000 || x >= 1000 || y <= -500 || y >= 500) this._ray = 0; // reset
+      //   this._ray += 50; // speed
+      //   if(x <= -1000 || x >= 1000 || y <= -500 || y >= 500) this._ray = 0; // reset
 
-        this.ray.sprite.position.x = x;
-        this.ray.sprite.position.y = y;
+      //   this.ray.sprite.position.x = x;
+      //   this.ray.sprite.position.y = y;
 
-        this.ray.update(state, this.enemy, this.id, (shouldKick) => {
-          if(shouldKick) return state.ball.sprite.addSpeed(10, angle);
-        });
-      }
+      //   this.ray.update(state, this.enemy, this.id, (shouldKick) => {
+      //     if(shouldKick) return state.ball.sprite.addSpeed(10, angle);
+      //   });
+      // }
     });
 
 

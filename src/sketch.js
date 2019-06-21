@@ -27,7 +27,51 @@ let state = {
   goals: [false, false],
   prevGoals: [false, false],
 
-  isReset: false
+  isReset: false,
+
+  restart: () => {
+    console.log('restart');
+    state.timer = initialState.timer;
+    state.timerRoundStart = initialState.timerRoundStart;
+    state.teamTurn = initialState.teamTurn;
+
+    state.isStarted = false;
+    state.isReset = false;
+    state.isLive = true;
+    state.isOver = false;
+
+    state.playerSpawns = [0, 0];
+
+    state.ball.sprite.position.x = 0;
+    state.ball.sprite.position.y = 0;
+
+    state.ball.sprite.velocity.x = 0;
+    state.ball.sprite.velocity.y = 0;
+
+    for(let i in state.players) state.players[i].placeInPosition(state);
+
+    state.hud.sbAlpha = 0;
+    state.hud.shouldDrawScoreboard = false;
+
+    startTimer();
+  }
+};
+
+let initialState;
+
+const startTimer = () => {
+  clearInterval(state.timerInterval);
+  state.timerInterval = null;
+
+  state.timerInterval = setInterval(() => {
+    if(state.timer <= 1) {
+      state.isLive = false;
+      state.isOver = true;
+
+      clearInterval(state.timerInterval);
+    }
+    state.timer--;
+  }, 1000);
 }
 
 const sketch = (p) => {
@@ -37,20 +81,12 @@ const sketch = (p) => {
     p.createCanvas(p.windowWidth, p.windowHeight);
 
     // setup timer
-    state.timerInterval = setInterval(() => {
-      if(state.timer <= 1) {
-        state.isLive = false;
-        state.isOver = true;
-
-        clearInterval(state.timerInterval);
-      }
-      state.timer--;
-    }, 1000);
+    startTimer();
 
     // init game objects
     state.scene = new Scene(1400);
     state.ball = new Ball({size: 30, hitbox: 30, friction: .99});
-    state.hud = new Hud();
+    state.hud = new Hud(state);
 
     state.players.push(
       new Player({name: 'theneuetimes', controllable: true, speed: 5, team: 1}, state),
@@ -58,6 +94,8 @@ const sketch = (p) => {
       // new Bot({speed: 2.5, team: 0}, state),
       // new Bot({speed: 2.5, team: 0}, state)
     );
+
+    initialState = Object.assign({}, state);
   };
 
   p.windowResized = () => {

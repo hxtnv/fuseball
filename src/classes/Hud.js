@@ -1,7 +1,9 @@
+import Button from './hud/Button';
+
 import drawMultiColorText from '../helpers/drawMultiColorText';
 
 class Hud {
-  constructor() {
+  constructor(state) {
     this.sbOverlayAlpha = 0;
     this.sbAlpha = 0;
 
@@ -10,6 +12,24 @@ class Hud {
     this.sWinner = 0; // 0 = red, 1 = blue
 
     this.blinkAlpha = 0;
+
+    this.playAgainBtn = new Button({
+      text: 'Play again',
+      x: 'center', // (p5.windowWidth / 2) - (btnWidth / 2) - btnPadding[0]
+      y: p5.windowHeight * .8,
+      padding: [30, 10],
+      fontSize: 28,
+      borderRadius: 5,
+      bgColor: [75, 207, 69, 0],
+      bgStrokeColor: [69, 175, 65, 0],
+      textColor: [255, 255, 255, 0],
+      textStrokeColor: [51, 51, 51, 0]
+    });
+
+    this.playAgainBtn.onClick(() => {
+      if(this.sbAlpha <= 0 || state.isLive) return;
+      state.restart();
+    });
   }
 
   teamScore(mode, winner, time) {
@@ -108,6 +128,11 @@ class Hud {
   }
 
   initScoreBoard(state) {
+    clearInterval(this.sbInterval);
+    this.sbInterval = null;
+
+    this.sbOverlayAlpha = 0;
+
     this.sbInterval = setInterval(() => {
       this.sbOverlayAlpha += 8;
 
@@ -121,6 +146,11 @@ class Hud {
   }
 
   initSbAlpha(state) {
+    clearInterval(this.sbaInterval);
+    this.sbaInterval = null;
+
+    this.sbAlpha = 0;
+
     this.sbaInterval = setInterval(() => {
       this.sbAlpha += 8;
 
@@ -170,7 +200,7 @@ class Hud {
       let text = `It's a draw!`;
 
       p5.fill(255, 255, 255, this.sbAlpha);
-      p5.text(text, p5.windowWidth / 2 - p5.textWidth(text) / 2, p5.windowHeight * .2);
+      p5.text(text, p5.windowWidth / 2 - p5.textWidth(text) / 2, p5.windowHeight * .2); // should prob make it responsive (todo)
     }
 
 
@@ -183,6 +213,21 @@ class Hud {
 
     let scoreText = `${state.score[0] > state.score[1] ? state.score[0] : state.score[1]} - ${state.score[0] > state.score[1] ? state.score[1] : state.score[0]}`;
     p5.text(scoreText, p5.windowWidth / 2 - p5.textWidth(scoreText) / 2, p5.windowHeight * .35);
+
+
+    // buttons
+    // text, x, y, padding, fontSize, borderRadius, bgColor, bgStrokeColor, textColor, textStrokeColor
+    this.playAgainBtn.update();
+
+    this.playAgainBtn.props.bgColor[3] = this.sbAlpha;
+    this.playAgainBtn.props.bgStrokeColor[3] = this.sbAlpha;
+    this.playAgainBtn.props.textColor[3] = this.sbAlpha;
+    this.playAgainBtn.props.textStrokeColor[3] = this.sbAlpha;
+
+    this.playAgainBtn.onHover(() => {
+      this.playAgainBtn.props.bgColor[3] = 200;
+      this.playAgainBtn.props.textColor[3] = 200;
+    });
   }
 
   drawDebug(state) {
@@ -206,7 +251,7 @@ class Hud {
 
     this.drawTimer(state);
     this.drawScore(state);
-    // this.drawDebug(state);
+    this.drawDebug(state);
     if(!state.isLive && !this.shouldDrawScoreboard) {
       this.shouldDrawScoreboard = true;
       this.initScoreBoard(state);

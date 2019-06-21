@@ -24,17 +24,21 @@ class Player {
   }
 
   init(state) {
+    this.placeInPosition(state);
+
+    if(this.props.controllable) {
+      window.addEventListener('keydown', e => this.keys[e.keyCode] = true);
+      window.addEventListener('keyup', e => this.keys[e.keyCode] = false);
+    }
+  }
+
+  placeInPosition(state) {
     let pos = getPositions(state.scene.size);
 
     this.sprite.position.x = pos[this.props.team][ state.playerSpawns[this.props.team] ].x;
     this.sprite.position.y = pos[this.props.team][ state.playerSpawns[this.props.team] ].y;
 
     state.playerSpawns[this.props.team]++;
-
-    if(this.props.controllable) {
-      window.addEventListener('keydown', e => this.keys[e.keyCode] = true);
-      window.addEventListener('keyup', e => this.keys[e.keyCode] = false);
-    }
   }
 
   move() {

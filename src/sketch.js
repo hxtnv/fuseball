@@ -30,7 +30,6 @@ let state = {
   isReset: false,
 
   restart: () => {
-    console.log('restart');
     state.timer = initialState.timer;
     state.timerRoundStart = initialState.timerRoundStart;
     state.teamTurn = initialState.teamTurn;
@@ -40,6 +39,7 @@ let state = {
     state.isLive = true;
     state.isOver = false;
 
+    state.score = [0, 0];
     state.playerSpawns = [0, 0];
 
     state.ball.sprite.position.x = 0;

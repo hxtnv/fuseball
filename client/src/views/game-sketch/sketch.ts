@@ -1,43 +1,42 @@
 import p5 from "p5";
+import Player from "./classes/Player";
+import ControllablePlayer from "./classes/ControllablePlayer";
 
-type Point = {
-  x: number;
-  y: number;
-};
-
-const generateRandomPoints = (amount: number = 100): Point[] => {
-  return Array.from({ length: amount }, () => ({
-    x: Math.random() * 1920,
-    y: Math.random() * 963,
-  }));
-};
-
-let points: Point[] = generateRandomPoints();
-let intervalId: number | undefined = undefined;
+let players: Player[] = [];
+let controllablePlayer: ControllablePlayer | undefined = undefined;
 
 const sketch = (p: p5) => {
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
 
-    intervalId = setInterval(() => {
-      points = generateRandomPoints();
-    }, 1000);
+    controllablePlayer = new ControllablePlayer(p, {
+      coordinates: {
+        x: p.windowWidth / 2,
+        y: p.windowHeight / 2,
+      },
+    });
 
-    return () => {
-      clearInterval(intervalId);
-    };
+    players.push(
+      new Player(p, {
+        coordinates: {
+          x: p.windowWidth / 2,
+          y: p.windowHeight / 2,
+        },
+      })
+    );
   };
 
   p.draw = () => {
     p.background(200);
 
-    p.stroke(0);
-    p.strokeWeight(2);
-    p.fill(0);
-
-    points.forEach((point) => {
-      p.ellipse(point.x, point.y, 20);
+    players.forEach((player) => {
+      player.draw();
     });
+
+    if (controllablePlayer) {
+      controllablePlayer.update();
+      controllablePlayer.draw();
+    }
   };
 
   p.windowResized = () => {
@@ -45,8 +44,6 @@ const sketch = (p: p5) => {
   };
 };
 
-export const cleanup = () => {
-  clearInterval(intervalId);
-};
+export const cleanup = () => {};
 
 export default sketch;

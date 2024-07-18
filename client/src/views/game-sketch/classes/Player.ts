@@ -21,8 +21,8 @@ class Player {
     this.p5.ellipse(
       this.properties.position.x,
       this.properties.position.y,
-      50,
-      50
+      this.properties.size,
+      this.properties.size
     );
   }
 }

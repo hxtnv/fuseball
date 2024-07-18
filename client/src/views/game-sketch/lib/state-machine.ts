@@ -18,17 +18,24 @@ import ControllablePlayer from "../classes/controllable-player";
 //   }
 // }
 
+export type StateType = {
+  players: Player[];
+  controllablePlayer: ControllablePlayer;
+};
+
 const stateMachine = (p: p5) => {
-  const players: Player[] = [];
-  const controllablePlayer = new ControllablePlayer(p, {
-    position: {
-      x: p.windowWidth / 2,
-      y: p.windowHeight / 2,
-    },
-    size: 50,
-  });
+  const players: StateType["players"] = [];
+  const controllablePlayer: StateType["controllablePlayer"] =
+    new ControllablePlayer(p, {
+      position: {
+        x: p.windowWidth / 2,
+        y: p.windowHeight / 2,
+      },
+      size: 50,
+    });
 
   const init = () => {
+    console.log("stateMachine.init");
     Array.from(Array(10)).forEach(() => {
       players.push(
         new Player(p, {
@@ -40,19 +47,24 @@ const stateMachine = (p: p5) => {
         })
       );
     });
+
+    const interval = setInterval(() => {
+      console.log("stateMachine.interval");
+    }, 1000);
   };
 
   const cleanup = () => {
+    console.log("stateMachine.cleanup");
     // here we would cancel event listeners and so
   };
 
   return {
-    _state: {
-      init,
-      cleanup,
+    init,
+    cleanup,
+    state: {
+      players,
+      controllablePlayer,
     },
-    players,
-    controllablePlayer,
   };
 };
 

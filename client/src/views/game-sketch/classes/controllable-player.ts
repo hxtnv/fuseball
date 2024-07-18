@@ -1,6 +1,8 @@
 import p5 from "q5";
 import Player from "./player";
 import type { PlayerInitialProperties } from "./player";
+import MAP from "../lib/const/map";
+import PLAYER from "../lib/const/player";
 
 class ControllablePlayer extends Player {
   keyState: { [key: number]: boolean };
@@ -30,18 +32,31 @@ class ControllablePlayer extends Player {
   }
 
   update() {
+    const newPosition = { ...this.properties.position };
+
     if (this.keyState[this.p5.LEFT_ARROW]) {
-      this.properties.position.x -= 5;
+      newPosition.x -= PLAYER.SPEED;
     }
     if (this.keyState[this.p5.RIGHT_ARROW]) {
-      this.properties.position.x += 5;
+      newPosition.x += PLAYER.SPEED;
     }
     if (this.keyState[this.p5.UP_ARROW]) {
-      this.properties.position.y -= 5;
+      newPosition.y -= PLAYER.SPEED;
     }
     if (this.keyState[this.p5.DOWN_ARROW]) {
-      this.properties.position.y += 5;
+      newPosition.y += PLAYER.SPEED;
     }
+
+    this.properties.position = {
+      x: Math.min(
+        MAP.FIELD_WIDTH - PLAYER.SIZE / 2,
+        Math.max(PLAYER.SIZE / 2, newPosition.x)
+      ),
+      y: Math.min(
+        MAP.FIELD_HEIGHT - PLAYER.SIZE / 2,
+        Math.max(PLAYER.SIZE / 2, newPosition.y)
+      ),
+    };
   }
 }
 

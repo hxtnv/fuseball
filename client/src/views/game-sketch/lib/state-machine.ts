@@ -28,11 +28,12 @@ const stateMachine = (p: p5) => {
   const controllablePlayer: StateType["controllablePlayer"] =
     new ControllablePlayer(p, {
       position: {
-        x: p.windowWidth / 2,
-        y: p.windowHeight / 2,
+        x: 700,
+        y: 400,
       },
       size: 50,
     });
+  let interval: number | undefined = undefined;
 
   const init = () => {
     console.log("stateMachine.init");
@@ -48,13 +49,15 @@ const stateMachine = (p: p5) => {
       );
     });
 
-    const interval = setInterval(() => {
+    interval = setInterval(() => {
       console.log("stateMachine.interval");
     }, 1000);
   };
 
   const cleanup = () => {
     console.log("stateMachine.cleanup");
+
+    clearInterval(interval);
     // here we would cancel event listeners and so
   };
 

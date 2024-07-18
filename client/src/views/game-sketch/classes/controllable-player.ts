@@ -24,28 +24,8 @@ class ControllablePlayer extends Player {
 
   draw() {
     this.p5.push();
-
-    this.p5.translate(
-      this.p5.width / 2 - this.properties.position.x,
-      this.p5.height / 2 - this.properties.position.y
-    );
-
-    // overwrite color
     this.p5.fill(255, 0, 0);
     super.draw();
-
-    // name tag
-    // this.p5.fill(0);
-    // this.p5.textSize(16);
-    // this.p5.textStyle(this.p5.BOLD);
-
-    // this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
-    // this.p5.text(
-    //   "Player",
-    //   this.properties.position.x,
-    //   this.properties.position.y - this.properties.size / 2 - 15
-    // );
-
     this.p5.pop();
   }
 

@@ -1,6 +1,7 @@
 import p5 from "q5";
 import stateMachine from "./lib/state-machine";
-import ui from "./lib/ui";
+import uiRenderer from "./lib/renderers/ui";
+import mapRenderer from "./lib/renderers/map";
 
 const sketch = (p: p5) => {
   const { init: initState, cleanup: cleanupState, state } = stateMachine(p);
@@ -12,26 +13,28 @@ const sketch = (p: p5) => {
   };
 
   p.draw = () => {
-    p.background(200);
+    p.background(111, 173, 78);
 
-    const userInterface = ui(p, state);
+    const userInterface = uiRenderer(p, state);
+    const map = mapRenderer(p, state);
+    // const sprites = spritesDrawer(p, state);
 
     if (state.controllablePlayer) {
       state.controllablePlayer.update();
-      state.controllablePlayer.draw();
+      // state.controllablePlayer.draw();
 
-      // p.push();
       p.translate(
         p.width / 2 - state.controllablePlayer.properties.position.x,
         p.height / 2 - state.controllablePlayer.properties.position.y
       );
     }
 
-    state.players.forEach((player) => {
-      player.draw();
-    });
+    map.draw();
 
-    // p.pop();
+    state.players.forEach((player) => player.draw());
+    if (state.controllablePlayer) {
+      state.controllablePlayer.draw();
+    }
 
     userInterface.draw();
   };

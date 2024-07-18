@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import p5 from "p5";
+import p5 from "q5";
 
-import gameSketch, { cleanup } from "./sketch";
+import gameSketch from "./sketch";
 
 const P5Sketch: React.FC = () => {
   const sketchRef = useRef<HTMLDivElement>(null);
@@ -24,7 +24,7 @@ const P5Sketch: React.FC = () => {
         p5InstanceRef.current = null;
       }
 
-      cleanup();
+      // gameSketch(new p5(gameSketch)).cleanup();
     };
   }, []);
 

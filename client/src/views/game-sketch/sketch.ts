@@ -1,49 +1,46 @@
-import p5 from "p5";
-import Player from "./classes/Player";
-import ControllablePlayer from "./classes/ControllablePlayer";
-
-let players: Player[] = [];
-let controllablePlayer: ControllablePlayer | undefined = undefined;
+import p5 from "q5";
+import stateMachine from "./lib/state-machine";
 
 const sketch = (p: p5) => {
+  const { _state, players, controllablePlayer } = stateMachine(p);
+
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
 
-    controllablePlayer = new ControllablePlayer(p, {
-      coordinates: {
-        x: p.windowWidth / 2,
-        y: p.windowHeight / 2,
-      },
-    });
-
-    players.push(
-      new Player(p, {
-        coordinates: {
-          x: p.windowWidth / 2,
-          y: p.windowHeight / 2,
-        },
-      })
-    );
+    _state.init();
   };
 
   p.draw = () => {
     p.background(200);
 
-    players.forEach((player) => {
-      player.draw();
-    });
-
     if (controllablePlayer) {
       controllablePlayer.update();
       controllablePlayer.draw();
+
+      p.text(
+        `Player position: ${controllablePlayer.properties.position.x}, ${controllablePlayer.properties.position.y}`,
+        10,
+        20
+      );
+
+      p.translate(
+        p.width / 2 - controllablePlayer.properties.position.x,
+        p.height / 2 - controllablePlayer.properties.position.y
+      );
     }
+
+    players.forEach((player) => {
+      player.draw();
+    });
   };
 
   p.windowResized = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
-};
 
-export const cleanup = () => {};
+  return {
+    cleanup: _state.cleanup,
+  };
+};
 
 export default sketch;

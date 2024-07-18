@@ -1,10 +1,11 @@
-import p5 from "p5";
+import p5 from "q5";
 
 export type PlayerInitialProperties = {
-  coordinates: {
+  position: {
     x: number;
     y: number;
   };
+  size: number;
 };
 
 class Player {
@@ -18,8 +19,8 @@ class Player {
 
   draw() {
     this.p5.ellipse(
-      this.properties.coordinates.x,
-      this.properties.coordinates.y,
+      this.properties.position.x,
+      this.properties.position.y,
       50,
       50
     );

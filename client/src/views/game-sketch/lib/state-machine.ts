@@ -31,7 +31,6 @@ const stateMachine = (p: p5) => {
         x: 700,
         y: 400,
       },
-      size: 50,
     });
   let interval: number | undefined = undefined;
 
@@ -44,7 +43,6 @@ const stateMachine = (p: p5) => {
             x: p.random(p.windowWidth),
             y: p.random(p.windowHeight),
           },
-          size: 50,
         })
       );
     });

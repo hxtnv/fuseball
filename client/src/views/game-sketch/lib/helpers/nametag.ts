@@ -1,4 +1,5 @@
 import p5 from "q5";
+import PLAYER from "../const/player";
 
 type Props = {
   text: string;
@@ -6,17 +7,16 @@ type Props = {
     x: number;
     y: number;
   };
-  playerSize: number;
 };
 
-const draw = (p: p5, { text, position, playerSize }: Props) => {
+const draw = (p: p5, { text, position }: Props) => {
   p.push();
   p.fill(255);
   p.stroke(51);
   p.strokeWeight(4);
   p.textSize(16);
   p.textAlign(p.CENTER);
-  p.text(text, position.x, position.y - playerSize / 2 - 15);
+  p.text(text, position.x, position.y - PLAYER.SIZE / 2 - 15);
   p.pop();
 };
 

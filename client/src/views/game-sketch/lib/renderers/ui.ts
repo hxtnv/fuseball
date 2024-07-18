@@ -17,14 +17,12 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
       drawNametag(p, {
         text: `Player #${key}`,
         position: player.properties.position,
-        playerSize: player.properties.size,
       });
     });
 
     drawNametag(p, {
       text: `Player`,
       position: state.controllablePlayer.properties.position,
-      playerSize: state.controllablePlayer.properties.size,
     });
   };
 

@@ -5,6 +5,13 @@ import PLAYER from "../const/player";
 import Player from "../../classes/player";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
+  const debugLines = [
+    `Player position: ${state.controllablePlayer.properties.position.x.toFixed(
+      0
+    )}, ${state.controllablePlayer.properties.position.y.toFixed(0)}`,
+    `FPS: ${Number(p.frameRate()).toFixed(0)}`,
+  ];
+
   const fixedElements = (drawCall: () => void) => {
     p.push();
     p.translate(
@@ -30,14 +37,9 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   };
 
   const drawDebugInfo = () => {
-    p.text(
-      `Player position: ${state.controllablePlayer.properties.position.x.toFixed(
-        0
-      )}, ${state.controllablePlayer.properties.position.y.toFixed(0)}`,
-      10,
-      20
-    );
-    p.text(`FPS: ${Number(p.frameRate()).toFixed(0)}`, 10, 40);
+    debugLines.forEach((line, index) => {
+      p.text(line, 10, 20 + index * 20);
+    });
   };
 
   const drawSpeechBubble = (player: Player, text: string) => {
@@ -128,11 +130,11 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   const draw = () => {
     p.textFont("Itim");
 
+    drawNametags();
+
     fixedElements(() => {
       drawDebugInfo();
     });
-
-    drawNametags();
   };
 
   return { draw, drawSpeechBubble };

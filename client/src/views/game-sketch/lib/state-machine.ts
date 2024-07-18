@@ -2,28 +2,13 @@ import p5 from "q5";
 import Player from "../classes/player";
 import ControllablePlayer from "../classes/controllable-player";
 
-// class MutableState {
-//   state: any;
-
-//   constructor(initialState: any) {
-//     this.state = initialState;
-//   }
-
-//   set(newState: any) {
-//     this.state = newState;
-//   }
-
-//   get() {
-//     return this.state;
-//   }
-// }
-
 export type StateType = {
   players: Player[];
   controllablePlayer: ControllablePlayer;
 };
 
 const stateMachine = (p: p5) => {
+  // const ws: WebSocket = new WebSocket("ws://localhost:8080");
   const players: StateType["players"] = [];
   const controllablePlayer: StateType["controllablePlayer"] =
     new ControllablePlayer(p, {
@@ -32,10 +17,29 @@ const stateMachine = (p: p5) => {
         y: 400,
       },
     });
-  // let interval: number | undefined = undefined;
 
   const init = () => {
-    console.log("stateMachine.init");
+    // console.log("stateMachine.init");
+
+    // ws.onopen = () => {
+    //   console.info("WebSocket connection established");
+    // };
+
+    // ws.onmessage = (event) => {
+    //   const message = JSON.parse(event.data);
+
+    //   console.info("WebSocket message received: ", event.data);
+    //   console.info(message);
+    // };
+
+    // ws.onclose = () => {
+    //   console.info("WebSocket connection closed");
+    // };
+
+    // ws.onerror = (error) => {
+    //   console.error("WebSocket error: ", error);
+    // };
+
     Array.from(Array(10)).forEach(() => {
       players.push(
         new Player(p, {
@@ -46,18 +50,11 @@ const stateMachine = (p: p5) => {
         })
       );
     });
-
-    // interval = setInterval(() => {
-    // console.log("stateMachine.interval");
-    // }, 1000);
   };
 
   const cleanup = () => {
-    // todo: this is never called
-    console.log("stateMachine.cleanup");
-
-    // clearInterval(interval);
-    // here we would cancel event listeners and so
+    // console.log("stateMachine.cleanup");
+    // ws.close();
   };
 
   return {

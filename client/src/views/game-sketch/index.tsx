@@ -8,27 +8,25 @@ const P5Sketch: React.FC = () => {
   const p5InstanceRef = useRef<p5 | null>(null);
 
   useEffect(() => {
-    console.info("Rendering sketch");
-
-    if (sketchRef.current) {
-      if (!p5InstanceRef.current) {
-        p5InstanceRef.current = new p5(gameSketch, sketchRef.current);
-      }
+    if (
+      sketchRef.current &&
+      sketchRef.current.children.length === 0 &&
+      !p5InstanceRef.current
+    ) {
+      console.info("Rendering sketch");
+      p5InstanceRef.current = new p5(gameSketch, sketchRef.current);
     }
 
     return () => {
       if (p5InstanceRef.current) {
         console.info("Cleaning up sketch");
-
         p5InstanceRef.current.remove();
         p5InstanceRef.current = null;
       }
-
-      // gameSketch(new p5(gameSketch)).cleanup();
     };
   }, []);
 
-  return <div ref={sketchRef}></div>;
+  return <div id="canvas" ref={sketchRef}></div>;
 };
 
 export default P5Sketch;

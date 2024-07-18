@@ -45,6 +45,10 @@ const sketch = (p: p5) => {
   p.windowResized = () => {
     p.resizeCanvas(p.windowWidth, p.windowHeight);
   };
+
+  p.remove = () => {
+    cleanupState();
+  };
 };
 
 export default sketch;

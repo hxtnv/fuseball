@@ -18,8 +18,7 @@ const draw = (p: p5, { text, position }: Props) => {
   p.textSize(16);
   p.textAlign(p.CENTER, p.CENTER);
 
-  p.text(text, position.x, position.y - PLAYER.SIZE / 2 - 15);
-  p.text(text.split("#")[1], position.x, position.y);
+  p.text(text, position.x, position.y - PLAYER.SIZE / 2 - PLAYER.NAMETAG_GAP);
 
   p.pop();
 };

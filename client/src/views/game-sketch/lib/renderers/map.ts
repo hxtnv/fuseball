@@ -1,8 +1,7 @@
 import p5 from "q5";
-import type { StateType } from "../state-machine";
 import MAP from "../const/map";
 
-const mapRenderer = (p: p5, state: StateType) => {
+const mapRenderer = (p: p5) => {
   const drawField = () => {
     p.stroke(255);
     p.strokeWeight(6);

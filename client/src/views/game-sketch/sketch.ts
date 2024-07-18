@@ -16,7 +16,7 @@ const sketch = (p: p5) => {
     p.background(111, 173, 78);
 
     const userInterface = uiRenderer(p, state);
-    const map = mapRenderer(p, state);
+    const map = mapRenderer(p);
     // const sprites = spritesDrawer(p, state);
 
     if (state.controllablePlayer) {
@@ -37,6 +37,9 @@ const sketch = (p: p5) => {
     }
 
     userInterface.draw();
+    if (p.keyIsDown(p.SHIFT)) {
+      userInterface.drawSpeechBubble(state.controllablePlayer, "😂");
+    }
   };
 
   p.windowResized = () => {

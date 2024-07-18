@@ -24,13 +24,6 @@ class ControllablePlayer extends Player {
     this.keyState[this.p5.keyCode] = false;
   }
 
-  draw() {
-    this.p5.push();
-    this.p5.fill(255, 0, 0);
-    super.draw();
-    this.p5.pop();
-  }
-
   update() {
     const newPosition = { ...this.properties.position };
 

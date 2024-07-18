@@ -12,6 +12,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     drawCall();
     p.pop();
   };
+
   const drawNametags = () => {
     state.players.forEach((player, key) => {
       drawNametag(p, {

@@ -32,7 +32,7 @@ const stateMachine = (p: p5) => {
         y: 400,
       },
     });
-  let interval: number | undefined = undefined;
+  // let interval: number | undefined = undefined;
 
   const init = () => {
     console.log("stateMachine.init");
@@ -47,15 +47,16 @@ const stateMachine = (p: p5) => {
       );
     });
 
-    interval = setInterval(() => {
-      console.log("stateMachine.interval");
-    }, 1000);
+    // interval = setInterval(() => {
+    // console.log("stateMachine.interval");
+    // }, 1000);
   };
 
   const cleanup = () => {
+    // todo: this is never called
     console.log("stateMachine.cleanup");
 
-    clearInterval(interval);
+    // clearInterval(interval);
     // here we would cancel event listeners and so
   };
 

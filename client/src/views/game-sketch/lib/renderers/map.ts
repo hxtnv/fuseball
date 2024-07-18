@@ -3,9 +3,7 @@ import type { StateType } from "../state-machine";
 import MAP from "../const/map";
 
 const mapRenderer = (p: p5, state: StateType) => {
-  const draw = () => {
-    p.push();
-
+  const drawField = () => {
     p.stroke(255);
     p.strokeWeight(6);
     p.noFill();
@@ -48,6 +46,40 @@ const mapRenderer = (p: p5, state: StateType) => {
 
     p.fill(255);
     p.circle(MAP.FIELD_WIDTH / 2, MAP.FIELD_HEIGHT / 2, MAP.CORNER_ARC); // middle circle small
+  };
+
+  const drawGrid = () => {
+    p.stroke(0, 0, 0, 15);
+    p.strokeWeight(3);
+
+    // vertical grid lines
+    Array.from({
+      length: Math.ceil(
+        (MAP.FIELD_WIDTH * 2 + MAP.FIELD_WIDTH) / MAP.GRID_SPACING
+      ),
+    })
+      .map((_, index) => -MAP.FIELD_WIDTH + index * MAP.GRID_SPACING)
+      .forEach((x) => {
+        p.line(x, -MAP.FIELD_HEIGHT, x, MAP.FIELD_HEIGHT * 2);
+      });
+
+    // horizontal grid lines
+    Array.from({
+      length: Math.ceil(
+        (MAP.FIELD_HEIGHT * 2 + MAP.FIELD_HEIGHT) / MAP.GRID_SPACING
+      ),
+    })
+      .map((_, index) => -MAP.FIELD_HEIGHT + index * MAP.GRID_SPACING)
+      .forEach((y) => {
+        p.line(-MAP.FIELD_WIDTH, y, MAP.FIELD_WIDTH * 2, y);
+      });
+  };
+
+  const draw = () => {
+    p.push();
+
+    drawGrid();
+    drawField();
 
     p.pop();
   };

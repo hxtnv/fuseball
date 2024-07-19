@@ -1,0 +1,31 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+
+  .logo {
+    width: 400px;
+    max-width: 100%;
+    user-select: none;
+    margin-bottom: 30px;
+    transition: transform 300ms, filter 300ms;
+
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.05);
+      filter: brightness(1.1);
+      -webkit-filter: brightness(1.1);
+    }
+  }
+
+  .description {
+    font-size: 1.2rem;
+    line-height: 1.4em;
+    text-align: center;
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import emitter from "@/lib/emitter";
+import getRandomPlayerSettings from "@/lib/helpers/get-random-player-settings";
 
 export type PlayerSettings = {
   name: string;
@@ -45,7 +46,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [playerSettings, setPlayerSettings] = useState<PlayerSettings>(
     JSON.parse(
       window.localStorage.getItem("fuseball:player:settings") ??
-        `{"name":"","emoji":0}` // todo: get a random name and emoji
+        JSON.stringify(getRandomPlayerSettings())
     ) as PlayerSettings
   );
   const [view, setView] = useState<GameContextType["view"]>("lobby");

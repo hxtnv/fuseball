@@ -9,6 +9,7 @@ type InputProps = {
 
 type InputRadioProps = InputProps & {
   options: string[];
+  grid?: number;
 };
 
 export const Input: React.FC<InputProps> = ({
@@ -36,12 +37,20 @@ export const InputRadio: React.FC<InputRadioProps> = ({
   options,
   value,
   setValue,
+  grid,
 }) => {
   return (
     <div className={styles.input}>
       <label>{label}</label>
 
-      <div className={styles.input__radio}>
+      <div
+        className={styles.input__radio}
+        style={
+          grid
+            ? { gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }
+            : undefined
+        }
+      >
         {options.map((option, index) => (
           <div
             key={index}

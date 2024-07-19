@@ -4,7 +4,6 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 15px;
   max-width: 500px;
   margin: 0 auto;
 
@@ -27,5 +26,12 @@
     font-size: 1.2rem;
     line-height: 1.4em;
     text-align: center;
+  }
+
+  &::before,
+  &::after {
+    content: "";
+    height: 15px;
+    width: 100%;
   }
 }

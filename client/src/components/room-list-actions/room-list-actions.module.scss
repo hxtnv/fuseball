@@ -67,3 +67,16 @@
     gap: 15px;
   }
 }
+
+.create__lobby {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .create__lobby__info {
+    line-height: 1.4em;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    font-size: 14px;
+  }
+}

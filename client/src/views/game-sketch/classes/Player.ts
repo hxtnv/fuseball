@@ -33,6 +33,9 @@ class Player {
     this.p5.fill(253, 200, 118);
     this.p5.ellipse(0, 0, PLAYER.SIZE);
 
+    // this.p5.noFill();
+    // this.p5.rect(-100, -100, 200, 200);
+
     this.p5.pop();
   }
 }

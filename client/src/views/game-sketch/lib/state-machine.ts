@@ -13,8 +13,8 @@ const stateMachine = (p: p5) => {
   const controllablePlayer: StateType["controllablePlayer"] =
     new ControllablePlayer(p, {
       position: {
-        x: 700,
-        y: 400,
+        x: 1440 / 2,
+        y: 792 / 2,
       },
     });
 
@@ -40,7 +40,7 @@ const stateMachine = (p: p5) => {
     //   console.error("WebSocket error: ", error);
     // };
 
-    Array.from(Array(10)).forEach(() => {
+    Array.from(Array(0)).forEach(() => {
       players.push(
         new Player(p, {
           position: {

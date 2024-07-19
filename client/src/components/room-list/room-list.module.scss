@@ -4,17 +4,4 @@
   flex-direction: column;
   gap: 10px;
   margin-top: 20px;
-
-  .list__actions {
-    display: flex;
-    gap: 10px;
-
-    button {
-      flex: 0;
-
-      &:first-child {
-        flex: 1;
-      }
-    }
-  }
 }

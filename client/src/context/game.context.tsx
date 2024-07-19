@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import emitter from "@/lib/emitter";
 
-type GameContextType = {
-  view: "lobby" | "game";
-  setView: (view: "lobby" | "game") => void;
-  lobbies: Lobby[];
+export type PlayerSettings = {
+  name: string;
+  emoji: number;
 };
 
 export type LobbyPlayer = {
@@ -23,13 +22,32 @@ export type Lobby = {
   score?: string;
 };
 
+type GameContextType = {
+  view: "lobby" | "game";
+  setView: (view: "lobby" | "game") => void;
+  lobbies: Lobby[];
+  playerSettings: PlayerSettings;
+  setPlayerSettings: (playerSettings: PlayerSettings) => void;
+};
+
 const GameContext = React.createContext<GameContextType>({
   view: "lobby",
   setView: () => {},
   lobbies: [],
+  playerSettings: {
+    name: "",
+    emoji: 0,
+  },
+  setPlayerSettings: () => {},
 });
 
 const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const [playerSettings, setPlayerSettings] = useState<PlayerSettings>(
+    JSON.parse(
+      window.localStorage.getItem("fuseball:player:settings") ??
+        `{"name":"","emoji":0}` // todo: get a random name and emoji
+    ) as PlayerSettings
+  );
   const [view, setView] = useState<GameContextType["view"]>("lobby");
   const [lobbies, setLobbies] = useState<Lobby[]>([
     {
@@ -47,7 +65,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
       countryCode: "DE",
     },
     {
-      id: "1",
+      id: "2",
       status: "warmup",
       name: "POLSKA PRZEJMUJE TEN SERWER",
       players: [
@@ -72,6 +90,13 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    window.localStorage.setItem(
+      "fuseball:player:settings",
+      JSON.stringify(playerSettings)
+    );
+  }, [playerSettings]);
+
+  useEffect(() => {
     emitter.on("ws:message:lobbies", onLobbiesReceived);
 
     emitter.emit("ws:send", "lobbies");
@@ -82,7 +107,9 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   }, [onLobbiesReceived]);
 
   return (
-    <GameContext.Provider value={{ view, setView, lobbies }}>
+    <GameContext.Provider
+      value={{ view, setView, lobbies, playerSettings, setPlayerSettings }}
+    >
       {children}
     </GameContext.Provider>
   );

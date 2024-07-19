@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGameContext } from "@/context/game.context";
 import Button from "@/components/common/button";
 import User from "@/assets/icons/user-solid.svg?react";
@@ -9,14 +9,19 @@ import EMOJIS from "@/lib/const/emojis";
 import LOBBY_SIZES from "@/lib/const/lobby-size";
 import { Input, InputRadio } from "@/components/common/input";
 import getEmoji from "@/lib/helpers/get-emoji";
+import { useWebSocket } from "@/context/websocket.context";
 
-const PlayerSettings: React.FC = () => {
+type Props = {
+  disabled: boolean;
+};
+
+const PlayerSettings: React.FC<Props> = ({ disabled }) => {
   const { playerSettings, setPlayerSettings } = useGameContext();
   const { Modal, open } = useModal();
 
   return (
     <>
-      <Button variant="secondary" onClick={open}>
+      <Button variant="secondary" disabled={disabled} onClick={open}>
         <User />
       </Button>
 
@@ -59,7 +64,7 @@ const PlayerSettings: React.FC = () => {
   );
 };
 
-const CreateLobby: React.FC = () => {
+const CreateLobby: React.FC<Props> = ({ disabled }) => {
   const [lobbyName, setLobbyName] = useState<string>("");
   const [lobbySize, setLobbySize] = useState<number>(1);
 
@@ -69,7 +74,9 @@ const CreateLobby: React.FC = () => {
 
   return (
     <>
-      <Button onClick={open}>Create a lobby</Button>
+      <Button onClick={open} disabled={disabled}>
+        Create a lobby
+      </Button>
 
       <Modal title="Creating a lobby">
         <div className={styles.create__lobby}>
@@ -102,10 +109,13 @@ const CreateLobby: React.FC = () => {
 };
 
 const RoomListActions: React.FC = () => {
+  const { status } = useWebSocket();
+  const modalsDisabled = useMemo(() => status !== "connected", [status]);
+
   return (
     <div className={styles.actions}>
-      <CreateLobby />
-      <PlayerSettings />
+      <CreateLobby disabled={modalsDisabled} />
+      <PlayerSettings disabled={modalsDisabled} />
     </div>
   );
 };

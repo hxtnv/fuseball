@@ -47,7 +47,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     JSON.parse(
       window.localStorage.getItem("fuseball:player:settings") ??
         JSON.stringify(getRandomPlayerSettings())
-    ) as PlayerSettings
+    )
   );
   const [view, setView] = useState<GameContextType["view"]>("lobby");
   const [lobbies, setLobbies] = useState<Lobby[]>([

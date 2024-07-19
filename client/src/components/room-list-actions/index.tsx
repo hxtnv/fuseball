@@ -8,6 +8,7 @@ import styles from "./room-list-actions.module.scss";
 import EMOJIS from "@/lib/const/emojis";
 import LOBBY_SIZES from "@/lib/const/lobby-size";
 import { Input, InputRadio } from "@/components/common/input";
+import getEmoji from "@/lib/helpers/get-emoji";
 
 const PlayerSettings: React.FC = () => {
   const { playerSettings, setPlayerSettings } = useGameContext();
@@ -28,7 +29,7 @@ const PlayerSettings: React.FC = () => {
               <div className={styles.player__settings__preview__content}>
                 <p>{playerSettings.name}</p>
 
-                <div>{EMOJIS[playerSettings.emoji]}</div>
+                <div>{getEmoji(playerSettings.emoji)}</div>
               </div>
             </div>
           </div>
@@ -60,9 +61,11 @@ const PlayerSettings: React.FC = () => {
 
 const CreateLobby: React.FC = () => {
   const [lobbyName, setLobbyName] = useState<string>("");
-  const [lobbySize, setLobbySize] = useState<number>(2);
+  const [lobbySize, setLobbySize] = useState<number>(1);
 
   const { Modal, open } = useModal();
+
+  const create = () => {};
 
   return (
     <>
@@ -85,7 +88,9 @@ const CreateLobby: React.FC = () => {
             grid={2}
           />
 
-          <Button style={{ marginTop: "40px" }}>Create lobby</Button>
+          <Button onClick={create} style={{ marginTop: "40px" }}>
+            Create lobby
+          </Button>
           <p className={styles.create__lobby__info}>
             After creating the lobby, the game will open in warmup mode until
             atleast one other player joins the lobby.

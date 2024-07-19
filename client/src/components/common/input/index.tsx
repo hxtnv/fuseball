@@ -5,6 +5,8 @@ type InputProps = {
   placeholder?: string;
   value: string;
   setValue: (value: string) => void;
+  extraIcon?: React.ReactNode;
+  extraIconOnClick?: () => void;
 };
 
 type InputRadioProps = InputProps & {
@@ -17,17 +19,27 @@ export const Input: React.FC<InputProps> = ({
   value,
   setValue,
   placeholder,
+  extraIcon,
+  extraIconOnClick,
 }) => {
   return (
     <div className={styles.input}>
       <label>{label}</label>
 
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-      />
+      <div className={styles.input__wrapper}>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+        />
+
+        {extraIcon && (
+          <div onClick={extraIconOnClick} className={styles.input__extra}>
+            {extraIcon}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

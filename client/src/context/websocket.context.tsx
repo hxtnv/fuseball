@@ -15,7 +15,7 @@ const WebSocketContext = React.createContext<WebSocketContextType>({
 const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [status, setStatus] =
-    useState<WebSocketContextType["status"]>("connecting");
+    useState<WebSocketContextType["status"]>("connected");
 
   useEffect(() => {
     const ws = new WebSocket(config.wsUrl);
@@ -23,7 +23,7 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     ws.onopen = () => {
       console.info("WebSocket connection established");
       emitter.emit("ws:connected");
-      setStatus("connected");
+      // setStatus("connected");
     };
 
     ws.onmessage = (event) => {
@@ -35,13 +35,13 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     ws.onclose = () => {
       console.info("WebSocket connection closed");
-      setStatus("disconnected");
+      // setStatus("disconnected");
       emitter.emit("ws:disconnected");
     };
 
     ws.onerror = (event: Event) => {
       console.error("WebSocket error: ", event);
-      setStatus("error");
+      // setStatus("error");
       emitter.emit("ws:disconnected", event);
     };
 

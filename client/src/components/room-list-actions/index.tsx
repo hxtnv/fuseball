@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { useGameContext } from "@/context/game.context";
+import { useGameContext, PlayerSettings } from "@/context/game.context";
 import Button from "@/components/common/button";
 import User from "@/assets/icons/user-solid.svg?react";
+import DiceFiveSolid from "@/assets/icons/dice-five-solid.svg?react";
 import useModal from "@/hooks/use-modal/use-modal";
 import playerPreviewBg from "@/assets/player-preview-bg.png";
 import styles from "./room-list-actions.module.scss";
@@ -10,12 +11,13 @@ import LOBBY_SIZES from "@/lib/const/lobby-size";
 import { Input, InputRadio } from "@/components/common/input";
 import getEmoji from "@/lib/helpers/get-emoji";
 import { useWebSocket } from "@/context/websocket.context";
+import getRandomPlayerName from "@/lib/helpers/get-random-player-name";
 
 type Props = {
   disabled: boolean;
 };
 
-const PlayerSettings: React.FC<Props> = ({ disabled }) => {
+const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
   const { playerSettings, setPlayerSettings } = useGameContext();
   const { Modal, open } = useModal();
 
@@ -47,6 +49,13 @@ const PlayerSettings: React.FC<Props> = ({ disabled }) => {
               setValue={(val: string) =>
                 setPlayerSettings({ ...playerSettings, name: val })
               }
+              extraIcon={<DiceFiveSolid />}
+              extraIconOnClick={() =>
+                setPlayerSettings({
+                  ...playerSettings,
+                  name: getRandomPlayerName(),
+                })
+              }
             />
 
             <InputRadio
@@ -64,7 +73,7 @@ const PlayerSettings: React.FC<Props> = ({ disabled }) => {
   );
 };
 
-const CreateLobby: React.FC<Props> = ({ disabled }) => {
+const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
   const [lobbyName, setLobbyName] = useState<string>("");
   const [lobbySize, setLobbySize] = useState<number>(1);
 
@@ -114,8 +123,8 @@ const RoomListActions: React.FC = () => {
 
   return (
     <div className={styles.actions}>
-      <CreateLobby disabled={modalsDisabled} />
-      <PlayerSettings disabled={modalsDisabled} />
+      <CreateLobbyModal disabled={modalsDisabled} />
+      <PlayerSettingsModal disabled={modalsDisabled} />
     </div>
   );
 };

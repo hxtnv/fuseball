@@ -8,7 +8,6 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 wss.on("connection", (ws: WebSocketClient) => {
   ws.id = randomUUID();
-  console.log("Client connected");
 
   const send = (event: string, data: any) => {
     ws.send(JSON.stringify({ event, data }));
@@ -50,7 +49,7 @@ wss.on("connection", (ws: WebSocketClient) => {
   });
 
   ws.on("close", () => {
-    console.log("Client disconnected");
+    lobbyManager.removeClientLobbies(ws.id);
   });
 });
 

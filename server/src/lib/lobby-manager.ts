@@ -23,15 +23,21 @@ type CreateLobby = {
   player: LobbyPlayer;
 };
 
+type State = {
+  lobbies: Lobby[];
+};
+
+const getState = () => ({ lobbies: [] } as State);
+
 const lobbyManager = () => {
-  const lobbies: Lobby[] = [];
+  const state = getState();
 
   const getAll = () => {
-    return lobbies;
+    return state.lobbies;
   };
 
   const get = (id: string) => {
-    return lobbies.find((lobby) => lobby.id === id);
+    return state.lobbies.find((lobby) => lobby.id === id);
   };
 
   const create = (
@@ -45,7 +51,11 @@ const lobbyManager = () => {
       };
     }
 
-    if (lobbies.find((lobby) => lobby.players.find((p) => p.id === playerId))) {
+    if (
+      state.lobbies.find((lobby) =>
+        lobby.players.find((p) => p.id === playerId)
+      )
+    ) {
       return {
         lobby: undefined,
         error: "You are already in another lobby!",
@@ -71,8 +81,9 @@ const lobbyManager = () => {
 
     const lobbyName = name.substring(0, 40);
     const lobbySize = Math.min(teamSize, 4);
+    const playerName = player.name.substring(0, 30);
 
-    lobbies.push({
+    state.lobbies.push({
       id,
       status: "warmup",
       name: lobbyName,
@@ -80,6 +91,7 @@ const lobbyManager = () => {
       players: [
         {
           ...player,
+          name: playerName,
           id: playerId,
           team: 0,
         },
@@ -87,16 +99,45 @@ const lobbyManager = () => {
       countryCode: "PL",
     });
 
+    console.log(
+      `New lobby named "${lobbyName}" has been created by "${playerName}" (1/${
+        lobbySize * 2
+      })`
+    );
+
     return {
-      lobby: lobbies.find((lobby) => lobby.id === id),
+      lobby: state.lobbies.find((lobby) => lobby.id === id),
       error: undefined,
     };
+  };
+
+  const removeClientLobbies = (clientId: string) => {
+    const lobby = state.lobbies.find((lobby) => {
+      return lobby.players.map((player) => player.id).includes(clientId);
+    });
+    const player = lobby?.players.find((player) => player.id === clientId);
+
+    if (!lobby) return;
+
+    console.log(
+      `Player "${player?.name}" has left the lobby "${lobby.name}" (${
+        lobby.players.length - 1
+      }/${lobby.teamSize * 2})`
+    );
+
+    state.lobbies = state.lobbies.map((lobby) => ({
+      ...lobby,
+      players: lobby.players.filter((player) => player.id !== clientId),
+    }));
+
+    state.lobbies = state.lobbies.filter((lobby) => lobby.players.length > 0);
   };
 
   return {
     getAll,
     get,
     create,
+    removeClientLobbies,
   };
 };
 

@@ -1,6 +1,7 @@
 import WebSocket from "ws";
 import { randomUUID } from "crypto";
 import lobbyManager from "./lib/lobby-manager";
+import { parse } from "path";
 
 type WebSocketClient = WebSocket & { id: string };
 
@@ -9,7 +10,7 @@ const wss = new WebSocket.Server({ port: 8080 });
 wss.on("connection", (ws: WebSocketClient) => {
   ws.id = randomUUID();
 
-  const send = (event: string, data: any) => {
+  const send = (event: string, data?: any) => {
     ws.send(JSON.stringify({ event, data }));
   };
 
@@ -51,6 +52,8 @@ wss.on("connection", (ws: WebSocketClient) => {
           send("join-lobby-success", lobby);
           broadcast("lobbies", lobbyManager.getAll());
         }
+      } else if (parsedMessage.event === "ping") {
+        send("pong");
       } else {
         send("error", "Unknown event");
       }

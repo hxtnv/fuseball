@@ -1,66 +1,24 @@
 import WebSocket from "ws";
+import { randomUUID } from "crypto";
+import lobbyManager from "./lib/lobby-manager";
 
-export type LobbyPlayer = {
-  id: string;
-  name: string;
-  emoji: number;
-  team: 0 | 1;
-};
+type WebSocketClient = WebSocket & { id: string };
 
-export type Lobby = {
-  id: string;
-  status: "warmup" | "in-progress" | "finished";
-  name: string;
-  players: LobbyPlayer[];
-  teamSize: number;
-  countryCode: string;
-  score?: string;
-};
-
-const lobbies: Lobby[] = [
-  {
-    id: "1",
-    status: "warmup",
-    name: "Deutsche Fußball",
-    players: [
-      {
-        id: "1",
-        name: "Player 1",
-        emoji: 0,
-        team: 0,
-      },
-    ],
-    teamSize: 2,
-    countryCode: "DE",
-  },
-  {
-    id: "2",
-    status: "warmup",
-    name: "POLSKA PRZEJMUJE TEN SERWER",
-    players: [
-      {
-        id: "1",
-        name: "Player 1",
-        emoji: 5,
-        team: 1,
-      },
-      {
-        id: "1",
-        name: "Player 1",
-        emoji: 7,
-        team: 0,
-      },
-    ],
-    teamSize: 4,
-    countryCode: "PL",
-  },
-];
-
-// Create WebSocket server
 const wss = new WebSocket.Server({ port: 8080 });
 
-wss.on("connection", (ws) => {
+wss.on("connection", (ws: WebSocketClient) => {
+  ws.id = randomUUID();
   console.log("Client connected");
+
+  const send = (event: string, data: any) => {
+    ws.send(JSON.stringify({ event, data }));
+  };
+
+  const broadcast = (event: string, data: any) => {
+    wss.clients.forEach(function each(client) {
+      client.send(JSON.stringify({ event, data }));
+    });
+  };
 
   ws.on("message", (message: string) => {
     try {
@@ -69,14 +27,25 @@ wss.on("connection", (ws) => {
       console.log("got message", parsedMessage);
 
       if (parsedMessage.event === "get-lobbies") {
-        ws.send(JSON.stringify({ event: "lobbies", data: lobbies }));
+        send("lobbies", lobbyManager.getAll());
+      } else if (parsedMessage.event === "create-lobby") {
+        const { lobby, error } = lobbyManager.create(parsedMessage.data, ws.id);
+
+        console.log("result", lobby, error, ws.id);
+
+        if (error) {
+          send("create-lobby-error", error);
+        }
+
+        if (lobby) {
+          send("create-lobby-success", lobby);
+          broadcast("lobbies", lobbyManager.getAll());
+        }
       } else {
-        ws.send(JSON.stringify({ event: "error", message: "Unknown event" }));
+        send("error", "Unknown event");
       }
     } catch (error) {
-      ws.send(
-        JSON.stringify({ event: "error", message: "Invalid message format" })
-      );
+      send("error", "Invalid message format");
     }
   });
 

@@ -31,8 +31,6 @@ wss.on("connection", (ws: WebSocketClient) => {
       } else if (parsedMessage.event === "create-lobby") {
         const { lobby, error } = lobbyManager.create(parsedMessage.data, ws.id);
 
-        console.log("result", lobby, error, ws.id);
-
         if (error) {
           send("create-lobby-error", error);
         }

@@ -40,6 +40,17 @@ wss.on("connection", (ws: WebSocketClient) => {
           send("create-lobby-success", lobby);
           broadcast("lobbies", lobbyManager.getAll());
         }
+      } else if (parsedMessage.event === "join-lobby") {
+        const { lobby, error } = lobbyManager.join(parsedMessage.data, ws.id);
+
+        if (error) {
+          send("join-lobby-error", error);
+        }
+
+        if (lobby) {
+          send("join-lobby-success", lobby);
+          broadcast("lobbies", lobbyManager.getAll());
+        }
       } else {
         send("error", "Unknown event");
       }
@@ -49,7 +60,8 @@ wss.on("connection", (ws: WebSocketClient) => {
   });
 
   ws.on("close", () => {
-    lobbyManager.removeClientLobbies(ws.id);
+    lobbyManager.removeClientFromLobbies(ws.id);
+    broadcast("lobbies", lobbyManager.getAll());
   });
 });
 

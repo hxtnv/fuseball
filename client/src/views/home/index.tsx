@@ -13,14 +13,13 @@ const Home: React.FC = () => {
   const { open, close, Modal } = useModal();
 
   useEffect(() => {
-    open();
     if (currentLobby) open();
 
     const timeout = setTimeout(() => {
       if (currentLobby) close();
 
       setDisplayGameSketch(!!currentLobby);
-    }, 1000);
+    }, 1500);
 
     return () => {
       clearTimeout(timeout);

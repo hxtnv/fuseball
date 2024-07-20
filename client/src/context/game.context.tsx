@@ -79,13 +79,14 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   const joinLobby = (id: string, team?: 0 | 1) => {
     console.log("joining lobby", id, team);
-    // emitter.emit("ws:send", {
-    //   event: "join-lobby",
-    //   data: {
-    //     id,
-    //     team,
-    //   },
-    // });
+    emitter.emit("ws:send", {
+      event: "join-lobby",
+      data: {
+        id,
+        team,
+        player: playerSettings,
+      },
+    });
   };
 
   const onUserIdReceived = ({ data: userId }: { data: string }) => {
@@ -98,7 +99,6 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onLobbySuccess = ({ data: lobby }: { data: Lobby }) => {
-    // this event will be used for joining lobby and creating lobby
     setCurrentLobby(lobby);
   };
 
@@ -119,6 +119,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     emitter.on("ws:message:lobbies", onLobbiesReceived);
     emitter.on("ws:message:create-lobby-success", onLobbySuccess);
+    emitter.on("ws:message:join-lobby-success", onLobbySuccess);
     emitter.on("ws:message:user-id", onUserIdReceived);
     emitter.on("ws:connected", onConnected);
 
@@ -127,6 +128,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       emitter.off("ws:message:lobbies", onLobbiesReceived);
       emitter.off("ws:message:create-lobby-success", onLobbySuccess);
+      emitter.off("ws:message:join-lobby-success", onLobbySuccess);
       emitter.off("ws:message:user-id", onUserIdReceived);
       emitter.off("ws:connected", onConnected);
 

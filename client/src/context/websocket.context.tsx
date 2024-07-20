@@ -15,33 +15,47 @@ const WebSocketContext = React.createContext<WebSocketContextType>({
 const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [status, setStatus] =
-    useState<WebSocketContextType["status"]>("connected");
+    useState<WebSocketContextType["status"]>("connecting");
+
+  const onEmitterSend = (event: string, data: any) => {
+    if (!ws) {
+      return;
+    }
+
+    console.log("sending event", event, data, !!ws);
+    ws?.send(JSON.stringify({ event, data }));
+  };
+
+  useEffect(() => {
+    emitter.on("ws:send", onEmitterSend);
+
+    return () => {
+      emitter.off("ws:send", onEmitterSend);
+    };
+  }, [ws, status]);
 
   useEffect(() => {
     const ws = new WebSocket(config.wsUrl);
 
     ws.onopen = () => {
-      console.info("WebSocket connection established");
       emitter.emit("ws:connected");
-      // setStatus("connected");
+      setStatus("connected");
     };
 
     ws.onmessage = (event) => {
       const parsedMessage = JSON.parse(event.data);
-      console.info("WebSocket message received: ", parsedMessage);
+
       emitter.emit("ws:message", parsedMessage);
-      emitter.emit(`ws:message:${parsedMessage.type}`, parsedMessage);
+      emitter.emit(`ws:message:${parsedMessage.event}`, parsedMessage);
     };
 
     ws.onclose = () => {
-      console.info("WebSocket connection closed");
-      // setStatus("disconnected");
+      setStatus("disconnected");
       emitter.emit("ws:disconnected");
     };
 
     ws.onerror = (event: Event) => {
-      console.error("WebSocket error: ", event);
-      // setStatus("error");
+      setStatus("error");
       emitter.emit("ws:disconnected", event);
     };
 

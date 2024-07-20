@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useGameContext, PlayerSettings } from "@/context/game.context";
+import { useGameContext } from "@/context/game.context";
 import Button from "@/components/common/button";
 import User from "@/assets/icons/user-solid.svg?react";
 import DiceFiveSolid from "@/assets/icons/dice-five-solid.svg?react";

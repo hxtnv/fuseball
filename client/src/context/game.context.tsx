@@ -11,6 +11,7 @@ export type LobbyPlayer = {
   id: string;
   name: string;
   emoji: number;
+  team: 0 | 1;
 };
 
 export type Lobby = {
@@ -18,7 +19,7 @@ export type Lobby = {
   status: "warmup" | "in-progress" | "finished";
   name: string;
   players: LobbyPlayer[];
-  maxPlayers: number;
+  teamSize: number;
   countryCode: string;
   score?: string;
 };
@@ -50,43 +51,13 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     )
   );
   const [view, setView] = useState<GameContextType["view"]>("lobby");
-  const [lobbies, setLobbies] = useState<Lobby[]>([
-    {
-      id: "1",
-      status: "warmup",
-      name: "Deutsche Fußball",
-      players: [
-        {
-          id: "1",
-          name: "Player 1",
-          emoji: 0,
-        },
-      ],
-      maxPlayers: 4,
-      countryCode: "DE",
-    },
-    {
-      id: "2",
-      status: "warmup",
-      name: "POLSKA PRZEJMUJE TEN SERWER",
-      players: [
-        {
-          id: "1",
-          name: "Player 1",
-          emoji: 5,
-        },
-        {
-          id: "1",
-          name: "Player 1",
-          emoji: 7,
-        },
-      ],
-      maxPlayers: 4,
-      countryCode: "PL",
-    },
-  ]);
+  const [lobbies, setLobbies] = useState<Lobby[]>([]);
 
-  const onLobbiesReceived = (lobbyList: Lobby[]) => {
+  const onConnected = () => {
+    emitter.emit("ws:send", "get-lobbies");
+  };
+
+  const onLobbiesReceived = ({ data: lobbyList }: { data: Lobby[] }) => {
     setLobbies(lobbyList.sort((a, b) => b.players.length - a.players.length));
   };
 
@@ -99,13 +70,13 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     emitter.on("ws:message:lobbies", onLobbiesReceived);
-
-    emitter.emit("ws:send", "lobbies");
+    emitter.on("ws:connected", onConnected);
 
     return () => {
       emitter.off("ws:message:lobbies", onLobbiesReceived);
+      emitter.off("ws:connected", onConnected);
     };
-  }, [onLobbiesReceived]);
+  }, []);
 
   return (
     <GameContext.Provider

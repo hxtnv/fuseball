@@ -43,8 +43,14 @@
 
   .room__players {
     display: flex;
+    align-items: center;
     gap: 5px;
     margin: 10px 0 0;
+
+    .room__player__sword {
+      height: 16px;
+      width: 16px;
+    }
 
     .room__player,
     .room__player__empty,
@@ -53,8 +59,8 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      height: 32px;
-      width: 32px;
+      height: 28px;
+      width: 28px;
       border-radius: 18px;
       border: 2px solid transparent;
       background-color: rgba(255, 255, 255, 0.1);

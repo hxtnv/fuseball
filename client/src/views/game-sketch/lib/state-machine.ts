@@ -9,46 +9,35 @@ export type StateType = {
   currentLobby: Lobby | null;
 };
 
+const createState = () =>
+  ({
+    players: [],
+    controllablePlayer: null,
+    currentLobby: null,
+  } as StateType);
+
 const stateMachine = () => {
-  const players: StateType["players"] = [];
-  let controllablePlayer: StateType["controllablePlayer"] = null;
-  // const controllablePlayer: StateType["controllablePlayer"] =
-  // new ControllablePlayer(p, {
-  //   position: {
-  //     x: 1440 / 2,
-  //     y: 792 / 2,
-  //   },
-  // });
-  let currentLobby: StateType["currentLobby"] = null;
+  const state = createState();
 
   const onGetCurrentLobby = ({ data }: { data: Lobby }) => {
     console.log("game got current lobby received", data);
-    currentLobby = data;
+    state.currentLobby = data;
   };
 
   const init = () => {
-    console.log("stateMachine.init");
     emitter.on("game:current-lobby", onGetCurrentLobby);
-
     emitter.emit("game:get-current-lobby");
   };
 
   const cleanup = () => {
-    emitter.off("game:get-current-lobby", onGetCurrentLobby);
+    emitter.off("game:current-lobby", onGetCurrentLobby);
   };
 
   return {
     init,
     cleanup,
-    state: {
-      players,
-      controllablePlayer,
-      currentLobby,
-    } as StateType,
+    state,
   };
 };
-
-// const state = stateMachine();
-// Object.freeze(state);
 
 export default stateMachine;

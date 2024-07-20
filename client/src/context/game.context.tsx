@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import emitter from "@/lib/emitter";
 import getRandomPlayerSettings from "@/lib/helpers/get-random-player-settings";
 
@@ -46,14 +46,15 @@ const GameContext = React.createContext<GameContextType>({
 });
 
 const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const [lobbies, setLobbies] = useState<Lobby[]>([]);
+  const [currentLobby, setCurrentLobby] = useState<Lobby | null>(null);
+  const [playerId, setPlayerId] = useState<string | null>(null);
   const [playerSettings, setPlayerSettings] = useState<PlayerSettings>(
     JSON.parse(
       window.localStorage.getItem("fuseball:player:settings") ??
         JSON.stringify(getRandomPlayerSettings())
     )
   );
-  const [lobbies, setLobbies] = useState<Lobby[]>([]);
-  const [currentLobby, setCurrentLobby] = useState<Lobby | null>(null);
 
   const onConnected = () => {
     emitter.emit("ws:send", "get-lobbies");
@@ -87,6 +88,11 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     // });
   };
 
+  const onUserIdReceived = ({ data: userId }: { data: string }) => {
+    console.log("user id received", userId);
+    setPlayerId(userId);
+  };
+
   const onLobbiesReceived = ({ data: lobbyList }: { data: Lobby[] }) => {
     setLobbies(lobbyList.sort((a, b) => b.players.length - a.players.length));
   };
@@ -114,6 +120,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     emitter.on("ws:message:lobbies", onLobbiesReceived);
     emitter.on("ws:message:create-lobby-success", onLobbySuccess);
+    emitter.on("ws:message:user-id", onUserIdReceived);
     emitter.on("ws:connected", onConnected);
 
     emitter.on("game:get-current-lobby", onGetCurrentLobby);
@@ -121,6 +128,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       emitter.off("ws:message:lobbies", onLobbiesReceived);
       emitter.off("ws:message:create-lobby-success", onLobbySuccess);
+      emitter.off("ws:message:user-id", onUserIdReceived);
       emitter.off("ws:connected", onConnected);
 
       emitter.off("game:get-current-lobby", onGetCurrentLobby);

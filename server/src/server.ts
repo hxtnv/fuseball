@@ -20,6 +20,8 @@ wss.on("connection", (ws: WebSocketClient) => {
     });
   };
 
+  send("user-id", ws.id);
+
   ws.on("message", (message: string) => {
     try {
       const parsedMessage = JSON.parse(message);

@@ -4,15 +4,22 @@ import GameSketch from "@/views/game-sketch";
 import { useGameContext } from "@/context/game.context";
 import logo from "@/assets/logo.png";
 import styles from "./home.module.scss";
+import useModal from "@/hooks/use-modal/use-modal";
 
 const Home: React.FC = () => {
   const [displayGameSketch, setDisplayGameSketch] = useState(false);
   const { currentLobby } = useGameContext();
 
+  const { open, close, Modal } = useModal();
+
   useEffect(() => {
+    if (currentLobby) open();
+
     const timeout = setTimeout(() => {
+      if (currentLobby) close();
+
       setDisplayGameSketch(!!currentLobby);
-    }, 1000);
+    }, 3000);
 
     return () => {
       clearTimeout(timeout);
@@ -25,6 +32,10 @@ const Home: React.FC = () => {
 
   return (
     <div className={styles.home}>
+      <Modal title="Loading">
+        <p>hold on mate</p>
+      </Modal>
+
       <img src={logo} alt="Fuseball logo" className={styles.logo} />
 
       <p className={styles.description}>

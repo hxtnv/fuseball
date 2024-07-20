@@ -2,13 +2,10 @@ import p5 from "q5";
 import stateMachine from "./lib/state-machine";
 import uiRenderer from "./lib/renderers/ui";
 import mapRenderer from "./lib/renderers/map";
+import playersRenderer from "./lib/renderers/players";
 
 const sketch = (p: p5) => {
-  const {
-    init: initState,
-    cleanup: cleanupState,
-    state,
-  } = Object.freeze(stateMachine());
+  const { init: initState, cleanup: cleanupState, state } = stateMachine();
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -21,26 +18,17 @@ const sketch = (p: p5) => {
 
     const userInterface = uiRenderer(p, state);
     const map = mapRenderer(p);
-    // const sprites = spritesDrawer(p, state);
+    const players = playersRenderer(p, state);
 
     if (state.controllablePlayer) {
       state.controllablePlayer.update();
-      // state.controllablePlayer.draw();
-
-      p.translate(
-        p.width / 2 - state.controllablePlayer.properties.position.x,
-        p.height / 2 - state.controllablePlayer.properties.position.y
-      );
+      players.followPlayer(state.controllablePlayer);
     }
 
     map.draw();
-
-    state.players.forEach((player) => player.draw());
-    if (state.controllablePlayer) {
-      state.controllablePlayer.draw();
-    }
-
+    players.draw();
     userInterface.draw();
+
     if (state.controllablePlayer) {
       if (p.keyIsDown(p.SHIFT)) {
         userInterface.drawSpeechBubble(state.controllablePlayer, "😂");

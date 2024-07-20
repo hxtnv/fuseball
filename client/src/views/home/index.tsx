@@ -13,13 +13,14 @@ const Home: React.FC = () => {
   const { open, close, Modal } = useModal();
 
   useEffect(() => {
+    open();
     if (currentLobby) open();
 
     const timeout = setTimeout(() => {
       if (currentLobby) close();
 
       setDisplayGameSketch(!!currentLobby);
-    }, 3000);
+    }, 1000);
 
     return () => {
       clearTimeout(timeout);
@@ -33,7 +34,12 @@ const Home: React.FC = () => {
   return (
     <div className={styles.home}>
       <Modal title="Loading">
-        <p>hold on mate</p>
+        <div className={styles.loader__modal}>
+          <div className={styles.loader__modal__animation} />
+
+          <h4>Loading</h4>
+          <p>The game will open soon...</p>
+        </div>
       </Modal>
 
       <img src={logo} alt="Fuseball logo" className={styles.logo} />

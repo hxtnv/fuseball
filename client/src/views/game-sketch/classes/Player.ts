@@ -1,7 +1,11 @@
 import p5 from "q5";
 import PLAYER from "../lib/const/player";
+import getEmoji from "@/lib/helpers/get-emoji";
 
 export type PlayerInitialProperties = {
+  id: string;
+  name: string;
+  emoji: number;
   position: {
     x: number;
     y: number;
@@ -32,6 +36,11 @@ class Player {
     this.p5.strokeWeight(4);
     this.p5.fill(253, 200, 118);
     this.p5.ellipse(0, 0, PLAYER.SIZE);
+
+    this.p5.textSize(14);
+    this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
+    this.p5.fill(255);
+    this.p5.text(getEmoji(this.properties.emoji), 0, 0);
 
     // this.p5.noFill();
     // this.p5.rect(-100, -100, 200, 200);

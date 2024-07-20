@@ -15,10 +15,10 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
   const fixedElements = (drawCall: () => void) => {
     p.push();
-    if (state.controllablePlayer) {
+    if (state.followingPlayer) {
       p.translate(
-        state.controllablePlayer.properties.position.x - p.width / 2,
-        state.controllablePlayer.properties.position.y - p.height / 2
+        state.followingPlayer.properties.position.x - p.width / 2,
+        state.followingPlayer.properties.position.y - p.height / 2
       );
     }
     drawCall();
@@ -26,19 +26,16 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   };
 
   const drawNametags = () => {
-    state.players.forEach((player, key) => {
-      drawNametag(p, {
-        text: `Player #${key}`,
-        position: player.properties.position,
-      });
-    });
+    [...state.players, state.controllablePlayer]
+      .filter(Boolean)
+      .forEach((player) => {
+        if (!player) return;
 
-    if (state.controllablePlayer) {
-      drawNametag(p, {
-        text: `Player`,
-        position: state.controllablePlayer.properties.position,
+        drawNametag(p, {
+          text: player.properties.name,
+          position: player.properties.position,
+        });
       });
-    }
   };
 
   const drawDebugInfo = () => {
@@ -132,6 +129,13 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
+  const followPlayer = (player: Player) => {
+    p.translate(
+      p.width / 2 - player.properties.position.x,
+      p.height / 2 - player.properties.position.y
+    );
+  };
+
   const drawLobbyInfo = () => {
     if (!state.currentLobby) return;
 
@@ -173,7 +177,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     });
   };
 
-  return { draw, drawSpeechBubble };
+  return { draw, drawSpeechBubble, followPlayer };
 };
 
 export default userInterfaceRenderer;

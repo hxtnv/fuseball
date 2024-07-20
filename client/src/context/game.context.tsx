@@ -99,14 +99,13 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onLobbySuccess = ({ data: lobby }: { data: Lobby }) => {
     // this event will be used for joining lobby and creating lobby
-    console.log("lobby success", lobby);
     setCurrentLobby(lobby);
   };
 
   const onGetCurrentLobby = () => {
-    console.log("game:get-current-lobby sending", currentLobby);
     emitter.emit("game:current-lobby", {
       data: currentLobby,
+      playerId,
     });
   };
 

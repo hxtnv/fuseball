@@ -5,7 +5,7 @@ import mapRenderer from "./lib/renderers/map";
 import playersRenderer from "./lib/renderers/players";
 
 const sketch = (p: p5) => {
-  const { init: initState, cleanup: cleanupState, state } = stateMachine();
+  const { init: initState, cleanup: cleanupState, state } = stateMachine(p);
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -22,18 +22,21 @@ const sketch = (p: p5) => {
 
     if (state.controllablePlayer) {
       state.controllablePlayer.update();
-      players.followPlayer(state.controllablePlayer);
+    }
+
+    if (state.followingPlayer) {
+      userInterface.followPlayer(state.followingPlayer);
     }
 
     map.draw();
     players.draw();
     userInterface.draw();
 
-    if (state.controllablePlayer) {
-      if (p.keyIsDown(p.SHIFT)) {
-        userInterface.drawSpeechBubble(state.controllablePlayer, "😂");
-      }
-    }
+    // if (state.controllablePlayer) {
+    //   if (p.keyIsDown(p.SHIFT)) {
+    //     userInterface.drawSpeechBubble(state.controllablePlayer, "😂");
+    //   }
+    // }
   };
 
   p.windowResized = () => {

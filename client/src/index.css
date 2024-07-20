@@ -39,5 +39,6 @@ html,
 }
 
 #canvas {
+  position: absolute;
   overflow: hidden;
 }

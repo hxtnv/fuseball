@@ -8,8 +8,12 @@ type ModalProps = {
   title?: string;
   hideCloseButton?: boolean;
 };
+type UseModalArgs = {
+  onClose?: () => void;
+  onOpen?: () => void;
+};
 
-const useModal = () => {
+const useModal = ({ onClose, onOpen }: UseModalArgs = {}) => {
   const [visibility, setVisibility] = useState<VisibilityState>("hidden");
 
   const open = () => setVisibility("visible");
@@ -59,6 +63,14 @@ const useModal = () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
+
+  useEffect(() => {
+    if (visibility === "visible") {
+      onOpen?.();
+    } else if (visibility === "hidden") {
+      onClose?.();
+    }
+  }, [visibility]);
 
   return {
     Modal: memoizedModal,

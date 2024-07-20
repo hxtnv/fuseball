@@ -3,21 +3,24 @@ import type { StateType } from "../state-machine";
 import { draw as drawNametag } from "../helpers/nametag";
 import PLAYER from "../const/player";
 import Player from "../../classes/player";
+import LOBBY_STATUS from "@/lib/const/lobby-status";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
-    `Player position: ${state.controllablePlayer.properties.position.x.toFixed(
+    `Player position: ${state.controllablePlayer?.properties.position.x.toFixed(
       0
-    )}, ${state.controllablePlayer.properties.position.y.toFixed(0)}`,
+    )}, ${state.controllablePlayer?.properties.position.y.toFixed(0)}`,
     `FPS: ${Number(p.frameRate()).toFixed(0)}`,
   ];
 
   const fixedElements = (drawCall: () => void) => {
     p.push();
-    p.translate(
-      state.controllablePlayer.properties.position.x - p.width / 2,
-      state.controllablePlayer.properties.position.y - p.height / 2
-    );
+    if (state.controllablePlayer) {
+      p.translate(
+        state.controllablePlayer.properties.position.x - p.width / 2,
+        state.controllablePlayer.properties.position.y - p.height / 2
+      );
+    }
     drawCall();
     p.pop();
   };
@@ -30,10 +33,12 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
       });
     });
 
-    drawNametag(p, {
-      text: `Player`,
-      position: state.controllablePlayer.properties.position,
-    });
+    if (state.controllablePlayer) {
+      drawNametag(p, {
+        text: `Player`,
+        position: state.controllablePlayer.properties.position,
+      });
+    }
   };
 
   const drawDebugInfo = () => {
@@ -127,6 +132,36 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
+  const drawLobbyInfo = () => {
+    if (!state.currentLobby) return;
+
+    const lobbyStatus = LOBBY_STATUS[state.currentLobby.status];
+
+    p.push();
+
+    p.textSize(18);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.fill(255);
+    p.stroke(51);
+    p.strokeWeight(4);
+    p.text(state.currentLobby.name, p.width / 2, 40);
+
+    const lobbyNameTextWidth = p.textWidth(state.currentLobby.name);
+
+    p.textSize(24);
+    p.fill(lobbyStatus.color);
+    p.text(lobbyStatus.text, p.width / 2, 66);
+
+    // scores
+    p.fill(255);
+    p.textSize(40);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text("0", p.width / 2 - lobbyNameTextWidth / 2 - 50, 56);
+    p.text("0", p.width / 2 + lobbyNameTextWidth / 2 + 50, 56);
+
+    p.pop();
+  };
+
   const draw = () => {
     p.textFont("Itim");
 
@@ -134,6 +169,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
     fixedElements(() => {
       drawDebugInfo();
+      drawLobbyInfo();
     });
   };
 

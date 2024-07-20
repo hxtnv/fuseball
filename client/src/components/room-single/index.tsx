@@ -5,30 +5,10 @@ import EMOJIS from "@/lib/const/emojis";
 import ChevronRight from "@/assets/icons/chevron-right-solid.svg?react";
 import Plus from "@/assets/icons/plus-solid.svg?react";
 import Sword from "@/assets/icons/sword-fill.svg?react";
-
-const lobbyStatus: Record<
-  Lobby["status"],
-  {
-    text: string;
-    color: string;
-  }
-> = {
-  warmup: {
-    text: "Warmup",
-    color: "#6ae72c",
-  },
-  "in-progress": {
-    text: "In progress",
-    color: "#e7a62c",
-  },
-  finished: {
-    text: "Finished",
-    color: "#f31f1f",
-  },
-};
+import LOBBY_STATUS from "@/lib/const/lobby-status";
 
 const SingleRoom: React.FC<Lobby> = ({
-  // id,
+  id,
   status,
   name,
   players,
@@ -36,10 +16,9 @@ const SingleRoom: React.FC<Lobby> = ({
   countryCode,
   score,
 }) => {
-  const maxPlayers = teamSize * 2;
-  const { setView } = useGameContext();
+  const { joinLobby } = useGameContext();
 
-  const renderPlayer = (player: LobbyPlayer, index: number) => {
+  const renderPlayer = (player: LobbyPlayer, index: number, team: 0 | 1) => {
     if (player) {
       return (
         <div className={styles.room__player} key={index}>
@@ -49,7 +28,11 @@ const SingleRoom: React.FC<Lobby> = ({
     }
 
     return (
-      <div className={styles.room__player__empty} key={index}>
+      <div
+        className={styles.room__player__empty}
+        key={index}
+        onClick={() => joinLobby(id, team)}
+      >
         <Plus />
       </div>
     );
@@ -65,7 +48,7 @@ const SingleRoom: React.FC<Lobby> = ({
     ];
   }, [teamSize, players]);
 
-  console.log(teams);
+  const maxPlayers = teamSize * 2;
 
   return (
     <div className={styles.room}>
@@ -76,19 +59,19 @@ const SingleRoom: React.FC<Lobby> = ({
 
         <span
           className={styles.status}
-          style={{ color: lobbyStatus[status].color }}
+          style={{ color: LOBBY_STATUS[status].color }}
         >
-          {lobbyStatus[status].text}
+          {LOBBY_STATUS[status].text}
           {status === "in-progress" && score ? ` (${score})` : ""}
         </span>
       </div>
 
       <div className={styles.room__players}>
-        {teams[0].map(renderPlayer)}
+        {teams[0].map((player, index) => renderPlayer(player, index, 0))}
         <Sword className={styles.room__player__sword} />
-        {teams[1].map(renderPlayer)}
+        {teams[1].map((player, index) => renderPlayer(player, index, 1))}
 
-        <div className={styles.room__join} onClick={() => setView("game")}>
+        <div className={styles.room__join} onClick={() => joinLobby(id)}>
           <p>Join</p>
           <ChevronRight />
         </div>

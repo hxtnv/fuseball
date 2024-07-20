@@ -6,6 +6,7 @@ type Props = {
   style?: React.CSSProperties;
   disabled?: boolean;
   variant?: "primary" | "secondary";
+  loading?: boolean;
 };
 
 const Button: React.FC<Props> = ({
@@ -14,6 +15,7 @@ const Button: React.FC<Props> = ({
   onClick,
   disabled,
   variant,
+  loading,
 }) => {
   return (
     <button
@@ -21,9 +23,9 @@ const Button: React.FC<Props> = ({
       className={styles.btn}
       data-variant={variant ?? "primary"}
       style={style}
-      disabled={disabled}
+      disabled={disabled || loading}
     >
-      {children}
+      {loading ? "Loading..." : children}
     </button>
   );
 };

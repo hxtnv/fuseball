@@ -4,7 +4,11 @@ import uiRenderer from "./lib/renderers/ui";
 import mapRenderer from "./lib/renderers/map";
 
 const sketch = (p: p5) => {
-  const { init: initState, cleanup: cleanupState, state } = stateMachine(p);
+  const {
+    init: initState,
+    cleanup: cleanupState,
+    state,
+  } = Object.freeze(stateMachine());
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -37,8 +41,10 @@ const sketch = (p: p5) => {
     }
 
     userInterface.draw();
-    if (p.keyIsDown(p.SHIFT)) {
-      userInterface.drawSpeechBubble(state.controllablePlayer, "😂");
+    if (state.controllablePlayer) {
+      if (p.keyIsDown(p.SHIFT)) {
+        userInterface.drawSpeechBubble(state.controllablePlayer, "😂");
+      }
     }
   };
 

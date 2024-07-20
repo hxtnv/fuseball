@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
 import emitter from "@/lib/emitter";
 import config from "@/config";
+import ReconnectingWebSocket, { ErrorEvent } from "reconnecting-websocket";
 
 type WebSocketContextType = {
-  ws: WebSocket | null;
+  ws: ReconnectingWebSocket | null;
   status: "connecting" | "connected" | "disconnected" | "error";
 };
 
@@ -13,17 +14,27 @@ const WebSocketContext = React.createContext<WebSocketContextType>({
 });
 
 const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
-  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [ws, setWs] = useState<ReconnectingWebSocket | null>(null);
   const [status, setStatus] =
     useState<WebSocketContextType["status"]>("connecting");
 
-  const onEmitterSend = (event: string, data: any) => {
+  const onEmitterSend = (event: string | any) => {
     if (!ws) {
       return;
     }
 
-    console.log("sending event", event, data, !!ws);
-    ws?.send(JSON.stringify({ event, data }));
+    ws?.send(
+      JSON.stringify({
+        event: typeof event === "string" ? event : event.event,
+        data:
+          typeof event === "object"
+            ? {
+                ...event.data,
+                event: undefined,
+              }
+            : undefined,
+      })
+    );
   };
 
   useEffect(() => {
@@ -35,7 +46,7 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, [ws, status]);
 
   useEffect(() => {
-    const ws = new WebSocket(config.wsUrl);
+    const ws = new ReconnectingWebSocket(config.wsUrl);
 
     ws.onopen = () => {
       emitter.emit("ws:connected");
@@ -54,7 +65,7 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
       emitter.emit("ws:disconnected");
     };
 
-    ws.onerror = (event: Event) => {
+    ws.onerror = (event: ErrorEvent) => {
       setStatus("error");
       emitter.emit("ws:disconnected", event);
     };

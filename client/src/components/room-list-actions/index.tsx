@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGameContext } from "@/context/game.context";
 import Button from "@/components/common/button";
 import User from "@/assets/icons/user-solid.svg?react";
@@ -12,6 +12,7 @@ import { Input, InputRadio } from "@/components/common/input";
 import getEmoji from "@/lib/helpers/get-emoji";
 import { useWebSocket } from "@/context/websocket.context";
 import getRandomPlayerName from "@/lib/helpers/get-random-player-name";
+import emitter from "@/lib/emitter";
 
 type Props = {
   disabled: boolean;
@@ -74,12 +75,43 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
 };
 
 const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
-  const [lobbyName, setLobbyName] = useState<string>("");
+  const [lobbyName, setLobbyName] = useState<string>("A Fuseball game");
   const [lobbySize, setLobbySize] = useState<number>(1);
 
-  const { Modal, open } = useModal();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
-  const create = () => {};
+  const { Modal, open, close } = useModal({ onClose: () => setError("") });
+  const { createLobby } = useGameContext();
+
+  const create = () => {
+    setLoading(true);
+
+    createLobby({
+      name: lobbyName,
+      teamSize: lobbySize + 1,
+    });
+  };
+
+  const onError = ({ data }: { data: string }) => {
+    setError(data);
+    setLoading(false);
+  };
+
+  const onSuccess = () => {
+    setLoading(false);
+    close();
+  };
+
+  useEffect(() => {
+    emitter.on("ws:message:create-lobby-error", onError);
+    emitter.on("ws:message:create-lobby-success", onSuccess);
+
+    return () => {
+      emitter.off("ws:message:create-lobby-error", onError);
+      emitter.off("ws:message:create-lobby-success", onSuccess);
+    };
+  }, []);
 
   return (
     <>
@@ -104,9 +136,16 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
             grid={2}
           />
 
-          <Button onClick={create} style={{ marginTop: "40px" }}>
+          <div style={{ marginTop: "30px", width: "100%" }} />
+
+          {error !== "" && (
+            <p className={styles.create__lobby__error}>{error}</p>
+          )}
+
+          <Button onClick={create} loading={loading}>
             Create lobby
           </Button>
+
           <p className={styles.create__lobby__info}>
             After creating the lobby, the game will open in warmup mode until
             atleast one other player joins the lobby.

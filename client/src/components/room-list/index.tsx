@@ -32,7 +32,7 @@ const RoomList: React.FC = () => {
       {status === "connected" &&
         lobbies.map((lobby) => <SingleRoom {...lobby} key={lobby.id} />)}
 
-      {status === "error" || (status === "disconnected" && <RoomListError />)}
+      {(status === "error" || status === "disconnected") && <RoomListError />}
     </div>
   );
 };

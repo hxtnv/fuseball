@@ -13,13 +13,11 @@ const P5Sketch: React.FC = () => {
       sketchRef.current.children.length === 0 &&
       !p5InstanceRef.current
     ) {
-      console.info("Rendering sketch");
       p5InstanceRef.current = new p5(gameSketch, sketchRef.current);
     }
 
     return () => {
       if (p5InstanceRef.current) {
-        console.info("Cleaning up sketch");
         p5InstanceRef.current.remove();
         p5InstanceRef.current = null;
       }

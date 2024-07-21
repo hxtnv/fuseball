@@ -8,11 +8,7 @@ const P5Sketch: React.FC = () => {
   const p5InstanceRef = useRef<p5 | null>(null);
 
   useEffect(() => {
-    if (
-      sketchRef.current &&
-      sketchRef.current.children.length === 0 &&
-      !p5InstanceRef.current
-    ) {
+    if (sketchRef.current && !p5InstanceRef.current) {
       p5InstanceRef.current = new p5(gameSketch, sketchRef.current);
     }
 

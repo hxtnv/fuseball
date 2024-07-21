@@ -9,6 +9,7 @@ export type StateType = {
   controllablePlayer: ControllablePlayer | null;
   followingPlayer: Player | null;
   currentLobby: Lobby | null;
+  ping: number;
 };
 
 const createState = () =>
@@ -17,6 +18,7 @@ const createState = () =>
     controllablePlayer: null,
     followingPlayer: null,
     currentLobby: null,
+    ping: 0,
   } as StateType);
 
 const stateMachine = (p5: p5) => {
@@ -66,13 +68,23 @@ const stateMachine = (p5: p5) => {
       );
   };
 
+  const onPingReceived = (ping: number) => {
+    console.log("game received ping", ping);
+    state.ping = ping;
+  };
+
   const init = () => {
+    console.log("game init (listeners start)");
     emitter.on("game:current-lobby", onGetCurrentLobby);
+    emitter.on("game:ping", onPingReceived);
+
     emitter.emit("game:get-current-lobby");
   };
 
   const cleanup = () => {
+    console.log("game cleanup (listeners end)");
     emitter.off("game:current-lobby", onGetCurrentLobby);
+    emitter.off("game:ping", onPingReceived);
   };
 
   return {

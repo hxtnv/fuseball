@@ -6,20 +6,17 @@ import ReconnectingWebSocket, { ErrorEvent } from "reconnecting-websocket";
 type WebSocketContextType = {
   ws: ReconnectingWebSocket | null;
   status: "connecting" | "connected" | "disconnected" | "error";
-  ping: number | null;
 };
 
 const WebSocketContext = React.createContext<WebSocketContextType>({
   ws: null,
   status: "connecting",
-  ping: null,
 });
 
 const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [ws, setWs] = useState<ReconnectingWebSocket | null>(null);
   const [status, setStatus] =
     useState<WebSocketContextType["status"]>("connecting");
-  const [ping, setPing] = useState<number | null>(null);
 
   const onEmitterSend = (event: string | any) => {
     if (!ws) {
@@ -50,7 +47,8 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     const onPongReceived = () => {
       const roundTripTime = Date.now() - pingTimestamp;
-      setPing(roundTripTime);
+
+      emitter.emit("game:ping", roundTripTime);
       emitter.off("ws:message:pong", onPongReceived);
     };
 
@@ -99,17 +97,13 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (status === "connected") {
-      const interval = setInterval(measurePing, 5000);
+      const interval = setInterval(measurePing, config.pingInterval);
       return () => clearInterval(interval);
     }
   }, [ws, status]);
 
-  useEffect(() => {
-    console.log("ping", ping);
-  }, [ping]);
-
   return (
-    <WebSocketContext.Provider value={{ ws, status, ping }}>
+    <WebSocketContext.Provider value={{ ws, status }}>
       {children}
     </WebSocketContext.Provider>
   );

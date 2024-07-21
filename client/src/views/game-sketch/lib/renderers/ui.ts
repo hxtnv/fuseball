@@ -8,10 +8,11 @@ import TEAM_COLORS from "@/lib/const/team-colors";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
+    `FPS: ${Number(p.frameRate()).toFixed(0)}`,
+    `Ping: ${state.ping}ms`,
     `Player position: ${state.controllablePlayer?.properties.position.x.toFixed(
       0
     )}, ${state.controllablePlayer?.properties.position.y.toFixed(0)}`,
-    `FPS: ${Number(p.frameRate()).toFixed(0)}`,
   ];
 
   const fixedElements = (drawCall: () => void) => {

@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useGameContext, Lobby, LobbyPlayer } from "@/context/game.context";
-import styles from "./room-single.module.scss";
+import styles from "./lobby-single.module.scss";
 import EMOJIS from "@/lib/const/emojis";
 import ChevronRight from "@/assets/icons/chevron-right-solid.svg?react";
 import Plus from "@/assets/icons/plus-solid.svg?react";

@@ -39,6 +39,7 @@ type GameContextType = {
   setPlayerSettings: (playerSettings: PlayerSettings) => void;
   createLobby: ({ name, teamSize }: { name: string; teamSize: number }) => void;
   joinLobby: (id: string, team?: 0 | 1) => void;
+  playersOnline: number;
 };
 
 const GameContext = React.createContext<GameContextType>({
@@ -51,12 +52,14 @@ const GameContext = React.createContext<GameContextType>({
   setPlayerSettings: () => {},
   createLobby: () => {},
   joinLobby: () => {},
+  playersOnline: 0,
 });
 
 const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [lobbies, setLobbies] = useState<Lobby[]>([]);
   const [currentLobby, setCurrentLobby] = useState<Lobby | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
+  const [playersOnline, setPlayersOnline] = useState<number>(0);
   const [playerSettings, setPlayerSettings] = useState<PlayerSettings>(
     JSON.parse(
       window.localStorage.getItem("fuseball:player:settings") ??
@@ -109,6 +112,10 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     setCurrentLobby(lobby);
   };
 
+  const onPlayersOnline = ({ data: playersOnline }: { data: number }) => {
+    setPlayersOnline(playersOnline);
+  };
+
   const onGetCurrentLobby = () => {
     emitter.emit("game:current-lobby-meta", {
       data: {
@@ -129,6 +136,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   }, [playerSettings]);
 
   useEffect(() => {
+    emitter.on("ws:message:players-online", onPlayersOnline);
     emitter.on("ws:message:lobbies", onLobbiesReceived);
     emitter.on("ws:message:create-lobby-success", onLobbySuccess);
     emitter.on("ws:message:join-lobby-success", onLobbySuccess);
@@ -138,6 +146,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     emitter.on("game:get-current-lobby", onGetCurrentLobby);
 
     return () => {
+      emitter.off("ws:message:players-online", onPlayersOnline);
       emitter.off("ws:message:lobbies", onLobbiesReceived);
       emitter.off("ws:message:create-lobby-success", onLobbySuccess);
       emitter.off("ws:message:join-lobby-success", onLobbySuccess);
@@ -157,6 +166,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
         createLobby,
         currentLobby,
         joinLobby,
+        playersOnline,
       }}
     >
       {children}

@@ -5,7 +5,7 @@ import User from "@/assets/icons/user-solid.svg?react";
 import DiceFiveSolid from "@/assets/icons/dice-five-solid.svg?react";
 import useModal from "@/hooks/use-modal/use-modal";
 import playerPreviewBg from "@/assets/player-preview-bg.png";
-import styles from "./room-list-actions.module.scss";
+import styles from "./lobby-list-actions.module.scss";
 import EMOJIS from "@/lib/const/emojis";
 import LOBBY_SIZES from "@/lib/const/lobby-size";
 import { Input, InputRadio } from "@/components/common/input";
@@ -156,7 +156,7 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
   );
 };
 
-const RoomListActions: React.FC = () => {
+const LobbyListActions: React.FC = () => {
   const { status } = useWebSocket();
   const modalsDisabled = useMemo(() => status !== "connected", [status]);
 
@@ -168,4 +168,4 @@ const RoomListActions: React.FC = () => {
   );
 };
 
-export default RoomListActions;
+export default LobbyListActions;

@@ -10,6 +10,7 @@ export const handleConnection = (
   wss: WebSocket.Server
 ) => {
   send(ws, "user-id", ws.id);
+  broadcast(wss, "players-online", wss.clients.size);
 
   ws.on("message", (message: string) => {
     handleMessage(message, ws, wss);
@@ -17,6 +18,8 @@ export const handleConnection = (
 
   ws.on("close", () => {
     lobbyManager.removeClientFromLobbies(ws.id);
+
     broadcast(wss, "lobbies", lobbyManager.getAll());
+    broadcast(wss, "players-online", wss.clients.size);
   });
 };

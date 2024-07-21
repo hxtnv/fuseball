@@ -1,7 +1,7 @@
 import TriangleExclamation from "@/assets/icons/triangle-exclamation-solid.svg?react";
-import styles from "./room-list-error.module.scss";
+import styles from "./lobby-list-error.module.scss";
 
-const RoomListError: React.FC = () => {
+const LobbyListError: React.FC = () => {
   return (
     <div className={styles.error}>
       <div className={styles.error__header}>
@@ -19,4 +19,4 @@ const RoomListError: React.FC = () => {
   );
 };
 
-export default RoomListError;
+export default LobbyListError;

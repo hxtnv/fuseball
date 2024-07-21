@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import RoomList from "@/components/room-list";
+import LobbyList from "@/components/lobby-list";
 import GameSketch from "@/views/game-sketch";
 import { useGameContext } from "@/context/game.context";
 import logo from "@/assets/logo.png";
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
 
   return (
     <div className={styles.home}>
-      <Modal title="Loading">
+      <Modal hideCloseButton>
         <div className={styles.loader__modal}>
           <div className={styles.loader__modal__animation} />
 
@@ -49,8 +49,7 @@ const Home: React.FC = () => {
         can compete with your friends or other players from all over the world!
       </p>
 
-      <RoomList />
-
+      <LobbyList />
       <Footer />
     </div>
   );

@@ -5,6 +5,7 @@
   justify-content: center;
   max-width: 550px;
   margin: 0 auto;
+  padding: 0 25px;
 
   .logo {
     width: 400px;
@@ -43,34 +44,32 @@
 
     h4 {
       font-size: 18px;
+      margin: 15px 0 0;
     }
 
-    .loader__modal__animation,
     p {
       color: #ffffff70;
     }
 
-    .loader__modal__animation,
-    .loader__modal__animation:after {
-      box-sizing: border-box;
-    }
-
     .loader__modal__animation {
+      color: #ffffff70;
+      box-sizing: border-box;
       display: inline-block;
       width: 80px;
       height: 80px;
-    }
 
-    .loader__modal__animation:after {
-      content: " ";
-      display: block;
-      width: 64px;
-      height: 64px;
-      margin: 8px;
-      border-radius: 50%;
-      border: 6.4px solid currentColor;
-      border-color: currentColor transparent currentColor transparent;
-      animation: loader 1.2s linear infinite;
+      &:after {
+        content: " ";
+        display: block;
+        width: 64px;
+        height: 64px;
+        margin: 8px;
+        border-radius: 50%;
+        border: 6.4px solid currentColor;
+        border-color: currentColor transparent currentColor transparent;
+        animation: loader 1.2s linear infinite;
+        box-sizing: border-box;
+      }
     }
   }
 }

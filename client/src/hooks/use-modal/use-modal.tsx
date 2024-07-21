@@ -24,7 +24,10 @@ const useModal = ({ onClose, onOpen }: UseModalArgs = {}) => {
 
     return (
       <div className={styles.modal} data-visibility={visibility}>
-        <div className={styles.modal__overlay} onClick={close} />
+        <div
+          className={styles.modal__overlay}
+          onClick={hideCloseButton ? undefined : close}
+        />
 
         <div className={styles.modal__content}>
           <div className={styles.modal__content__header}>

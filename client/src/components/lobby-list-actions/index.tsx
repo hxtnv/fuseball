@@ -156,7 +156,7 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
   );
 };
 
-const LobbyListActions: React.FC = () => {
+const RoomListActions: React.FC = () => {
   const { status } = useWebSocket();
   const modalsDisabled = useMemo(() => status !== "connected", [status]);
 
@@ -168,4 +168,4 @@ const LobbyListActions: React.FC = () => {
   );
 };
 
-export default LobbyListActions;
+export default RoomListActions;

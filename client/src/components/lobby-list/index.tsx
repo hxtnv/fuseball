@@ -25,7 +25,8 @@ const LobbyList: React.FC = () => {
         </p>
 
         <p>
-          <span>{playersOnline}</span> players online
+          <span>{playersOnline}</span> player{playersOnline !== 1 ? "s" : ""}{" "}
+          online
         </p>
       </div>
 

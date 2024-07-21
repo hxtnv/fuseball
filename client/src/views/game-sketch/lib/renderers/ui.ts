@@ -2,7 +2,6 @@ import p5 from "q5";
 import type { StateType } from "../state-machine";
 // import { draw as drawNametag } from "../helpers/nametag";
 import PLAYER from "../const/player";
-import Player from "../../classes/player";
 import LOBBY_STATUS from "@/lib/const/lobby-status";
 import TEAM_COLORS from "@/lib/const/team-colors";
 import { LobbyPlayerLive } from "@/context/game.context";
@@ -11,17 +10,17 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
     `FPS: ${Number(p.frameRate()).toFixed(0)}`,
     `Ping: ${state.ping}ms`,
-    `Player position: ${state.followingPlayer?.properties.position.x.toFixed(
+    `Player position: ${state.followingPlayer?.position.x.toFixed(
       0
-    )}, ${state.followingPlayer?.properties.position.y.toFixed(0)}`,
+    )}, ${state.followingPlayer?.position.y.toFixed(0)}`,
   ];
 
   const fixedElements = (drawCall: () => void) => {
     p.push();
     if (state.followingPlayer) {
       p.translate(
-        state.followingPlayer.properties.position.x - p.width / 2,
-        state.followingPlayer.properties.position.y - p.height / 2
+        state.followingPlayer.position.x - p.width / 2,
+        state.followingPlayer.position.y - p.height / 2
       );
     }
     drawCall();
@@ -56,7 +55,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     });
   };
 
-  const drawSpeechBubble = (player: Player, text: string) => {
+  const drawSpeechBubble = (player: LobbyPlayerLive, text: string) => {
     p.push();
     p.textSize(16);
 
@@ -64,11 +63,11 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     const bubbleHeight = 60;
 
     p.translate(
-      player.properties.position.x -
+      player.position.x -
         PLAYER.SIZE / 2 -
         PLAYER.BUBBLE_POINTER_OFFSET / 2 +
         PLAYER.BUBBLE_POINTER_SIZE / 2,
-      player.properties.position.y -
+      player.position.y -
         PLAYER.SIZE / 2 -
         bubbleHeight -
         PLAYER.BUBBLE_POINTER_SIZE -
@@ -141,10 +140,10 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
-  const followPlayer = (player: Player) => {
+  const followPlayer = (player: LobbyPlayerLive) => {
     p.translate(
-      p.width / 2 - player.properties.position.x,
-      p.height / 2 - player.properties.position.y
+      p.width / 2 - player.position.x,
+      p.height / 2 - player.position.y
     );
   };
 

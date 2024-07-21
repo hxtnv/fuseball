@@ -33,11 +33,9 @@ const playersRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
   const draw = () => {
-    state.currentLobbyLive?.players.forEach(drawPlayer);
-    // state.currentLobbyLive;
-    // [...state.players, state.controllablePlayer].forEach((player) =>
-    //   player?.draw()
-    // );
+    if (!state.currentLobbyLive) return;
+
+    state.currentLobbyLive.players.forEach(drawPlayer);
   };
 
   return { draw };

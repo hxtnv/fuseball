@@ -1,6 +1,3 @@
-import p5 from "q5";
-import Player from "../classes/player";
-import ControllablePlayer from "../classes/controllable-player";
 import type { Lobby, LobbyPlayerLive } from "@/context/game.context";
 import emitter from "@/lib/emitter";
 
@@ -19,9 +16,8 @@ type LobbyLive = {
 };
 
 export type StateType = {
-  players: Player[];
-  controllablePlayer: ControllablePlayer | null;
-  followingPlayer: Player | null;
+  playerId: string | null;
+  followingPlayer: LobbyPlayerLive | null;
   currentLobbyMeta: LobbyMeta | null;
   currentLobbyLive: LobbyLive | null;
   ping: number;
@@ -29,15 +25,14 @@ export type StateType = {
 
 const createState = () =>
   ({
-    players: [],
-    controllablePlayer: null,
+    playerId: null,
     followingPlayer: null,
     currentLobbyMeta: null,
     currentLobbyLive: null,
     ping: 0,
   } as StateType);
 
-const stateMachine = (p5: p5) => {
+const stateMachine = () => {
   const state = createState();
 
   // this is the data we received from our react context
@@ -51,54 +46,29 @@ const stateMachine = (p5: p5) => {
     data: Lobby;
     playerId: string;
   }) => {
+    state.playerId = playerId;
     state.currentLobbyMeta = {
       id: data.id,
       name: data.name,
       teamSize: data.teamSize,
       countryCode: data.countryCode,
     };
+  };
 
-    // const mainPlayer = data.players.find((player) => player.id === playerId);
+  // this is the live update data that we receive
+  // from the server as the game is running
+  const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
+    const myPlayer =
+      state.currentLobbyLive?.players.find(
+        (player) => player.id === state.playerId
+      ) ?? null;
 
-    // if (mainPlayer) {
-    //   state.controllablePlayer = new ControllablePlayer(p5, {
-    //     id: mainPlayer.id,
-    //     name: mainPlayer.name,
-    //     emoji: mainPlayer.emoji,
-    //     team: mainPlayer.team,
-    //     position: {
-    //       x: 700,
-    //       y: 400,
-    //     },
-    //   });
-
-    //   state.followingPlayer = state.controllablePlayer;
-    // }
-
-    // state.players = data.players
-    //   .filter((player) => player.id !== playerId)
-    //   .map(
-    //     (player) =>
-    //       new Player(p5, {
-    //         id: player.id,
-    //         name: player.name,
-    //         emoji: player.emoji,
-    //         team: player.team,
-    //         position: {
-    //           x: Math.random() * 1000,
-    //           y: Math.random() * 500,
-    //         },
-    //       })
-    //   );
+    state.currentLobbyLive = data;
+    state.followingPlayer = myPlayer;
   };
 
   const onPingReceived = (ping: number) => {
     state.ping = ping;
-  };
-
-  const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
-    console.log("live update", data);
-    state.currentLobbyLive = data;
   };
 
   const init = () => {

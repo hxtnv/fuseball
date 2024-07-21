@@ -9,7 +9,7 @@ const sketch = (p: p5) => {
     init: initState,
     cleanup: cleanupState,
     state,
-  } = Object.freeze(stateMachine(p));
+  } = Object.freeze(stateMachine());
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -24,9 +24,9 @@ const sketch = (p: p5) => {
     const map = mapRenderer(p);
     const players = playersRenderer(p, state);
 
-    if (state.controllablePlayer) {
-      state.controllablePlayer.update();
-    }
+    // if (myPlayer) {
+    //   state.controllablePlayer.update();
+    // }
 
     if (state.followingPlayer) {
       userInterface.followPlayer(state.followingPlayer);

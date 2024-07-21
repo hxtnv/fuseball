@@ -14,7 +14,6 @@ export const createServer = (port: number): WebSocket.Server => {
     handleConnection(ws, wss);
   });
 
-  // test
   // todo: move this to a separate worker / cluster
   setInterval(() => {
     Object.values(lobbyManager.getAllLive()).forEach((lobby) => {
@@ -33,7 +32,6 @@ export const createServer = (port: number): WebSocket.Server => {
       );
     });
   }, 1000 / 60);
-  // end test
 
   return wss;
 };

@@ -2,8 +2,12 @@ import WebSocket from "ws";
 
 type WebSocketClient = WebSocket & { id: string };
 
+const SIMULATED_LATENCY = 80;
+
 export const send = (ws: WebSocketClient, event: string, data?: any) => {
-  ws.send(JSON.stringify({ event, data }));
+  setTimeout(() => {
+    ws.send(JSON.stringify({ event, data }));
+  }, SIMULATED_LATENCY);
 };
 
 export const broadcast = (
@@ -17,6 +21,8 @@ export const broadcast = (
       return;
     }
 
-    client.send(JSON.stringify({ event, data }));
+    setTimeout(() => {
+      client.send(JSON.stringify({ event, data }));
+    }, SIMULATED_LATENCY);
   });
 };

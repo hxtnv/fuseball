@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import getCountryCodeFromTimezone from "./helpers/get-country-code-from-timezone";
 import getInitialPosition from "./helpers/get-initial-position";
 import PLAYER from "./const/player";
+import MAP from "./const/map";
 
 type LobbyStatus = "warmup" | "in-progress" | "finished";
 
@@ -396,6 +397,17 @@ const lobbyManager = () => {
           if (movement.right) {
             newPosition.x += PLAYER.SPEED;
           }
+
+          // set up bounds
+          newPosition.x = Math.min(
+            MAP.FIELD_WIDTH - PLAYER.SIZE / 2,
+            Math.max(PLAYER.SIZE / 2, newPosition.x)
+          );
+
+          newPosition.y = Math.min(
+            MAP.FIELD_HEIGHT - PLAYER.SIZE / 2,
+            Math.max(PLAYER.SIZE / 2, newPosition.y)
+          );
 
           return {
             ...player,

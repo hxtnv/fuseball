@@ -16,7 +16,11 @@ export const handleMessage = (
   try {
     const parsedMessage = JSON.parse(message);
 
-    if (parsedMessage.event !== "ping") {
+    if (
+      parsedMessage.event !== "ping" &&
+      parsedMessage.event !== "player-move-start" &&
+      parsedMessage.event !== "player-move-end"
+    ) {
       console.log("got message", parsedMessage);
     }
 

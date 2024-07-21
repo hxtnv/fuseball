@@ -1,5 +1,7 @@
-const PLAYER = {
-  SPEED: 5,
-};
+const SIZE = 40;
+const SPEED = 6;
 
-export default PLAYER;
+export default {
+  SIZE,
+  SPEED,
+};

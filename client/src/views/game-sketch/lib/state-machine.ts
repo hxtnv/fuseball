@@ -56,7 +56,8 @@ const stateMachine = () => {
   };
 
   // this is the live update data that we receive
-  // from the server as the game is running
+  // from the server as the game is running, which
+  // all the real-time data like player positions
   const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
     const myPlayer =
       state.currentLobbyLive?.players.find(

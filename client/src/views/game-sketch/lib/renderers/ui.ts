@@ -10,9 +10,9 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
     `FPS: ${Number(p.frameRate()).toFixed(0)}`,
     `Ping: ${state.ping}ms`,
-    `Player position: ${state.controllablePlayer?.properties.position.x.toFixed(
+    `Player position: ${state.followingPlayer?.properties.position.x.toFixed(
       0
-    )}, ${state.controllablePlayer?.properties.position.y.toFixed(0)}`,
+    )}, ${state.followingPlayer?.properties.position.y.toFixed(0)}`,
   ];
 
   const fixedElements = (drawCall: () => void) => {
@@ -154,9 +154,11 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   };
 
   const drawLobbyInfo = () => {
-    if (!state.currentLobby) return;
+    if (!state.currentLobbyMeta) return;
+    // if (!state.currentLobbyMeta || !state.currentLobbyLive) return;
 
-    const lobbyStatus = LOBBY_STATUS[state.currentLobby.status];
+    // const lobbyStatus = LOBBY_STATUS[state.currentLobbyLive.status];
+    const lobbyStatus = { text: "Warmup", color: "#6ae72c" };
 
     p.push();
 
@@ -165,9 +167,9 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.fill(255);
     p.stroke(51);
     p.strokeWeight(4);
-    p.text(state.currentLobby.name, p.width / 2, 40);
+    p.text(state.currentLobbyMeta.name, p.width / 2, 40);
 
-    const lobbyNameTextWidth = p.textWidth(state.currentLobby.name);
+    const lobbyNameTextWidth = p.textWidth(state.currentLobbyMeta.name);
 
     p.textSize(24);
     p.fill(lobbyStatus.color);

@@ -14,12 +14,10 @@ const sketch = (p: p5) => {
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
 
-    console.log("sketch setup");
     initState();
   };
 
   p.draw = () => {
-    console.log("sketch draw", state.ping);
     p.background(111, 173, 78);
 
     const userInterface = uiRenderer(p, state);
@@ -50,7 +48,6 @@ const sketch = (p: p5) => {
   };
 
   p.remove = () => {
-    console.log("sketch remove");
     cleanupState();
   };
 };

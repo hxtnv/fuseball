@@ -25,17 +25,9 @@ const sketch = (p: p5) => {
     const map = mapRenderer(p);
     const players = playersRenderer(p, state);
 
-    // const controller = playerController(state);
-
-    // if (myPlayer) {
-    //   state.controllablePlayer.update();
-    // }
-
     if (state.followingPlayer) {
       userInterface.followPlayer(state.followingPlayer);
     }
-
-    // controller.update();
 
     map.draw();
     players.draw();
@@ -50,12 +42,10 @@ const sketch = (p: p5) => {
 
   p.keyPressed = () => {
     playerController(state).onKeyDown(p.key);
-    // state.keysPressed[p.key] = true;
   };
 
   p.keyReleased = () => {
     playerController(state).onKeyUp(p.key);
-    // state.keysPressed[p.key] = false;
   };
 
   p.windowResized = () => {

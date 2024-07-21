@@ -3,6 +3,7 @@ import stateMachine from "./lib/state-machine";
 import uiRenderer from "./lib/renderers/ui";
 import mapRenderer from "./lib/renderers/map";
 import playersRenderer from "./lib/renderers/players";
+import playerController from "./lib/player-controller";
 
 const sketch = (p: p5) => {
   const {
@@ -24,6 +25,8 @@ const sketch = (p: p5) => {
     const map = mapRenderer(p);
     const players = playersRenderer(p, state);
 
+    // const controller = playerController(state);
+
     // if (myPlayer) {
     //   state.controllablePlayer.update();
     // }
@@ -31,6 +34,8 @@ const sketch = (p: p5) => {
     if (state.followingPlayer) {
       userInterface.followPlayer(state.followingPlayer);
     }
+
+    // controller.update();
 
     map.draw();
     players.draw();
@@ -41,6 +46,16 @@ const sketch = (p: p5) => {
     //     userInterface.drawSpeechBubble(state.controllablePlayer, "😂");
     //   }
     // }
+  };
+
+  p.keyPressed = () => {
+    playerController(state).onKeyDown(p.key);
+    // state.keysPressed[p.key] = true;
+  };
+
+  p.keyReleased = () => {
+    playerController(state).onKeyUp(p.key);
+    // state.keysPressed[p.key] = false;
   };
 
   p.windowResized = () => {

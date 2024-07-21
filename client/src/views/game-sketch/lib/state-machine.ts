@@ -20,6 +20,7 @@ export type StateType = {
   followingPlayer: LobbyPlayerLive | null;
   currentLobbyMeta: LobbyMeta | null;
   currentLobbyLive: LobbyLive | null;
+  // keysPressed: Record<string, boolean>;
   ping: number;
 };
 
@@ -29,6 +30,7 @@ const createState = () =>
     followingPlayer: null,
     currentLobbyMeta: null,
     currentLobbyLive: null,
+    keysPressed: {},
     ping: 0,
   } as StateType);
 
@@ -47,6 +49,7 @@ const stateMachine = () => {
     playerId: string;
   }) => {
     state.playerId = playerId;
+
     state.currentLobbyMeta = {
       id: data.id,
       name: data.name,
@@ -72,7 +75,18 @@ const stateMachine = () => {
     state.ping = ping;
   };
 
+  // const onKeyDown = (event: KeyboardEvent) => {
+  //   playerController.onKeyDown(event.key);
+  // };
+
+  // const onKeyUp = (event: KeyboardEvent) => {
+  //   playerController.onKeyUp(event.key);
+  // };
+
   const init = () => {
+    // window.addEventListener("keydown", onKeyDown);
+    // window.addEventListener("keyup", onKeyUp);
+
     emitter.on("ws:message:lobby-live-update", onLobbyLiveUpdate);
     emitter.on("game:current-lobby-meta", onGetCurrentLobby);
     emitter.on("game:ping", onPingReceived);
@@ -81,6 +95,9 @@ const stateMachine = () => {
   };
 
   const cleanup = () => {
+    // window.removeEventListener("keydown", onKeyDown);
+    // window.removeEventListener("keyup", onKeyUp);
+
     emitter.off("ws:message:lobby-live-update", onLobbyLiveUpdate);
     emitter.off("game:current-lobby-meta", onGetCurrentLobby);
     emitter.off("game:ping", onPingReceived);

@@ -4,6 +4,10 @@ import lobbyManager from "../lib/lobby-manager";
 
 type WebSocketClient = WebSocket & { id: string };
 
+type PlayerMove = {
+  direction: "up" | "down" | "left" | "right";
+};
+
 export const handleMessage = (
   message: string,
   ws: WebSocketClient,
@@ -29,6 +33,14 @@ export const handleMessage = (
         handleJoinLobby(parsedMessage.data, ws, wss);
         break;
 
+      case "player-move-start":
+        handlePlayerMoveStart(parsedMessage.data, ws, wss);
+        break;
+
+      case "player-move-end":
+        handlePlayerMoveEnd(parsedMessage.data, ws, wss);
+        break;
+
       case "ping":
         send(ws, "pong");
         break;
@@ -42,8 +54,32 @@ export const handleMessage = (
   }
 };
 
+const handlePlayerMoveStart = (
+  data: PlayerMove,
+  ws: WebSocketClient,
+  wss: WebSocket.Server
+) => {
+  if (typeof data !== "object" || Array.isArray(data) || !data?.direction) {
+    return;
+  }
+
+  lobbyManager.playerMoveStart(data.direction, ws.id);
+};
+
+const handlePlayerMoveEnd = (
+  data: PlayerMove,
+  ws: WebSocketClient,
+  wss: WebSocket.Server
+) => {
+  if (typeof data !== "object" || Array.isArray(data) || !data?.direction) {
+    return;
+  }
+
+  lobbyManager.playerMoveEnd(data.direction, ws.id);
+};
+
 const handleCreateLobby = (
-  data: any,
+  data: any, // todo: fix types
   ws: WebSocketClient,
   wss: WebSocket.Server
 ) => {
@@ -61,7 +97,7 @@ const handleCreateLobby = (
 };
 
 const handleJoinLobby = (
-  data: any,
+  data: any, // todo: fix types
   ws: WebSocketClient,
   wss: WebSocket.Server
 ) => {

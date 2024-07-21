@@ -1,6 +1,5 @@
 import p5 from "q5";
 import type { StateType } from "../state-machine";
-// import { draw as drawNametag } from "../helpers/nametag";
 import PLAYER from "../const/player";
 import LOBBY_STATUS from "@/lib/const/lobby-status";
 import TEAM_COLORS from "@/lib/const/team-colors";

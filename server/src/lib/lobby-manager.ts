@@ -1,5 +1,7 @@
 import { randomUUID } from "crypto";
 import getCountryCodeFromTimezone from "./helpers/get-country-code-from-timezone";
+import getInitialPosition from "./helpers/get-initial-position";
+import PLAYER from "./const/player";
 
 type LobbyStatus = "warmup" | "in-progress" | "finished";
 
@@ -32,6 +34,7 @@ export type LobbyLive = {
   id: string;
   status: LobbyStatus;
   players: LobbyPlayerLive[];
+  playersMovement: Record<string, Record<string, boolean>>;
   score?: string;
 };
 
@@ -173,13 +176,12 @@ const lobbyManager = () => {
       id,
       status: newLobby.status,
       score: undefined,
-      players: newLobby.players.map((player) => ({
+      playersMovement: {
+        [playerId]: {},
+      },
+      players: newLobby.players.map((player, index) => ({
         ...player,
-        // todo: get a better position
-        position: {
-          x: Math.random() * 1000,
-          y: Math.random() * 1000,
-        },
+        position: getInitialPosition(index),
       })),
     };
 
@@ -289,12 +291,13 @@ const lobbyManager = () => {
           ...player,
           id: playerId,
           team: teamToJoin,
-          position: {
-            x: Math.random() * 1000,
-            y: Math.random() * 1000,
-          },
+          position: getInitialPosition(state.lobbiesLive[id].players.length),
         },
       ],
+      playersMovement: {
+        ...state.lobbiesLive[id].playersMovement,
+        [playerId]: {},
+      },
     };
 
     console.log(
@@ -314,15 +317,17 @@ const lobbyManager = () => {
 
     if (!lobby || !player) return;
 
-    state.lobbies = state.lobbies.map((lobby) => ({
-      ...lobby,
-      players: lobby.players.filter((player) => player.id !== playerId),
-    }));
+    state.lobbies = state.lobbies
+      .map((lobby) => ({
+        ...lobby,
+        players: lobby.players.filter((player) => player.id !== playerId),
+      }))
+      .filter((lobby) => lobby.players.length > 0);
+
+    // todo: remove the lobbiesLive entry too (if no players left)
     state.lobbiesLive[lobby.id].players = state.lobbiesLive[
       lobby.id
     ].players.filter((player) => player.id !== playerId);
-
-    state.lobbies = state.lobbies.filter((lobby) => lobby.players.length > 0);
 
     console.log(
       `Player "${player.name}" has left the lobby "${lobby.name}" (${
@@ -331,7 +336,82 @@ const lobbyManager = () => {
     );
   };
 
+  const playerMoveStart = (direction: string, playerId: string) => {
+    const { lobby: existingLobby } = getClientLobby(playerId);
+
+    if (!existingLobby) {
+      return;
+    }
+
+    state.lobbiesLive[existingLobby.id].playersMovement[playerId][direction] =
+      true;
+  };
+
+  const playerMoveEnd = (direction: string, playerId: string) => {
+    const { lobby: existingLobby } = getClientLobby(playerId);
+
+    if (!existingLobby) {
+      return;
+    }
+
+    state.lobbiesLive[existingLobby.id].playersMovement[playerId][direction] =
+      false;
+
+    // console.log(
+    //   "playerMoveEnd",
+    //   state.lobbiesLive[existingLobby.id].playersMovement[playerId]
+    // );
+  };
+
+  // todo: have this function update every player in every lobby (instead of doing it in websocket-server.ts)
+  const updatePlayerPosition = ({
+    lobbyId,
+    playerId,
+  }: {
+    lobbyId: string;
+    playerId: string;
+  }) => {
+    const movement = state.lobbiesLive[lobbyId].playersMovement[playerId];
+    if (!movement || !Object.values(movement).includes(true)) {
+      return;
+    }
+
+    state.lobbiesLive[lobbyId].players = state.lobbiesLive[lobbyId].players.map(
+      (player) => {
+        if (player.id === playerId) {
+          const newPosition = { ...player.position };
+
+          if (movement.up) {
+            newPosition.y -= PLAYER.SPEED;
+          }
+
+          if (movement.down) {
+            newPosition.y += PLAYER.SPEED;
+          }
+
+          if (movement.left) {
+            newPosition.x -= PLAYER.SPEED;
+          }
+
+          if (movement.right) {
+            newPosition.x += PLAYER.SPEED;
+          }
+
+          return {
+            ...player,
+            position: newPosition,
+          };
+        }
+
+        return player;
+      }
+    );
+  };
+
   return {
+    playerMoveStart,
+    playerMoveEnd,
+    updatePlayerPosition,
     getAll,
     getAllLive,
     get,

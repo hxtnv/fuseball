@@ -15,8 +15,16 @@ export const createServer = (port: number): WebSocket.Server => {
   });
 
   // test
+  // todo: move this to a separate worker / cluster
   setInterval(() => {
     Object.values(lobbyManager.getAllLive()).forEach((lobby) => {
+      lobby.players.forEach((player) => {
+        lobbyManager.updatePlayerPosition({
+          lobbyId: lobby.id,
+          playerId: player.id,
+        });
+      });
+
       broadcast(
         wss,
         "lobby-live-update",
@@ -24,7 +32,7 @@ export const createServer = (port: number): WebSocket.Server => {
         lobby.players.map((player) => player.id)
       );
     });
-  }, 1000 / 1);
+  }, 1000 / 60);
   // end test
 
   return wss;

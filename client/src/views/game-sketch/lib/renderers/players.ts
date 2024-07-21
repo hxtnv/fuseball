@@ -4,7 +4,6 @@ import PLAYER from "../const/player";
 import getEmoji from "@/lib/helpers/get-emoji";
 import type { LobbyPlayerLive } from "@/context/game.context";
 
-// @ts-ignore
 const playersRenderer = (p: p5, state: StateType) => {
   const drawPlayer = (player: LobbyPlayerLive) => {
     p.push();

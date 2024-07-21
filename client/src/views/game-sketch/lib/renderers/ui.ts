@@ -5,6 +5,7 @@ import PLAYER from "../const/player";
 import Player from "../../classes/player";
 import LOBBY_STATUS from "@/lib/const/lobby-status";
 import TEAM_COLORS from "@/lib/const/team-colors";
+import { LobbyPlayerLive } from "@/context/game.context";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
@@ -27,32 +28,26 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
-  const drawNametag = (player: Player) => {
+  const drawNametag = (player: LobbyPlayerLive) => {
     p.push();
 
-    p.fill(TEAM_COLORS[player.properties.team] ?? TEAM_COLORS[0]);
+    p.fill(TEAM_COLORS[player.team] ?? TEAM_COLORS[0]);
     p.stroke(51);
     p.strokeWeight(4);
     p.textSize(16);
     p.textAlign(p.CENTER, p.CENTER);
 
     p.text(
-      player.properties.name,
-      player.properties.position.x,
-      player.properties.position.y - PLAYER.SIZE / 2 - PLAYER.NAMETAG_GAP
+      player.name,
+      player.position.x,
+      player.position.y - PLAYER.SIZE / 2 - PLAYER.NAMETAG_GAP
     );
 
     p.pop();
   };
 
   const drawNametags = () => {
-    [...state.players, state.controllablePlayer]
-      .filter(Boolean)
-      .forEach((player) => {
-        if (!player) return;
-
-        drawNametag(player);
-      });
+    state.currentLobbyLive?.players.forEach(drawNametag);
   };
 
   const drawDebugInfo = () => {
@@ -155,10 +150,6 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
   const drawLobbyInfo = () => {
     if (!state.currentLobbyMeta) return;
-    // if (!state.currentLobbyMeta || !state.currentLobbyLive) return;
-
-    // const lobbyStatus = LOBBY_STATUS[state.currentLobbyLive.status];
-    const lobbyStatus = { text: "Warmup", color: "#6ae72c" };
 
     p.push();
 
@@ -169,6 +160,10 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.strokeWeight(4);
     p.text(state.currentLobbyMeta.name, p.width / 2, 40);
 
+    if (!state.currentLobbyLive) return;
+
+    // const lobbyStatus = { text: "Warmup", color: "#6ae72c" };
+    const lobbyStatus = LOBBY_STATUS[state.currentLobbyLive.status];
     const lobbyNameTextWidth = p.textWidth(state.currentLobbyMeta.name);
 
     p.textSize(24);

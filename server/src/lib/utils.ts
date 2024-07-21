@@ -17,7 +17,6 @@ export const broadcast = (
       return;
     }
 
-    console.log("broadcasting to", (client as WebSocketClient).id);
     client.send(JSON.stringify({ event, data }));
   });
 };

@@ -14,6 +14,14 @@ export type LobbyPlayer = {
   team: 0 | 1;
 };
 
+export type LobbyPlayerLive = LobbyPlayer & {
+  // status: "waiting" | "playing";
+  position: {
+    x: number;
+    y: number;
+  };
+};
+
 export type Lobby = {
   id: string;
   status: "warmup" | "in-progress" | "finished";
@@ -102,8 +110,13 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onGetCurrentLobby = () => {
-    emitter.emit("game:current-lobby", {
-      data: currentLobby,
+    emitter.emit("game:current-lobby-meta", {
+      data: {
+        ...currentLobby,
+        players: undefined,
+        score: undefined,
+        status: undefined,
+      },
       playerId,
     });
   };

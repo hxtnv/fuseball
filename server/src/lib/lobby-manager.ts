@@ -1,6 +1,8 @@
 import { randomUUID } from "crypto";
 import getCountryCodeFromTimezone from "./helpers/get-country-code-from-timezone";
 
+type LobbyStatus = "warmup" | "in-progress" | "finished";
+
 export type LobbyPlayer = {
   id: string;
   name: string;
@@ -10,11 +12,26 @@ export type LobbyPlayer = {
 
 export type Lobby = {
   id: string;
-  status: "warmup" | "in-progress" | "finished";
+  status: LobbyStatus;
   name: string;
   players: LobbyPlayer[];
   teamSize: number;
   countryCode: string;
+  score?: string;
+};
+
+export type LobbyPlayerLive = LobbyPlayer & {
+  // status: "waiting" | "playing";
+  position: {
+    x: number;
+    y: number;
+  };
+};
+
+export type LobbyLive = {
+  id: string;
+  status: LobbyStatus;
+  players: LobbyPlayerLive[];
   score?: string;
 };
 
@@ -33,9 +50,10 @@ type JoinLobby = {
 
 type State = {
   lobbies: Lobby[];
+  lobbiesLive: Record<string, LobbyLive>;
 };
 
-const getState = () => ({ lobbies: [] } as State);
+const getState = () => ({ lobbies: [], lobbiesLive: {} } as State);
 
 const lobbyManager = () => {
   const state = getState();
@@ -44,8 +62,22 @@ const lobbyManager = () => {
     return state.lobbies;
   };
 
+  const getAllLive = () => {
+    return state.lobbiesLive;
+  };
+
   const get = (id: string) => {
-    return state.lobbies.find((lobby) => lobby.id === id);
+    const lobby = state.lobbies.find((lobby) => lobby.id === id);
+    const lobbyLive = state.lobbiesLive[id];
+
+    if (!lobby || !lobbyLive) {
+      return undefined;
+    }
+
+    return {
+      lobby,
+      lobbyLive,
+    };
   };
 
   const getClientLobby = (playerId: string) => {
@@ -97,13 +129,28 @@ const lobbyManager = () => {
       };
     }
 
+    if (isNaN(teamSize) || teamSize < 1 || typeof teamSize !== "number") {
+      return {
+        lobby: undefined,
+        error: "Invalid team size. Please enter a number between 1 and 4.",
+      };
+    }
+
+    if (typeof player?.name !== "string" || player?.name?.length < 3) {
+      return {
+        lobby: undefined,
+        error:
+          "Invalid player name! Choose a name that is at least 3 characters long.",
+      };
+    }
+
     const id = randomUUID();
 
     const lobbyName = name.substring(0, 40);
     const lobbySize = Math.min(teamSize, 4);
     const playerName = player.name.substring(0, 30);
 
-    state.lobbies.push({
+    const newLobby: Lobby = {
       id,
       status: "warmup",
       name: lobbyName,
@@ -117,7 +164,24 @@ const lobbyManager = () => {
         },
       ],
       countryCode: getCountryCodeFromTimezone(timezone),
-    });
+    };
+
+    state.lobbies.push(newLobby);
+
+    // todo: create a function that will handle both lobbies and lobbiesLive
+    state.lobbiesLive[id] = {
+      id,
+      status: newLobby.status,
+      score: undefined,
+      players: newLobby.players.map((player) => ({
+        ...player,
+        // todo: get a better position
+        position: {
+          x: Math.random() * 1000,
+          y: Math.random() * 1000,
+        },
+      })),
+    };
 
     console.log(
       `New lobby named "${lobbyName}" has been created by "${playerName}" (1/${
@@ -149,7 +213,7 @@ const lobbyManager = () => {
       };
     }
 
-    if (lobby.status === "finished") {
+    if (lobby.lobby.status === "finished") {
       return {
         error: "This lobby has already finished!",
         lobby: undefined,
@@ -160,11 +224,11 @@ const lobbyManager = () => {
       // if team is either invalid or not defined, we will join the less populated team
       if (team !== 0 && team !== 1) {
         const teamZeroSlots =
-          lobby.teamSize -
-          lobby.players.filter((player) => player.team === 0).length;
+          lobby.lobby.teamSize -
+          lobby.lobby.players.filter((player) => player.team === 0).length;
         const teamOneSlots =
-          lobby.teamSize -
-          lobby.players.filter((player) => player.team === 1).length;
+          lobby.lobby.teamSize -
+          lobby.lobby.players.filter((player) => player.team === 1).length;
 
         if (teamZeroSlots > teamOneSlots) {
           return 0;
@@ -183,8 +247,8 @@ const lobbyManager = () => {
 
       // if team is defined, we check if there are empty slots
       const teamSlots =
-        lobby.teamSize -
-        lobby.players.filter((player) => player.team === team).length;
+        lobby.lobby.teamSize -
+        lobby.lobby.players.filter((player) => player.team === team).length;
 
       return teamSlots > 0 ? team : -1;
     };
@@ -217,6 +281,28 @@ const lobbyManager = () => {
         : lobby
     );
 
+    state.lobbiesLive[id] = {
+      ...state.lobbiesLive[id],
+      players: [
+        ...state.lobbiesLive[id].players,
+        {
+          ...player,
+          id: playerId,
+          team: teamToJoin,
+          position: {
+            x: Math.random() * 1000,
+            y: Math.random() * 1000,
+          },
+        },
+      ],
+    };
+
+    console.log(
+      `Player "${player.name}" has joined the lobby "${lobby.lobby.name}" (${
+        lobby.lobby.players.length + 1
+      }/${lobby.lobby.teamSize * 2})`
+    );
+
     return {
       error: undefined,
       lobby: state.lobbies.find((lobby) => lobby.id === id),
@@ -228,22 +314,26 @@ const lobbyManager = () => {
 
     if (!lobby || !player) return;
 
+    state.lobbies = state.lobbies.map((lobby) => ({
+      ...lobby,
+      players: lobby.players.filter((player) => player.id !== playerId),
+    }));
+    state.lobbiesLive[lobby.id].players = state.lobbiesLive[
+      lobby.id
+    ].players.filter((player) => player.id !== playerId);
+
+    state.lobbies = state.lobbies.filter((lobby) => lobby.players.length > 0);
+
     console.log(
       `Player "${player.name}" has left the lobby "${lobby.name}" (${
         lobby.players.length - 1
       }/${lobby.teamSize * 2})`
     );
-
-    state.lobbies = state.lobbies.map((lobby) => ({
-      ...lobby,
-      players: lobby.players.filter((player) => player.id !== playerId),
-    }));
-
-    state.lobbies = state.lobbies.filter((lobby) => lobby.players.length > 0);
   };
 
   return {
     getAll,
+    getAllLive,
     get,
     getClientLobby,
     create,

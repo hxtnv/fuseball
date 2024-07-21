@@ -1,7 +1,7 @@
 import p5 from "q5";
 import Player from "../classes/player";
 import ControllablePlayer from "../classes/controllable-player";
-import { Lobby } from "@/context/game.context";
+import type { Lobby, LobbyPlayerLive } from "@/context/game.context";
 import emitter from "@/lib/emitter";
 
 type LobbyMeta = {
@@ -15,7 +15,7 @@ type LobbyLive = {
   id: string;
   status: "warmup" | "in-progress" | "finished";
   name: string;
-  // players: LobbyPlayer[];
+  players: LobbyPlayerLive[];
 };
 
 export type StateType = {
@@ -96,15 +96,22 @@ const stateMachine = (p5: p5) => {
     state.ping = ping;
   };
 
+  const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
+    console.log("live update", data);
+    state.currentLobbyLive = data;
+  };
+
   const init = () => {
-    emitter.on("game:current-lobby", onGetCurrentLobby);
+    emitter.on("ws:message:lobby-live-update", onLobbyLiveUpdate);
+    emitter.on("game:current-lobby-meta", onGetCurrentLobby);
     emitter.on("game:ping", onPingReceived);
 
     emitter.emit("game:get-current-lobby");
   };
 
   const cleanup = () => {
-    emitter.off("game:current-lobby", onGetCurrentLobby);
+    emitter.off("ws:message:lobby-live-update", onLobbyLiveUpdate);
+    emitter.off("game:current-lobby-meta", onGetCurrentLobby);
     emitter.off("game:ping", onPingReceived);
   };
 

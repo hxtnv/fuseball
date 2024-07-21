@@ -5,6 +5,7 @@ import { useGameContext } from "@/context/game.context";
 import logo from "@/assets/logo.png";
 import styles from "./home.module.scss";
 import useModal from "@/hooks/use-modal/use-modal";
+import Footer from "@/components/footer";
 
 const Home: React.FC = () => {
   const [displayGameSketch, setDisplayGameSketch] = useState(false);
@@ -49,6 +50,8 @@ const Home: React.FC = () => {
       </p>
 
       <RoomList />
+
+      <Footer />
     </div>
   );
 };

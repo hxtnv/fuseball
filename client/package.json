@@ -1,6 +1,18 @@
 {
   "name": "fuseball-client",
   "private": true,
+  "description": "Web based multiplayer football game",
+  "homepage": "https://fuseball.io",
+  "repository": {
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/hxtnv/fuseball.git"
+    }
+  },
+  "author": {
+    "name": "hxtnv",
+    "url": "https://github.com/hxtnv"
+  },
   "version": "0.0.0",
   "type": "module",
   "scripts": {

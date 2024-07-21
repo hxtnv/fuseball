@@ -1,0 +1,16 @@
+.footer {
+  margin-top: 100px;
+
+  .footer__content {
+    p {
+      a {
+        color: #2cb580;
+
+        &:hover,
+        &:focus {
+          filter: brightness(1.3);
+        }
+      }
+    }
+  }
+}

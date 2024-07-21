@@ -2,7 +2,6 @@ import { useGameContext } from "@/context/game.context";
 import SingleLobby from "@/components/lobby-single";
 import LobbyListActions from "@/components/lobby-list-actions";
 import LobbyListError from "@/components/lobby-list-error";
-import LobbyListEmpty from "@/components/lobby-list-empty";
 import Skeleton from "@/components/common/skeleton";
 import styles from "./lobby-list.module.scss";
 import { useWebSocket } from "@/context/websocket.context";
@@ -40,8 +39,6 @@ const LobbyList: React.FC = () => {
 
       {status === "connected" && (
         <>
-          {lobbies.length === 0 && <LobbyListEmpty />}
-
           {lobbies.map((lobby) => (
             <SingleLobby {...lobby} key={lobby.id} />
           ))}

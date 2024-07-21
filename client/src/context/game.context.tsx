@@ -73,6 +73,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
         name,
         teamSize,
         player: playerSettings,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
     });
   };

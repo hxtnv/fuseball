@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import getCountryCodeFromTimezone from "./helpers/get-country-code-from-timezone";
 
 export type LobbyPlayer = {
   id: string;
@@ -21,6 +22,7 @@ type CreateLobby = {
   name: string;
   teamSize: number;
   player: LobbyPlayer;
+  timezone: string;
 };
 
 type JoinLobby = {
@@ -59,7 +61,7 @@ const lobbyManager = () => {
   };
 
   const create = (
-    { name, teamSize, player }: CreateLobby,
+    { name, teamSize, player, timezone }: CreateLobby,
     playerId: string
   ) => {
     if (!playerId || typeof playerId !== "string") {
@@ -114,7 +116,7 @@ const lobbyManager = () => {
           team: 0,
         },
       ],
-      countryCode: "PL",
+      countryCode: getCountryCodeFromTimezone(timezone),
     });
 
     console.log(

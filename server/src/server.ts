@@ -1,7 +1,6 @@
 import WebSocket from "ws";
 import { randomUUID } from "crypto";
 import lobbyManager from "./lib/lobby-manager";
-import { parse } from "path";
 
 type WebSocketClient = WebSocket & { id: string };
 

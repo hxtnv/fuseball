@@ -11,7 +11,8 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "noEmit": true
+    "noEmit": true,
+    "forceConsistentCasingInFileNames ": true
   },
-  "include": ["vite.config.ts", "src/**/*"]
+  "include": ["vite.config.ts", "src"]
 }

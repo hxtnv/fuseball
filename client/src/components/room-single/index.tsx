@@ -71,7 +71,7 @@ const SingleRoom: React.FC<Lobby> = ({
     <>
       <div className={styles.room}>
         <div className={styles.room__header}>
-          <img src={`https://flagsapi.com/${countryCode}/shiny/64.png`} />
+          <img src={`https://flagsapi.com/${countryCode}/shiny/32.png`} />
           <p>{name}</p>
           <span>&#40;{maxPlayers - players.length} spots available&#41;</span>
 

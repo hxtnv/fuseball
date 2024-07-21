@@ -13,8 +13,13 @@ wss.on("connection", (ws: WebSocketClient) => {
     ws.send(JSON.stringify({ event, data }));
   };
 
-  const broadcast = (event: string, data: any) => {
+  const broadcast = (event: string, data: any, playerIds?: string[]) => {
     wss.clients.forEach(function each(client) {
+      if (playerIds && !playerIds.includes((client as WebSocketClient).id)) {
+        return;
+      }
+      console.log("broadcasting to", (client as WebSocketClient).id);
+
       client.send(JSON.stringify({ event, data }));
     });
   };
@@ -25,7 +30,9 @@ wss.on("connection", (ws: WebSocketClient) => {
     try {
       const parsedMessage = JSON.parse(message);
 
-      console.log("got message", parsedMessage);
+      if (parsedMessage.event !== "ping") {
+        console.log("got message", parsedMessage);
+      }
 
       if (parsedMessage.event === "get-lobbies") {
         send("lobbies", lobbyManager.getAll());

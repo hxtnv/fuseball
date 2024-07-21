@@ -6,6 +6,7 @@ export type PlayerInitialProperties = {
   id: string;
   name: string;
   emoji: number;
+  team: number;
   position: {
     x: number;
     y: number;

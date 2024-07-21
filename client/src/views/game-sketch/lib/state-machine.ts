@@ -29,7 +29,7 @@ const stateMachine = (p5: p5) => {
     data: Lobby;
     playerId: string;
   }) => {
-    console.log("game got current lobby received", data);
+    // initial request
     state.currentLobby = data;
 
     const mainPlayer = data.players.find((player) => player.id === playerId);
@@ -39,6 +39,7 @@ const stateMachine = (p5: p5) => {
         id: mainPlayer.id,
         name: mainPlayer.name,
         emoji: mainPlayer.emoji,
+        team: mainPlayer.team,
         position: {
           x: 700,
           y: 400,
@@ -56,6 +57,7 @@ const stateMachine = (p5: p5) => {
             id: player.id,
             name: player.name,
             emoji: player.emoji,
+            team: player.team,
             position: {
               x: Math.random() * 1000,
               y: Math.random() * 500,

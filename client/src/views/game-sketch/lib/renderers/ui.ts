@@ -1,9 +1,10 @@
 import p5 from "q5";
 import type { StateType } from "../state-machine";
-import { draw as drawNametag } from "../helpers/nametag";
+// import { draw as drawNametag } from "../helpers/nametag";
 import PLAYER from "../const/player";
 import Player from "../../classes/player";
 import LOBBY_STATUS from "@/lib/const/lobby-status";
+import TEAM_COLORS from "@/lib/const/team-colors";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
@@ -25,16 +26,31 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
+  const drawNametag = (player: Player) => {
+    p.push();
+
+    p.fill(TEAM_COLORS[player.properties.team] ?? TEAM_COLORS[0]);
+    p.stroke(51);
+    p.strokeWeight(4);
+    p.textSize(16);
+    p.textAlign(p.CENTER, p.CENTER);
+
+    p.text(
+      player.properties.name,
+      player.properties.position.x,
+      player.properties.position.y - PLAYER.SIZE / 2 - PLAYER.NAMETAG_GAP
+    );
+
+    p.pop();
+  };
+
   const drawNametags = () => {
     [...state.players, state.controllablePlayer]
       .filter(Boolean)
       .forEach((player) => {
         if (!player) return;
 
-        drawNametag(p, {
-          text: player.properties.name,
-          position: player.properties.position,
-        });
+        drawNametag(player);
       });
   };
 
@@ -160,7 +176,11 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.fill(255);
     p.textSize(40);
     p.textAlign(p.CENTER, p.CENTER);
+
+    p.fill(TEAM_COLORS[0]);
     p.text("0", p.width / 2 - lobbyNameTextWidth / 2 - 50, 56);
+
+    p.fill(TEAM_COLORS[1]);
     p.text("0", p.width / 2 + lobbyNameTextWidth / 2 + 50, 56);
 
     p.pop();

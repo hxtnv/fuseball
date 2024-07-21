@@ -79,7 +79,6 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const joinLobby = (id: string, team?: 0 | 1) => {
-    console.log("joining lobby", id, team);
     emitter.emit("ws:send", {
       event: "join-lobby",
       data: {
@@ -91,7 +90,6 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onUserIdReceived = ({ data: userId }: { data: string }) => {
-    console.log("user id received", userId);
     setPlayerId(userId);
   };
 

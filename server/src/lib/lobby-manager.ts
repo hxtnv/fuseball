@@ -378,7 +378,7 @@ const lobbyManager = () => {
     }
 
     state.lobbiesLive[lobbyId].players = state.lobbiesLive[lobbyId].players.map(
-      (player) => {
+      (player, index, playersLive) => {
         if (player.id === playerId) {
           const newPosition = { ...player.position };
 
@@ -408,6 +408,22 @@ const lobbyManager = () => {
             MAP.FIELD_HEIGHT - PLAYER.SIZE / 2,
             Math.max(PLAYER.SIZE / 2, newPosition.y)
           );
+
+          // dont collide with other players
+          // const otherPlayers = playersLive.filter(
+          //   (player) => player.id !== playerId
+          // );
+          // otherPlayers.forEach((otherPlayer) => {
+          //   if (
+          //     otherPlayer.position.x < newPosition.x + PLAYER.SIZE / 2 &&
+          //     otherPlayer.position.x + PLAYER.SIZE / 2 > newPosition.x &&
+          //     otherPlayer.position.y < newPosition.y + PLAYER.SIZE / 2 &&
+          //     otherPlayer.position.y + PLAYER.SIZE / 2 > newPosition.y
+          //   ) {
+          //     newPosition.x = otherPlayer.position.x;
+          //     newPosition.y = otherPlayer.position.y;
+          //   }
+          // });
 
           return {
             ...player,

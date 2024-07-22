@@ -22,6 +22,10 @@ const playersRenderer = (p: p5, state: StateType) => {
       ),
     };
 
+    console.log(
+      `lerp between ${player.previousPosition?.x} and ${player.targetPosition?.x} = ${newPosition.x}`
+    );
+
     p.translate(newPosition.x, newPosition.y);
 
     // shadow
@@ -42,7 +46,7 @@ const playersRenderer = (p: p5, state: StateType) => {
 
     p.pop();
 
-    player.previousPosition = newPosition;
+    player.previousPosition = { ...newPosition };
   };
 
   const draw = () => {

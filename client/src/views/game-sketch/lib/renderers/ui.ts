@@ -16,10 +16,10 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
   const fixedElements = (drawCall: () => void) => {
     p.push();
-    if (state.followingPlayer) {
+    if (state.cameraPosition) {
       p.translate(
-        state.followingPlayer.position.x - p.width / 2,
-        state.followingPlayer.position.y - p.height / 2
+        state.cameraPosition.x - p.width / 2,
+        state.cameraPosition.y - p.height / 2
       );
     }
     drawCall();

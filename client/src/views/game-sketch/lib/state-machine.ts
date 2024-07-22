@@ -15,12 +15,19 @@ type LobbyLive = {
   players: LobbyPlayerLive[];
 };
 
+type PlayerPosition = {
+  x: number;
+  y: number;
+};
+
 export type StateType = {
   playerId: string | null;
   followingPlayer: LobbyPlayerLive | null;
   currentLobbyMeta: LobbyMeta | null;
   currentLobbyLive: LobbyLive | null;
   ping: number;
+  cameraPosition: PlayerPosition;
+  targetCameraPosition: PlayerPosition;
 };
 
 const createState = () =>
@@ -30,6 +37,8 @@ const createState = () =>
     currentLobbyMeta: null,
     currentLobbyLive: null,
     ping: 0,
+    cameraPosition: { x: 0, y: 0 },
+    targetCameraPosition: { x: 0, y: 0 },
   } as StateType);
 
 const stateMachine = () => {
@@ -59,6 +68,15 @@ const stateMachine = () => {
   // this is the live update data that we receive
   // from the server as the game is running, which
   // all the real-time data like player positions
+  // const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
+  //   const myPlayer =
+  //     state.currentLobbyLive?.players.find(
+  //       (player) => player.id === state.playerId
+  //     ) ?? null;
+
+  //   state.currentLobbyLive = data;
+  //   state.followingPlayer = myPlayer;
+  // };
   const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
     const myPlayer =
       state.currentLobbyLive?.players.find(
@@ -67,6 +85,10 @@ const stateMachine = () => {
 
     state.currentLobbyLive = data;
     state.followingPlayer = myPlayer;
+
+    if (myPlayer) {
+      state.targetCameraPosition = { ...myPlayer.position };
+    }
   };
 
   const onPingReceived = (ping: number) => {

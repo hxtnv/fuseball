@@ -10,15 +10,13 @@ const LobbyList: React.FC = () => {
   const { status } = useWebSocket();
   const { lobbies, playersOnline } = useGameContext();
 
-  const showCount = status === "connected";
-
   return (
     <div className={styles.list}>
       <LobbyListActions />
 
       <div
         className={styles.list__header}
-        style={showCount ? undefined : { visibility: "hidden" }}
+        style={status === "connected" ? undefined : { visibility: "hidden" }}
       >
         <p>
           <span>{lobbies.length}</span> available lobbies

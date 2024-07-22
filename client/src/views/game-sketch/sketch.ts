@@ -22,7 +22,7 @@ const sketch = (p: p5) => {
   p.draw = () => {
     p.background(111, 173, 78);
 
-    // Interpolate camera position
+    // interpolate camera position
     state.cameraPosition = {
       x: lerp(
         state.cameraPosition.x,

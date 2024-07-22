@@ -31,7 +31,7 @@ export const createServer = (port: number): WebSocket.Server => {
         lobby.players.map((player) => player.id)
       );
     });
-  }, 1000 / 60);
+  }, 1000 / 30);
 
   return wss;
 };

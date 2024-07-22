@@ -67,33 +67,6 @@ const stateMachine = () => {
   // this is the live update data that we receive
   // from the server as the game is running, which
   // all the real-time data like player positions
-  /*
-  const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
-    const myPlayer =
-      state.currentLobbyLive?.players.find(
-        (player) => player.id === state.playerId
-      ) ?? null;
-
-    state.currentLobbyLive = data;
-    state.followingPlayer = myPlayer;
-  };
-  */
-
-  /*
-  const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
-    const myPlayer =
-      state.currentLobbyLive?.players.find(
-        (player) => player.id === state.playerId
-      ) ?? null;
-
-    state.currentLobbyLive = data;
-    state.followingPlayer = myPlayer;
-
-    if (myPlayer) {
-      state.targetCameraPosition = { ...myPlayer.position };
-    }
-  };
-  */
   const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
     if (state.currentLobbyLive) {
       data.players.forEach((updatedPlayer) => {

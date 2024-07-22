@@ -4,6 +4,8 @@ import uiRenderer from "./lib/renderers/ui";
 import mapRenderer from "./lib/renderers/map";
 import playersRenderer from "./lib/renderers/players";
 import playerController from "./lib/player-controller";
+import lerp from "./lib/helpers/lerp";
+import PLAYER from "./lib/const/player";
 
 const sketch = (p: p5) => {
   const {
@@ -11,10 +13,6 @@ const sketch = (p: p5) => {
     cleanup: cleanupState,
     state,
   } = Object.freeze(stateMachine());
-
-  const lerp = (start: number, end: number, amt: number) => {
-    return (1 - amt) * start + amt * end;
-  };
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
@@ -25,25 +23,23 @@ const sketch = (p: p5) => {
     p.background(111, 173, 78);
 
     // Interpolate camera position
-    state.cameraPosition.x = lerp(
-      state.cameraPosition.x,
-      state.targetCameraPosition.x,
-      0.1
-    );
-    state.cameraPosition.y = lerp(
-      state.cameraPosition.y,
-      state.targetCameraPosition.y,
-      0.1
-    );
+    state.cameraPosition = {
+      x: lerp(
+        state.cameraPosition.x,
+        state.targetCameraPosition.x,
+        PLAYER.LERP_AMT
+      ),
+      y: lerp(
+        state.cameraPosition.y,
+        state.targetCameraPosition.y,
+        PLAYER.LERP_AMT
+      ),
+    };
 
-    p.push();
-    if (state.followingPlayer) {
-      // Translate to camera position smoothly
-      p.translate(
-        p.width / 2 - state.cameraPosition.x,
-        p.height / 2 - state.cameraPosition.y
-      );
-    }
+    p.translate(
+      p.width / 2 - state.cameraPosition.x,
+      p.height / 2 - state.cameraPosition.y
+    );
 
     const userInterface = uiRenderer(p, state);
     const map = mapRenderer(p);
@@ -53,15 +49,13 @@ const sketch = (p: p5) => {
     players.draw();
     userInterface.draw();
 
-    if (state.followingPlayer) {
-      userInterface.followPlayer(state.followingPlayer);
-    }
+    // if (state.followingPlayer) {
+    //   userInterface.followPlayer(state.followingPlayer);
+    // }
 
-    p.pop();
-
-    // if (state.controllablePlayer) {
+    // if (state.followingPlayer) {
     //   if (p.keyIsDown(p.SHIFT)) {
-    //     userInterface.drawSpeechBubble(state.controllablePlayer, "😂");
+    //     userInterface.drawSpeechBubble(state.followingPlayer, "😂");
     //   }
     // }
   };

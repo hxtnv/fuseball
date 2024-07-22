@@ -7,6 +7,11 @@ export type PlayerSettings = {
   emoji: number;
 };
 
+export type PlayerPosition = {
+  x: number;
+  y: number;
+};
+
 export type LobbyPlayer = {
   id: string;
   name: string;
@@ -16,10 +21,9 @@ export type LobbyPlayer = {
 
 export type LobbyPlayerLive = LobbyPlayer & {
   // status: "waiting" | "playing";
-  position: {
-    x: number;
-    y: number;
-  };
+  position: PlayerPosition;
+  targetPosition: PlayerPosition;
+  previousPosition: PlayerPosition;
 };
 
 export type Lobby = {

@@ -5,6 +5,8 @@ const BUBBLE_POINTER_SIZE = 10;
 const BUBBLE_POINTER_OFFSET = 30;
 const BUBBLE_CORNER_RADIUS = 10;
 
+const LERP_AMT = 0.1;
+
 export default {
   SIZE,
   NAMETAG_GAP,
@@ -12,4 +14,6 @@ export default {
   BUBBLE_POINTER_SIZE,
   BUBBLE_POINTER_OFFSET,
   BUBBLE_CORNER_RADIUS,
+
+  LERP_AMT,
 };

@@ -1,6 +1,7 @@
 import p5 from "q5";
 import type { StateType } from "../state-machine";
 import PLAYER from "../const/player";
+import lerp from "../helpers/lerp";
 import LOBBY_STATUS from "@/lib/const/lobby-status";
 import TEAM_COLORS from "@/lib/const/team-colors";
 import { LobbyPlayerLive } from "@/context/game.context";
@@ -29,17 +30,31 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   const drawNametag = (player: LobbyPlayerLive) => {
     p.push();
 
+    const lerpedPosition = {
+      x: lerp(
+        player.previousPosition.x,
+        player.targetPosition.x,
+        PLAYER.LERP_AMT
+      ),
+      y: lerp(
+        player.previousPosition.y,
+        player.targetPosition.y,
+        PLAYER.LERP_AMT
+      ),
+    };
+
+    p.translate(
+      lerpedPosition.x,
+      lerpedPosition.y - PLAYER.SIZE / 2 - PLAYER.NAMETAG_GAP
+    );
+
     p.fill(TEAM_COLORS[player.team] ?? TEAM_COLORS[0]);
     p.stroke(51);
     p.strokeWeight(4);
     p.textSize(16);
     p.textAlign(p.CENTER, p.CENTER);
 
-    p.text(
-      player.name,
-      player.position.x,
-      player.position.y - PLAYER.SIZE / 2 - PLAYER.NAMETAG_GAP
-    );
+    p.text(player.name, 0, 0);
 
     p.pop();
   };

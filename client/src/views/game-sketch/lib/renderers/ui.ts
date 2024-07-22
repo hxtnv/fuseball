@@ -32,13 +32,13 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
     const lerpedPosition = {
       x: lerp(
-        player.previousPosition.x,
-        player.targetPosition.x,
+        player.previousPosition?.x ?? 0,
+        player.targetPosition?.x ?? 0,
         PLAYER.LERP_AMT
       ),
       y: lerp(
-        player.previousPosition.y,
-        player.targetPosition.y,
+        player.previousPosition?.y ?? 0,
+        player.targetPosition?.y ?? 0,
         PLAYER.LERP_AMT
       ),
     };

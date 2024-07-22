@@ -1,9 +1,12 @@
 import p5 from "q5";
+
 import stateMachine from "./lib/state-machine";
+
 import uiRenderer from "./lib/renderers/ui";
 import mapRenderer from "./lib/renderers/map";
 import playersRenderer from "./lib/renderers/players";
 import playerController from "./lib/player-controller";
+
 import lerp from "./lib/helpers/lerp";
 import PLAYER from "./lib/const/player";
 
@@ -16,6 +19,7 @@ const sketch = (p: p5) => {
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
+
     initState();
   };
 

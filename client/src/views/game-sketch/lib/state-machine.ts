@@ -1,3 +1,4 @@
+import p5 from "q5";
 import type {
   Lobby,
   LobbyPlayerLive,
@@ -27,6 +28,7 @@ export type StateType = {
   ping: number;
   cameraPosition: PlayerPosition;
   targetCameraPosition: PlayerPosition;
+  assets: Record<string, p5.Image>;
 };
 
 const createState = () =>
@@ -38,6 +40,7 @@ const createState = () =>
     ping: 0,
     cameraPosition: { x: 0, y: 0 },
     targetCameraPosition: { x: 0, y: 0 },
+    assets: {},
   } as StateType);
 
 const stateMachine = () => {
@@ -95,6 +98,8 @@ const stateMachine = () => {
     if (myPlayer) {
       state.targetCameraPosition = { ...myPlayer.position };
     }
+
+    // emitter.emit("game:lobby-live-update-processed");
   };
 
   const onPingReceived = (ping: number) => {

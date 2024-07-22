@@ -4,6 +4,7 @@ import PLAYER from "../const/player";
 import lerp from "../helpers/lerp";
 import LOBBY_STATUS from "@/lib/const/lobby-status";
 import TEAM_COLORS from "@/lib/const/team-colors";
+import META from "@/lib/const/meta";
 import { LobbyPlayerLive } from "@/context/game.context";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
@@ -64,8 +65,8 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   };
 
   const drawDebugInfo = () => {
-    debugLines.forEach((line, index) => {
-      p.text(line, 10, 20 + index * 20);
+    debugLines.reverse().forEach((line, index) => {
+      p.text(line, 10, p.height - 20 - index * 20);
     });
   };
 
@@ -197,12 +198,29 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
+  const drawLogo = () => {
+    p.push();
+
+    p.textSize(22);
+    p.fill(255);
+    p.stroke(51);
+    p.strokeWeight(4);
+    p.text(
+      META.SITE_DOMAIN,
+      p.width - p.textWidth(META.SITE_DOMAIN) - 20,
+      p.height - 20
+    );
+
+    p.pop();
+  };
+
   const draw = () => {
     p.textFont("Itim");
 
     drawNametags();
 
     fixedElements(() => {
+      drawLogo();
       drawDebugInfo();
       drawLobbyInfo();
     });

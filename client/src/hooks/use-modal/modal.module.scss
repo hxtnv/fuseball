@@ -27,6 +27,7 @@
     width: 500px;
     max-width: 100%;
     z-index: 101;
+    box-shadow: 0 5px 13px #0003;
     animation: modal-content-fade-in 300ms;
 
     .modal__content__header {
@@ -58,6 +59,14 @@
           }
         }
       }
+    }
+
+    .modal__content__footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin: 15px 0 0;
     }
   }
 }

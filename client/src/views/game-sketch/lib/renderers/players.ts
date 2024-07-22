@@ -22,9 +22,9 @@ const playersRenderer = (p: p5, state: StateType) => {
       ),
     };
 
-    console.log(
-      `lerp between ${player.previousPosition?.x} and ${player.targetPosition?.x} = ${newPosition.x}`
-    );
+    // console.log(
+    //   `lerp between ${player.previousPosition?.x} and ${player.targetPosition?.x} = ${newPosition.x}`
+    // );
 
     p.translate(newPosition.x, newPosition.y);
 

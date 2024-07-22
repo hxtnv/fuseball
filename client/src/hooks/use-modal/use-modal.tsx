@@ -1,12 +1,17 @@
 import { useState, useEffect, useMemo } from "react";
 import X from "@/assets/icons/x-solid.svg?react";
 import styles from "./modal.module.scss";
+import Button from "@/components/common/button";
 
 type VisibilityState = "hidden" | "visible" | "halfway-out";
 type ModalProps = {
   children: React.ReactNode;
   title?: string;
   hideCloseButton?: boolean;
+  onConfirm?: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  showFooter?: boolean;
 };
 type UseModalArgs = {
   onClose?: () => void;
@@ -19,7 +24,15 @@ const useModal = ({ onClose, onOpen }: UseModalArgs = {}) => {
   const open = () => setVisibility("visible");
   const close = () => setVisibility("hidden");
 
-  const Modal = ({ children, hideCloseButton, title }: ModalProps) => {
+  const Modal = ({
+    children,
+    hideCloseButton,
+    title,
+    onConfirm,
+    confirmText,
+    cancelText,
+    showFooter,
+  }: ModalProps) => {
     if (visibility === "hidden") return null;
 
     return (
@@ -46,6 +59,16 @@ const useModal = ({ onClose, onOpen }: UseModalArgs = {}) => {
           </div>
 
           <div className={styles.modal__content__body}>{children}</div>
+
+          {showFooter && (
+            <div className={styles.modal__content__footer}>
+              <Button variant="secondary" onClick={close}>
+                {cancelText ?? "Cancel"}
+              </Button>
+
+              <Button onClick={onConfirm}>{confirmText ?? "Confirm"}</Button>
+            </div>
+          )}
         </div>
       </div>
     );

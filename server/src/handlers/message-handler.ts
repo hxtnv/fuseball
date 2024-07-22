@@ -33,6 +33,10 @@ export const handleMessage = (
         handleCreateLobby(parsedMessage.data, ws, wss);
         break;
 
+      case "leave-lobby":
+        handleLeaveLobby(ws, wss);
+        break;
+
       case "join-lobby":
         handleJoinLobby(parsedMessage.data, ws, wss);
         break;
@@ -116,4 +120,10 @@ const handleJoinLobby = (
     send(ws, "join-lobby-success", lobby);
     broadcast(wss, "lobbies", lobbyManager.getAll());
   }
+};
+
+const handleLeaveLobby = (ws: WebSocketClient, wss: WebSocket.Server) => {
+  lobbyManager.removeClientFromLobbies(ws.id);
+
+  broadcast(wss, "lobbies", lobbyManager.getAll());
 };

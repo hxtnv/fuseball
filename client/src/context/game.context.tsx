@@ -44,6 +44,7 @@ type GameContextType = {
   createLobby: ({ name, teamSize }: { name: string; teamSize: number }) => void;
   joinLobby: (id: string, team?: 0 | 1) => void;
   playersOnline: number;
+  leaveLobby: () => void;
 };
 
 const GameContext = React.createContext<GameContextType>({
@@ -57,6 +58,7 @@ const GameContext = React.createContext<GameContextType>({
   createLobby: () => {},
   joinLobby: () => {},
   playersOnline: 0,
+  leaveLobby: () => {},
 });
 
 const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -73,6 +75,14 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onConnected = () => {
     emitter.emit("ws:send", "get-lobbies");
+  };
+
+  const leaveLobby = () => {
+    emitter.emit("ws:send", {
+      event: "leave-lobby",
+    });
+
+    setCurrentLobby(null);
   };
 
   const createLobby = ({
@@ -171,6 +181,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
         currentLobby,
         joinLobby,
         playersOnline,
+        leaveLobby,
       }}
     >
       {children}

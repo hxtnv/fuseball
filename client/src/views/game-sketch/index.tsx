@@ -29,7 +29,21 @@ const P5Sketch: React.FC = () => {
 
 const Game: React.FC = () => {
   const { leaveLobby } = useGameContext();
-  const { Modal, open } = useModal();
+  const { Modal, open } = useModal({ noEscapeClose: true });
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      open();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keyup", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keyup", onKeyDown);
+    };
+  }, [open]);
 
   return (
     <Fragment>

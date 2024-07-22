@@ -16,9 +16,10 @@ type ModalProps = {
 type UseModalArgs = {
   onClose?: () => void;
   onOpen?: () => void;
+  noEscapeClose?: boolean;
 };
 
-const useModal = ({ onClose, onOpen }: UseModalArgs = {}) => {
+const useModal = ({ onClose, onOpen, noEscapeClose }: UseModalArgs = {}) => {
   const [visibility, setVisibility] = useState<VisibilityState>("hidden");
 
   const open = () => setVisibility("visible");
@@ -33,6 +34,26 @@ const useModal = ({ onClose, onOpen }: UseModalArgs = {}) => {
     cancelText,
     showFooter,
   }: ModalProps) => {
+    useEffect(() => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          if (noEscapeClose || hideCloseButton) {
+            return;
+          }
+
+          close();
+        } else if (event.key === "Enter") {
+          onConfirm?.();
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }, []);
+
     if (visibility === "hidden") return null;
 
     return (
@@ -75,20 +96,6 @@ const useModal = ({ onClose, onOpen }: UseModalArgs = {}) => {
   };
 
   const memoizedModal = useMemo(() => Modal, [visibility]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        close();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
 
   useEffect(() => {
     if (visibility === "visible") {

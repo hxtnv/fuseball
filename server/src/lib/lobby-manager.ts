@@ -1,11 +1,15 @@
 import { randomUUID } from "crypto";
 import getCountryCodeFromTimezone from "./helpers/get-country-code-from-timezone";
 import getInitialPosition from "./helpers/get-initial-position";
-import PLAYER from "./const/player";
-import MAP from "./const/map";
 import calculateNewPlayerPosition from "./helpers/calculate-new-player-position";
+import getInitialBallPosition from "./helpers/get-initial-ball-position";
 
 type LobbyStatus = "warmup" | "in-progress" | "finished";
+
+type PositionType = {
+  x: number;
+  y: number;
+};
 
 export type LobbyPlayer = {
   id: string;
@@ -26,10 +30,7 @@ export type Lobby = {
 
 export type LobbyPlayerLive = LobbyPlayer & {
   // status: "waiting" | "playing";
-  position: {
-    x: number;
-    y: number;
-  };
+  position: PositionType;
 };
 
 export type LobbyLive = {
@@ -39,6 +40,9 @@ export type LobbyLive = {
   playersMovement: Record<string, Record<string, boolean>>;
   score?: string;
   chatMessages: Record<string, { message: string; timestamp: number }>;
+  ball: {
+    position: PositionType;
+  };
 };
 
 type CreateLobby = {
@@ -186,6 +190,9 @@ const lobbyManager = () => {
         ...player,
         position: getInitialPosition(index),
       })),
+      ball: {
+        position: getInitialBallPosition(),
+      },
       chatMessages: {},
     };
 

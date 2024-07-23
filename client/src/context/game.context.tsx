@@ -8,7 +8,7 @@ export type PlayerSettings = {
   emoji: number;
 };
 
-export type PlayerPosition = {
+export type PositionType = {
   x: number;
   y: number;
 };
@@ -22,9 +22,9 @@ export type LobbyPlayer = {
 
 export type LobbyPlayerLive = LobbyPlayer & {
   // status: "waiting" | "playing";
-  position: PlayerPosition;
-  targetPosition: PlayerPosition;
-  previousPosition: PlayerPosition;
+  position: PositionType;
+  targetPosition: PositionType;
+  previousPosition: PositionType;
 };
 
 export type Lobby = {
@@ -35,6 +35,17 @@ export type Lobby = {
   teamSize: number;
   countryCode: string;
   score?: string;
+};
+
+export type LobbyLive = {
+  id: string;
+  status: "warmup" | "in-progress" | "finished";
+  name: string;
+  players: LobbyPlayerLive[];
+  chatMessages: Record<string, { message: string; timestamp: number }>;
+  ball: {
+    position: PositionType;
+  };
 };
 
 type GameContextType = {

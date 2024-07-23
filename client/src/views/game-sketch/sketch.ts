@@ -10,6 +10,7 @@ import playerController from "./lib/player-controller";
 import lerp from "./lib/helpers/lerp";
 import renderSeparation from "./lib/helpers/render-separation";
 import PLAYER from "./lib/const/player";
+import BALL from "./lib/const/ball";
 
 const sketch = (p: p5) => {
   const {
@@ -56,6 +57,13 @@ const sketch = (p: p5) => {
       p.translate(-state.cameraPosition.x, -state.cameraPosition.y);
 
       map.draw();
+      if (state.currentLobbyLive) {
+        p.ellipse(
+          state.currentLobbyLive.ball.position.x,
+          state.currentLobbyLive.ball.position.y,
+          BALL.SIZE
+        );
+      }
       players.draw();
     }, p);
 

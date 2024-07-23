@@ -2,7 +2,8 @@ import p5 from "q5";
 import type {
   Lobby,
   LobbyPlayerLive,
-  PlayerPosition,
+  PositionType,
+  LobbyLive,
 } from "@/context/game.context";
 import emitter from "@/lib/emitter";
 import playerController from "./player-controller";
@@ -14,23 +15,15 @@ type LobbyMeta = {
   countryCode: string;
 };
 
-type LobbyLive = {
-  id: string;
-  status: "warmup" | "in-progress" | "finished";
-  name: string;
-  players: LobbyPlayerLive[];
-  chatMessages: Record<string, { message: string; timestamp: number }>;
-};
-
 export type StateType = {
   playerId: string | null;
   followingPlayer: LobbyPlayerLive | null;
   currentLobbyMeta: LobbyMeta | null;
   currentLobbyLive: LobbyLive | null;
   ping: number;
-  cameraPosition: PlayerPosition;
+  cameraPosition: PositionType;
   cameraScale: number;
-  targetCameraPosition: PlayerPosition;
+  targetCameraPosition: PositionType;
   targetCameraScale: number;
   assets: Record<string, p5.Image>;
   chatInputFocus: boolean;

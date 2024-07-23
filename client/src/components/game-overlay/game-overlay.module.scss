@@ -1,0 +1,98 @@
+.game__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 91;
+  padding: 20px;
+
+  .game__overlay__button {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: background-color 300ms;
+
+    color: #fff;
+    border-radius: 16px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0.25);
+
+    &:hover {
+      cursor: pointer;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    svg {
+      height: 22px;
+      fill: #fff;
+    }
+  }
+
+  .game__overlay__chat {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+
+    .game__overlay__chat__input {
+      position: relative;
+      color: #fff;
+      border-radius: 100px;
+      pointer-events: all;
+
+      p {
+        position: absolute;
+        top: -24px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.75);
+        text-shadow: 1px 0px 4px #000;
+        opacity: 0;
+        transition: opacity 300ms;
+
+        span {
+          color: #fff;
+        }
+      }
+
+      &[data-focus="true"] {
+        p {
+          opacity: 1;
+        }
+      }
+
+      input {
+        border: 0;
+        background-color: transparent;
+        padding: 10px 20px;
+        border-radius: inherit;
+        background-color: rgba(0, 0, 0, 0.5);
+        outline: 2px solid rgba(0, 0, 0, 0.25);
+        width: 200px;
+        height: 16px;
+        transition: width 300ms, height 300ms;
+
+        &:focus {
+          width: 250px;
+          height: 36px;
+          outline: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        &::placeholder {
+          user-select: none;
+          color: rgba(255, 255, 255, 0.75);
+        }
+      }
+    }
+  }
+}

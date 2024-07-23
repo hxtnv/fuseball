@@ -31,6 +31,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   const drawNametag = (player: LobbyPlayerLive) => {
     p.push();
 
+    // todo: move this into a helper function and reuse in drawNametags/drawspeechbubble
     const lerpedPosition = {
       x: lerp(
         player.previousPosition?.x ?? 0,
@@ -77,12 +78,26 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     const bubbleWidth = p.textWidth(text) + 40;
     const bubbleHeight = 60;
 
+    // todo: move this into a helper function and reuse in drawNametags/drawspeechbubble
+    const lerpedPosition = {
+      x: lerp(
+        player.previousPosition?.x ?? 0,
+        player.targetPosition?.x ?? 0,
+        PLAYER.LERP_AMT
+      ),
+      y: lerp(
+        player.previousPosition?.y ?? 0,
+        player.targetPosition?.y ?? 0,
+        PLAYER.LERP_AMT
+      ),
+    };
+
     p.translate(
-      player.position.x -
+      lerpedPosition.x -
         PLAYER.SIZE / 2 -
         PLAYER.BUBBLE_POINTER_OFFSET / 2 +
         PLAYER.BUBBLE_POINTER_SIZE / 2,
-      player.position.y -
+      lerpedPosition.y -
         PLAYER.SIZE / 2 -
         bubbleHeight -
         PLAYER.BUBBLE_POINTER_SIZE -
@@ -155,12 +170,34 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
-  const followPlayer = (player: LobbyPlayerLive) => {
-    p.translate(
-      p.width / 2 - player.position.x,
-      p.height / 2 - player.position.y
-    );
+  const drawChatMessages = () => {
+    if (!state.currentLobbyLive) return;
+
+    Object.keys(state.currentLobbyLive.chatMessages).forEach((playerId) => {
+      const message = state.currentLobbyLive?.chatMessages[playerId];
+
+      if (!message) {
+        return;
+      }
+
+      const player = state.currentLobbyLive?.players.find(
+        (player) => player.id === playerId
+      );
+
+      if (!player) {
+        return;
+      }
+
+      drawSpeechBubble(player, message.message);
+    });
   };
+
+  // const followPlayer = (player: LobbyPlayerLive) => {
+  //   p.translate(
+  //     p.width / 2 - player.position.x,
+  //     p.height / 2 - player.position.y
+  //   );
+  // };
 
   const drawLobbyInfo = () => {
     if (!state.currentLobbyMeta) return;
@@ -218,6 +255,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.textFont("Itim");
 
     drawNametags();
+    drawChatMessages();
 
     fixedElements(() => {
       drawLogo();
@@ -226,7 +264,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     });
   };
 
-  return { draw, drawSpeechBubble, followPlayer };
+  return { draw, drawSpeechBubble };
 };
 
 export default userInterfaceRenderer;

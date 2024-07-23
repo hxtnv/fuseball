@@ -18,6 +18,7 @@ type LobbyLive = {
   status: "warmup" | "in-progress" | "finished";
   name: string;
   players: LobbyPlayerLive[];
+  chatMessages: Record<string, { message: string; timestamp: number }>;
 };
 
 export type StateType = {
@@ -29,6 +30,7 @@ export type StateType = {
   cameraPosition: PlayerPosition;
   targetCameraPosition: PlayerPosition;
   assets: Record<string, p5.Image>;
+  chatInputFocus: boolean;
 };
 
 const createState = () =>
@@ -41,6 +43,7 @@ const createState = () =>
     cameraPosition: { x: 0, y: 0 },
     targetCameraPosition: { x: 0, y: 0 },
     assets: {},
+    chatInputFocus: false,
   } as StateType);
 
 const stateMachine = () => {
@@ -106,10 +109,20 @@ const stateMachine = () => {
     state.ping = ping;
   };
 
+  const onChatInputFocusStart = () => {
+    state.chatInputFocus = true;
+  };
+
+  const onChatInputFocusEnd = () => {
+    state.chatInputFocus = false;
+  };
+
   const init = () => {
     emitter.on("ws:message:lobby-live-update", onLobbyLiveUpdate);
     emitter.on("game:current-lobby-meta", onGetCurrentLobby);
     emitter.on("game:ping", onPingReceived);
+    emitter.on("game:chat-input-focus-start", onChatInputFocusStart);
+    emitter.on("game:chat-input-focus-end", onChatInputFocusEnd);
 
     emitter.emit("game:get-current-lobby");
   };
@@ -118,6 +131,8 @@ const stateMachine = () => {
     emitter.off("ws:message:lobby-live-update", onLobbyLiveUpdate);
     emitter.off("game:current-lobby-meta", onGetCurrentLobby);
     emitter.off("game:ping", onPingReceived);
+    emitter.off("game:chat-input-focus-start", onChatInputFocusStart);
+    emitter.off("game:chat-input-focus-end", onChatInputFocusEnd);
   };
 
   return {

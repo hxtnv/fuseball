@@ -52,16 +52,6 @@ const sketch = (p: p5) => {
     map.draw();
     players.draw();
     userInterface.draw();
-
-    // if (state.followingPlayer) {
-    //   userInterface.followPlayer(state.followingPlayer);
-    // }
-
-    // if (state.followingPlayer) {
-    //   if (p.keyIsDown(p.SHIFT)) {
-    //     userInterface.drawSpeechBubble(state.followingPlayer, "😂");
-    //   }
-    // }
   };
 
   p.keyPressed = () => {

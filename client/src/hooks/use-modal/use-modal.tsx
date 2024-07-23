@@ -43,6 +43,10 @@ const useModal = ({ onClose, onOpen, noEscapeClose }: UseModalArgs = {}) => {
 
           close();
         } else if (event.key === "Enter") {
+          if (visibility !== "visible") {
+            return;
+          }
+
           onConfirm?.();
         }
       };
@@ -109,6 +113,7 @@ const useModal = ({ onClose, onOpen, noEscapeClose }: UseModalArgs = {}) => {
     Modal: memoizedModal,
     open,
     close,
+    isOpen: visibility === "visible",
   };
 };
 

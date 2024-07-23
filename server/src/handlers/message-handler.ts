@@ -49,6 +49,10 @@ export const handleMessage = (
         handlePlayerMoveEnd(parsedMessage.data, ws, wss);
         break;
 
+      case "chat-message":
+        handleChatMessage(parsedMessage.data?.message, ws, wss);
+        break;
+
       case "ping":
         send(ws, "pong");
         break;
@@ -58,8 +62,27 @@ export const handleMessage = (
         break;
     }
   } catch (error) {
+    console.error("Failed to handle message", message);
+    console.error(error);
+
     send(ws, "error", "Invalid message format");
   }
+};
+
+const handleChatMessage = (
+  message: string,
+  ws: WebSocketClient,
+  wss: WebSocket.Server
+) => {
+  if (typeof message !== "string") {
+    return;
+  }
+
+  if (message.replace(/\s+/g, "") === "") {
+    return;
+  }
+
+  lobbyManager.chatMessage(message.substring(0, 50), ws.id);
 };
 
 const handlePlayerMoveStart = (

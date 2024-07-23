@@ -1,10 +1,7 @@
 import React, { useRef, useEffect, Fragment } from "react";
 import p5 from "q5";
 import gameSketch from "./sketch";
-import SignOut from "@/assets/icons/sign-out-alt-solid.svg?react";
-import styles from "./game-sketch.module.scss";
-import { useGameContext } from "@/context/game.context";
-import useModal from "@/hooks/use-modal/use-modal";
+import GameOverlay from "@/components/game-overlay";
 
 const P5Sketch: React.FC = () => {
   const sketchRef = useRef<HTMLDivElement>(null);
@@ -27,43 +24,9 @@ const P5Sketch: React.FC = () => {
 };
 
 const Game: React.FC = () => {
-  const { leaveLobby } = useGameContext();
-  const { Modal, open } = useModal({ noEscapeClose: true });
-
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      open();
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("keyup", onKeyDown);
-
-    return () => {
-      window.removeEventListener("keyup", onKeyDown);
-    };
-  }, [open]);
-
   return (
     <Fragment>
-      <div className={styles.game__overlay}>
-        <button className={styles.game__overlay__button} onClick={() => open()}>
-          <SignOut />
-        </button>
-
-        <Modal
-          title="Quit game"
-          confirmText="Leave game"
-          cancelText="Stay"
-          onConfirm={leaveLobby}
-          showFooter
-        >
-          <p style={{ textAlign: "center", margin: "20px 0" }}>
-            Are you sure you want to leave the game?
-          </p>
-        </Modal>
-      </div>
-
+      <GameOverlay />
       <P5Sketch />
     </Fragment>
   );

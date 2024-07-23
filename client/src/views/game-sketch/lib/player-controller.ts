@@ -6,31 +6,37 @@ const KEYS_TO_DIRECTION: Record<string, string> = {
   ArrowDown: "down",
   ArrowLeft: "left",
   ArrowRight: "right",
+
+  w: "up",
+  s: "down",
+  a: "left",
+  d: "right",
 };
 
 const playerController = (state: StateType) => {
-  const move = (type: "start" | "end", key: string) => {
-    if (!state.playerId || !KEYS_TO_DIRECTION[key]) {
+  const move = (type: "start" | "end", direction: string) => {
+    if (!state.playerId || state.chatInputFocus) {
       return;
     }
-
-    const direction = KEYS_TO_DIRECTION[key];
 
     emitter.emit("ws:send", {
       event: type === "start" ? "player-move-start" : "player-move-end",
       data: {
-        id: state.playerId,
         direction,
       },
     });
   };
 
   const onKeyDown = (key: string) => {
-    move("start", key);
+    if (KEYS_TO_DIRECTION[key]) {
+      move("start", KEYS_TO_DIRECTION[key]);
+    }
   };
 
   const onKeyUp = (key: string) => {
-    move("end", key);
+    if (KEYS_TO_DIRECTION[key]) {
+      move("end", KEYS_TO_DIRECTION[key]);
+    }
   };
 
   return {

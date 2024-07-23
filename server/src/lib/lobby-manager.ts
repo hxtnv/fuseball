@@ -37,6 +37,7 @@ export type LobbyLive = {
   players: LobbyPlayerLive[];
   playersMovement: Record<string, Record<string, boolean>>;
   score?: string;
+  chatMessages: Record<string, { message: string; timestamp: number }>;
 };
 
 type CreateLobby = {
@@ -184,6 +185,7 @@ const lobbyManager = () => {
         ...player,
         position: getInitialPosition(index),
       })),
+      chatMessages: {},
     };
 
     console.log(
@@ -436,6 +438,19 @@ const lobbyManager = () => {
     );
   };
 
+  const chatMessage = (message: string, playerId: string) => {
+    const { lobby: existingLobby } = getClientLobby(playerId);
+
+    if (!existingLobby) {
+      return;
+    }
+
+    state.lobbiesLive[existingLobby.id].chatMessages[playerId] = {
+      message,
+      timestamp: Date.now(),
+    };
+  };
+
   return {
     playerMoveStart,
     playerMoveEnd,
@@ -447,6 +462,7 @@ const lobbyManager = () => {
     create,
     join,
     removeClientFromLobbies,
+    chatMessage,
   };
 };
 

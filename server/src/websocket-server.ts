@@ -16,7 +16,12 @@ export const createServer = (port: number): WebSocket.Server => {
 
   // todo: move this to a separate worker / cluster
   setInterval(() => {
+    const now = Date.now();
+
     Object.values(lobbyManager.getAllLive()).forEach((lobby) => {
+      // todo: move this into something like a "game-loop" function
+
+      // update player positions
       lobby.players.forEach((player) => {
         lobbyManager.updatePlayerPosition({
           lobbyId: lobby.id,
@@ -24,11 +29,25 @@ export const createServer = (port: number): WebSocket.Server => {
         });
       });
 
+      // update chat messages
+      Object.keys(lobby.chatMessages).forEach((playerId) => {
+        const message = lobby.chatMessages[playerId];
+
+        if (!message) {
+          return;
+        }
+
+        if (now - message.timestamp > 5000) {
+          delete lobby.chatMessages[playerId];
+          return;
+        }
+      });
+
       broadcast(
         wss,
         "lobby-live-update",
         lobby,
-        lobby.players.map((player) => player.id)
+        lobby.players.map((player) => player.id) // only send to players in the lobby
       );
     });
   }, 1000 / 30);

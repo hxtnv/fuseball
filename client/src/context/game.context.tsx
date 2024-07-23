@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import emitter from "@/lib/emitter";
 import getRandomPlayerSettings from "@/lib/helpers/get-random-player-settings";
+import { useWebSocket } from "./websocket.context";
 
 export type PlayerSettings = {
   name: string;
@@ -62,6 +63,7 @@ const GameContext = React.createContext<GameContextType>({
 });
 
 const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const { status } = useWebSocket();
   const [lobbies, setLobbies] = useState<Lobby[]>([]);
   const [currentLobby, setCurrentLobby] = useState<Lobby | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
@@ -170,6 +172,12 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
       emitter.off("game:get-current-lobby", onGetCurrentLobby);
     };
   }, [onGetCurrentLobby]);
+
+  useEffect(() => {
+    if (status !== "connected") {
+      setCurrentLobby(null);
+    }
+  }, [status]);
 
   return (
     <GameContext.Provider

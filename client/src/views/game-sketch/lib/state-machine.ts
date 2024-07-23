@@ -29,7 +29,9 @@ export type StateType = {
   currentLobbyLive: LobbyLive | null;
   ping: number;
   cameraPosition: PlayerPosition;
+  cameraScale: number;
   targetCameraPosition: PlayerPosition;
+  targetCameraScale: number;
   assets: Record<string, p5.Image>;
   chatInputFocus: boolean;
 };
@@ -42,6 +44,8 @@ const createState = () =>
     currentLobbyLive: null,
     ping: 0,
     cameraPosition: { x: 0, y: 0 },
+    cameraScale: 1,
+    targetCameraScale: 1,
     targetCameraPosition: { x: 0, y: 0 },
     assets: {},
     chatInputFocus: false,

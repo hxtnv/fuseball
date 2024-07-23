@@ -5,6 +5,7 @@ import lerp from "../helpers/lerp";
 import LOBBY_STATUS from "@/lib/const/lobby-status";
 import TEAM_COLORS from "@/lib/const/team-colors";
 import META from "@/lib/const/meta";
+import renderSeparation from "../helpers/render-separation";
 import { LobbyPlayerLive } from "@/context/game.context";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
@@ -15,18 +16,6 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
       0
     )}, ${state.followingPlayer?.position.y.toFixed(0)}`,
   ];
-
-  const fixedElements = (drawCall: () => void) => {
-    p.push();
-    if (state.cameraPosition) {
-      p.translate(
-        state.cameraPosition.x - p.width / 2,
-        state.cameraPosition.y - p.height / 2
-      );
-    }
-    drawCall();
-    p.pop();
-  };
 
   const drawNametag = (player: LobbyPlayerLive) => {
     p.push();
@@ -254,14 +243,22 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   const draw = () => {
     p.textFont("Itim");
 
-    drawNametags();
-    drawChatMessages();
+    // moving elements based on players position
+    renderSeparation(() => {
+      p.translate(p.width / 2, p.height / 2);
+      p.scale(state.cameraScale);
+      p.translate(-state.cameraPosition.x, -state.cameraPosition.y);
 
-    fixedElements(() => {
+      drawNametags();
+      drawChatMessages();
+    }, p);
+
+    // fixed elements
+    renderSeparation(() => {
       drawLogo();
       drawDebugInfo();
       drawLobbyInfo();
-    });
+    }, p);
   };
 
   return { draw, drawSpeechBubble };

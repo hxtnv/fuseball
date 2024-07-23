@@ -6,12 +6,16 @@ import getInitialBallPosition from "./helpers/get-initial-ball-position";
 
 type LobbyStatus = "warmup" | "in-progress" | "finished";
 
-type PositionType = {
+export type PositionType = {
   x: number;
   y: number;
 };
 
 type ScoreType = [number, number];
+
+export type Ball = {
+  position: PositionType;
+};
 
 export type LobbyPlayer = {
   id: string;
@@ -42,9 +46,8 @@ export type LobbyLive = {
   playersMovement: Record<string, Record<string, boolean>>;
   score: ScoreType;
   chatMessages: Record<string, { message: string; timestamp: number }>;
-  ball: {
-    position: PositionType;
-  };
+  ball: Ball;
+  scoredThisTurn: boolean;
 };
 
 type CreateLobby = {
@@ -197,6 +200,7 @@ const lobbyManager = () => {
         position: getInitialBallPosition(),
       },
       chatMessages: {},
+      scoredThisTurn: false,
     };
 
     console.log(
@@ -385,19 +389,23 @@ const lobbyManager = () => {
     lobbyId: string;
     playerId: string;
   }) => {
-    const movement = state.lobbiesLive[lobbyId].playersMovement[playerId];
+    const lobbyState = state.lobbiesLive[lobbyId];
+    const movement = lobbyState.playersMovement[playerId];
     if (!movement || !Object.values(movement).includes(true)) {
       return;
     }
 
-    state.lobbiesLive[lobbyId].players = state.lobbiesLive[lobbyId].players.map(
+    state.lobbiesLive[lobbyId].players = lobbyState.players.map(
       (player, index, playersLive) => {
         if (player.id === playerId) {
-          const newPosition = calculateNewPlayerPosition({
+          const { newPosition, newBallPosition } = calculateNewPlayerPosition({
             player,
             movement,
             allPlayers: playersLive,
+            ball: lobbyState.ball,
           });
+
+          lobbyState.ball.position = newBallPosition;
 
           return {
             ...player,
@@ -423,6 +431,36 @@ const lobbyManager = () => {
     };
   };
 
+  const registerBallHit = (
+    lobbyId: string,
+    team: 0 | 1,
+    callback?: () => void
+  ) => {
+    if (state.lobbiesLive[lobbyId].scoredThisTurn) {
+      return;
+    }
+
+    state.lobbiesLive[lobbyId].scoredThisTurn = true;
+    state.lobbiesLive[lobbyId].score[team]++;
+    state.lobbies.map((lobby) => {
+      if (lobby.id === lobbyId) {
+        lobby.score[team]++;
+      }
+
+      return lobby;
+    });
+
+    const timeout = setTimeout(() => {
+      state.lobbiesLive[lobbyId].ball.position = getInitialBallPosition();
+
+      state.lobbiesLive[lobbyId].scoredThisTurn = false;
+    }, 2500);
+
+    if (callback) {
+      callback();
+    }
+  };
+
   return {
     playerMoveStart,
     playerMoveEnd,
@@ -435,6 +473,7 @@ const lobbyManager = () => {
     join,
     removeClientFromLobbies,
     chatMessage,
+    registerBallHit,
   };
 };
 

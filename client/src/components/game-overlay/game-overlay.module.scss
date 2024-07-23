@@ -95,4 +95,66 @@
       }
     }
   }
+
+  .game__overlay__goal__announcement {
+    --anim-length: 500ms;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 150px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+
+    .game__overlay__goal__announcement__background,
+    .game__overlay__goal__announcement__content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    .game__overlay__goal__announcement__background {
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0);
+      opacity: 0;
+      text-align: center;
+      height: 100%;
+      transform: scaleY(0);
+      transition: background-color var(--anim-length),
+        opacity var(--anim-length), transform var(--anim-length);
+    }
+
+    .game__overlay__goal__announcement__content {
+      text-align: center;
+
+      p {
+        opacity: 0;
+        font-size: 48px;
+        margin: 50px 0;
+        letter-spacing: 30px;
+        transition: opacity var(--anim-length),
+          letter-spacing var(--anim-length);
+      }
+    }
+
+    &[data-visible="true"] {
+      .game__overlay__goal__announcement__background {
+        background-color: rgba(0, 0, 0, 0.7);
+        opacity: 1;
+        transform: none;
+      }
+
+      .game__overlay__goal__announcement__content {
+        p {
+          opacity: 1;
+          letter-spacing: 0;
+        }
+      }
+    }
+  }
 }

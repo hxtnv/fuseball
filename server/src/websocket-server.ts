@@ -4,6 +4,8 @@ import { handleConnection } from "./handlers/connection-handler";
 import lobbyManager from "./lib/lobby-manager";
 import { broadcast } from "./lib/utils";
 
+import isInsideGoalZone from "./lib/helpers/is-inside-goal-zone";
+
 type WebSocketClient = WebSocket & { id: string };
 
 export const createServer = (port: number): WebSocket.Server => {
@@ -42,6 +44,22 @@ export const createServer = (port: number): WebSocket.Server => {
           return;
         }
       });
+
+      // check ball position to adjust score
+      const { isInside, whichTeam } = isInsideGoalZone(lobby.ball.position);
+
+      if (isInside) {
+        lobbyManager.registerBallHit(lobby.id, whichTeam === 0 ? 1 : 0, () => {
+          broadcast(
+            wss,
+            "lobby-live-goal",
+            {
+              whichTeam: whichTeam === 0 ? 1 : 0,
+            },
+            lobby.players.map((player) => player.id)
+          );
+        });
+      }
 
       broadcast(
         wss,

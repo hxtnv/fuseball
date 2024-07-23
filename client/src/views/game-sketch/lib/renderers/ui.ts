@@ -224,7 +224,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
     p.fill(TEAM_COLORS[1]);
     p.text(
-      state.currentLobbyLive.score[0],
+      state.currentLobbyLive.score[1],
       p.width / 2 + lobbyNameTextWidth / 2 + 50,
       56
     );

@@ -15,6 +15,7 @@ import getRandomPlayerName from "@/lib/helpers/get-random-player-name";
 import emitter from "@/lib/emitter";
 import Switcher from "@/components/common/switcher";
 import TEAM_COLORS from "@/lib/const/team-colors";
+import TEAM_NAMES from "@/lib/const/team-names";
 
 type Props = {
   disabled: boolean;
@@ -54,12 +55,12 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
                   style={{ marginTop: "20px" }}
                   options={[
                     {
-                      label: "Team red",
+                      label: `Team ${TEAM_NAMES[0]}`,
                       key: "red",
                       color: TEAM_COLORS[0],
                     },
                     {
-                      label: "Team blue",
+                      label: `Team ${TEAM_NAMES[1]}`,
                       key: "blue",
                       color: TEAM_COLORS[1],
                     },

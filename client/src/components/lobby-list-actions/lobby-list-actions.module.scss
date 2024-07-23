@@ -17,7 +17,6 @@
   gap: 15px;
 
   .player__settings__preview {
-    position: relative;
     user-select: none;
 
     img {
@@ -28,12 +27,16 @@
     .player__settings__preview__wrapper {
       position: relative;
 
-      .player__settings__preview__content {
+      .player__settings__preview__content,
+      .player__settings__preview__actions {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+      }
+
+      .player__settings__preview__content {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -42,7 +45,7 @@
 
         p {
           font-size: 16px;
-          text-shadow: 0px 0px 5px #000;
+          text-shadow: 1px 0px 4px #000, -1px 0px 4px #000;
         }
 
         div {
@@ -57,6 +60,11 @@
           border: 4px solid rgba(51, 51, 51);
           box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.137254902);
         }
+      }
+
+      .player__settings__preview__actions {
+        display: flex;
+        justify-content: center;
       }
     }
   }

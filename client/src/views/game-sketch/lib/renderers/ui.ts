@@ -66,7 +66,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
   const drawDebugInfo = () => {
     debugLines.reverse().forEach((line, index) => {
-      p.text(line, 10, p.height - 20 - index * 20);
+      p.text(line, 20, p.height - 20 - index * 20);
     });
   };
 

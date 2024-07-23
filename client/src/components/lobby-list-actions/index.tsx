@@ -13,12 +13,15 @@ import getEmoji from "@/lib/helpers/get-emoji";
 import { useWebSocket } from "@/context/websocket.context";
 import getRandomPlayerName from "@/lib/helpers/get-random-player-name";
 import emitter from "@/lib/emitter";
+import Switcher from "@/components/common/switcher";
+import TEAM_COLORS from "@/lib/const/team-colors";
 
 type Props = {
   disabled: boolean;
 };
 
 const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
+  const [teamPreview, setTeamPreview] = useState<string>("red");
   const { playerSettings, setPlayerSettings } = useGameContext();
   const { Modal, open } = useModal();
 
@@ -35,9 +38,33 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
               <img src={playerPreviewBg} alt="Player preview" />
 
               <div className={styles.player__settings__preview__content}>
-                <p>{playerSettings.name}</p>
+                <p
+                  style={{ color: TEAM_COLORS[teamPreview === "red" ? 0 : 1] }}
+                >
+                  {playerSettings.name}
+                </p>
 
                 <div>{getEmoji(playerSettings.emoji)}</div>
+              </div>
+
+              <div className={styles.player__settings__preview__actions}>
+                <Switcher
+                  value={teamPreview}
+                  setValue={setTeamPreview}
+                  style={{ marginTop: "20px" }}
+                  options={[
+                    {
+                      label: "Team red",
+                      key: "red",
+                      color: TEAM_COLORS[0],
+                    },
+                    {
+                      label: "Team blue",
+                      key: "blue",
+                      color: TEAM_COLORS[1],
+                    },
+                  ]}
+                />
               </div>
             </div>
           </div>

@@ -3,7 +3,6 @@ import p5 from "q5";
 import gameSketch from "./sketch";
 import SignOut from "@/assets/icons/sign-out-alt-solid.svg?react";
 import styles from "./game-sketch.module.scss";
-import Button from "@/components/common/button";
 import { useGameContext } from "@/context/game.context";
 import useModal from "@/hooks/use-modal/use-modal";
 
@@ -47,14 +46,10 @@ const Game: React.FC = () => {
 
   return (
     <Fragment>
-      <div className={styles.game}>
-        <Button
-          variant="secondary"
-          onClick={() => open()}
-          style={{ width: "auto" }}
-        >
+      <div className={styles.game__overlay}>
+        <button className={styles.game__overlay__button} onClick={() => open()}>
           <SignOut />
-        </Button>
+        </button>
 
         <Modal
           title="Quit game"

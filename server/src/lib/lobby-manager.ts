@@ -11,6 +11,8 @@ type PositionType = {
   y: number;
 };
 
+type ScoreType = [number, number];
+
 export type LobbyPlayer = {
   id: string;
   name: string;
@@ -25,7 +27,7 @@ export type Lobby = {
   players: LobbyPlayer[];
   teamSize: number;
   countryCode: string;
-  score?: string;
+  score: ScoreType;
 };
 
 export type LobbyPlayerLive = LobbyPlayer & {
@@ -38,7 +40,7 @@ export type LobbyLive = {
   status: LobbyStatus;
   players: LobbyPlayerLive[];
   playersMovement: Record<string, Record<string, boolean>>;
-  score?: string;
+  score: ScoreType;
   chatMessages: Record<string, { message: string; timestamp: number }>;
   ball: {
     position: PositionType;
@@ -165,6 +167,7 @@ const lobbyManager = () => {
       status: "warmup",
       name: lobbyName,
       teamSize: lobbySize,
+      score: [0, 0],
       players: [
         {
           ...player,
@@ -182,7 +185,7 @@ const lobbyManager = () => {
     state.lobbiesLive[id] = {
       id,
       status: newLobby.status,
-      score: undefined,
+      score: [0, 0],
       playersMovement: {
         [playerId]: {},
       },

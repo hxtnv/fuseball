@@ -80,7 +80,7 @@ const SingleRoom: React.FC<Lobby> = ({
             style={{ color: LOBBY_STATUS[status].color }}
           >
             {LOBBY_STATUS[status].text}
-            {status === "in-progress" && score ? ` (${score})` : ""}
+            {status === "in-progress" ? ` (${score.join(" - ")})` : ""}
           </span>
         </div>
 

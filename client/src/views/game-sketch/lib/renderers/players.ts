@@ -4,6 +4,7 @@ import PLAYER from "../const/player";
 import lerp from "../helpers/lerp";
 import getEmoji from "@/lib/helpers/get-emoji";
 import type { LobbyPlayerLive } from "@/context/game.context";
+import BALL from "../const/ball";
 
 const playersRenderer = (p: p5, state: StateType) => {
   const drawPlayer = (player: LobbyPlayerLive) => {
@@ -49,10 +50,36 @@ const playersRenderer = (p: p5, state: StateType) => {
     player.previousPosition = { ...newPosition };
   };
 
+  const drawBall = () => {
+    if (!state.currentLobbyLive) return;
+
+    p.push();
+
+    p.translate(
+      state.currentLobbyLive.ball.position.x,
+      state.currentLobbyLive.ball.position.y
+    );
+
+    // shadow
+    p.noStroke();
+    p.fill(0, 0, 0, 35);
+    p.ellipse(0, 0, BALL.SIZE + BALL.SIZE * 0.42);
+
+    p.fill(255);
+    p.stroke(51);
+    p.strokeWeight(4);
+
+    p.ellipse(0, 0, BALL.SIZE);
+
+    p.pop();
+  };
+
   const draw = () => {
     if (!state.currentLobbyLive) return;
 
     state.currentLobbyLive.players.forEach(drawPlayer);
+
+    drawBall();
   };
 
   return { draw };

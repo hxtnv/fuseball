@@ -216,10 +216,18 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.textAlign(p.CENTER, p.CENTER);
 
     p.fill(TEAM_COLORS[0]);
-    p.text("0", p.width / 2 - lobbyNameTextWidth / 2 - 50, 56);
+    p.text(
+      state.currentLobbyLive.score[0],
+      p.width / 2 - lobbyNameTextWidth / 2 - 50,
+      56
+    );
 
     p.fill(TEAM_COLORS[1]);
-    p.text("0", p.width / 2 + lobbyNameTextWidth / 2 + 50, 56);
+    p.text(
+      state.currentLobbyLive.score[0],
+      p.width / 2 + lobbyNameTextWidth / 2 + 50,
+      56
+    );
 
     p.pop();
   };

@@ -13,6 +13,8 @@ export type PositionType = {
   y: number;
 };
 
+export type ScoreType = [number, number];
+
 export type LobbyPlayer = {
   id: string;
   name: string;
@@ -34,7 +36,7 @@ export type Lobby = {
   players: LobbyPlayer[];
   teamSize: number;
   countryCode: string;
-  score?: string;
+  score: ScoreType;
 };
 
 export type LobbyLive = {
@@ -43,6 +45,7 @@ export type LobbyLive = {
   name: string;
   players: LobbyPlayerLive[];
   chatMessages: Record<string, { message: string; timestamp: number }>;
+  score: ScoreType;
   ball: {
     position: PositionType;
   };

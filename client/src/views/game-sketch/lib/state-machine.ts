@@ -5,6 +5,7 @@ import type {
   PlayerPosition,
 } from "@/context/game.context";
 import emitter from "@/lib/emitter";
+import playerController from "./player-controller";
 
 type LobbyMeta = {
   id: string;
@@ -110,6 +111,10 @@ const stateMachine = () => {
   };
 
   const onChatInputFocusStart = () => {
+    ["up", "down", "left", "right"].forEach((direction) => {
+      playerController(state).move("end", direction);
+    });
+
     state.chatInputFocus = true;
   };
 

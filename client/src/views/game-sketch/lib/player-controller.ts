@@ -40,6 +40,7 @@ const playerController = (state: StateType) => {
   };
 
   return {
+    move,
     onKeyDown,
     onKeyUp,
   };

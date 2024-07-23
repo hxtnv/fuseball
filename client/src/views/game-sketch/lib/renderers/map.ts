@@ -2,20 +2,7 @@ import p5 from "q5";
 import MAP from "../const/map";
 
 const mapRenderer = (p: p5) => {
-  const drawField = () => {
-    p.stroke(255);
-    p.strokeWeight(6);
-    p.noFill();
-    p.rect(0, 0, MAP.FIELD_WIDTH, MAP.FIELD_HEIGHT);
-
-    p.line(MAP.FIELD_WIDTH / 2, 0, MAP.FIELD_WIDTH / 2, MAP.FIELD_HEIGHT); // center line
-
-    p.circle(
-      MAP.FIELD_WIDTH / 2,
-      MAP.FIELD_HEIGHT / 2,
-      MAP.FIELD_WIDTH * MAP.MIDDLE_CIRCLE_RATIO
-    ); // middle circle big
-
+  const drawCornerArcs = () => {
     p.arc(0, 0, MAP.CORNER_ARC * 2, MAP.CORNER_ARC * 2, 0, p.HALF_PI); // corner arc (top left)
     p.arc(
       MAP.FIELD_WIDTH,
@@ -42,9 +29,98 @@ const mapRenderer = (p: p5) => {
       p.PI + p.HALF_PI,
       p.TWO_PI - 0.0001
     ); // corner arc (bottom left)
+  };
 
+  const drawMiddleCircle = () => {
+    p.circle(
+      MAP.FIELD_WIDTH / 2,
+      MAP.FIELD_HEIGHT / 2,
+      MAP.FIELD_WIDTH * MAP.MIDDLE_CIRCLE_RATIO
+    ); // middle circle big
+
+    p.push();
     p.fill(255);
     p.circle(MAP.FIELD_WIDTH / 2, MAP.FIELD_HEIGHT / 2, MAP.CORNER_ARC); // middle circle small
+    p.pop();
+  };
+
+  const drawPenaltyAreas = () => {
+    const height = MAP.FIELD_HEIGHT * MAP.PENALTY_AREA_HEIGHT_RATIO;
+    const width = MAP.FIELD_WIDTH * MAP.PENALTY_AREA_WIDTH_RATIO;
+
+    // left side
+    p.rect(
+      0,
+      MAP.FIELD_HEIGHT * ((1 - MAP.PENALTY_AREA_HEIGHT_RATIO) / 2),
+      width,
+      height
+    );
+
+    // right side
+    p.rect(
+      MAP.FIELD_WIDTH - width,
+      MAP.FIELD_HEIGHT * ((1 - MAP.PENALTY_AREA_HEIGHT_RATIO) / 2),
+      width,
+      height
+    );
+  };
+
+  const drawGoalTargets = () => {
+    const height = MAP.FIELD_HEIGHT * MAP.GOAL_AREA_HEIGHT_RATIO;
+    const width = MAP.FIELD_WIDTH * MAP.GOAL_AREA_WIDTH_RATIO;
+
+    // left side
+    p.fill(0, 0, 0, 100);
+    p.rect(
+      -width,
+      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_AREA_HEIGHT_RATIO) / 2),
+      width,
+      height
+    );
+
+    // right side
+    p.rect(
+      MAP.FIELD_WIDTH,
+      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_AREA_HEIGHT_RATIO) / 2),
+      width,
+      height
+    );
+  };
+
+  const drawGoalAreas = () => {
+    const height = MAP.FIELD_HEIGHT * MAP.GOAL_ZONE_HEIGHT_RATIO;
+    const width = MAP.FIELD_WIDTH * MAP.GOAL_ZONE_WIDTH_RATIO;
+
+    // left side
+    p.rect(
+      0,
+      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_ZONE_HEIGHT_RATIO) / 2),
+      width,
+      height
+    );
+
+    // right side
+    p.rect(
+      MAP.FIELD_WIDTH - width,
+      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_ZONE_HEIGHT_RATIO) / 2),
+      width,
+      height
+    );
+  };
+
+  const drawField = () => {
+    p.stroke(255);
+    p.strokeWeight(5);
+    p.noFill();
+    p.rect(0, 0, MAP.FIELD_WIDTH, MAP.FIELD_HEIGHT);
+
+    p.line(MAP.FIELD_WIDTH / 2, 0, MAP.FIELD_WIDTH / 2, MAP.FIELD_HEIGHT); // center line
+
+    drawCornerArcs();
+    drawMiddleCircle();
+    drawPenaltyAreas();
+    drawGoalAreas();
+    drawGoalTargets();
   };
 
   const drawGrid = () => {

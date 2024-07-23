@@ -15,7 +15,6 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (currentLobby) {
-      // open loading modal if we are joining a lobby
       open();
     }
 

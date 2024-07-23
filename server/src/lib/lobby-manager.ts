@@ -3,6 +3,7 @@ import getCountryCodeFromTimezone from "./helpers/get-country-code-from-timezone
 import getInitialPosition from "./helpers/get-initial-position";
 import PLAYER from "./const/player";
 import MAP from "./const/map";
+import calculateNewPlayerPosition from "./helpers/calculate-new-player-position";
 
 type LobbyStatus = "warmup" | "in-progress" | "finished";
 
@@ -382,50 +383,11 @@ const lobbyManager = () => {
     state.lobbiesLive[lobbyId].players = state.lobbiesLive[lobbyId].players.map(
       (player, index, playersLive) => {
         if (player.id === playerId) {
-          const newPosition = { ...player.position };
-
-          if (movement.up) {
-            newPosition.y -= PLAYER.SPEED;
-          }
-
-          if (movement.down) {
-            newPosition.y += PLAYER.SPEED;
-          }
-
-          if (movement.left) {
-            newPosition.x -= PLAYER.SPEED;
-          }
-
-          if (movement.right) {
-            newPosition.x += PLAYER.SPEED;
-          }
-
-          // set up bounds
-          newPosition.x = Math.min(
-            MAP.FIELD_WIDTH - PLAYER.SIZE / 2,
-            Math.max(PLAYER.SIZE / 2, newPosition.x)
-          );
-
-          newPosition.y = Math.min(
-            MAP.FIELD_HEIGHT - PLAYER.SIZE / 2,
-            Math.max(PLAYER.SIZE / 2, newPosition.y)
-          );
-
-          // dont collide with other players
-          // const otherPlayers = playersLive.filter(
-          //   (player) => player.id !== playerId
-          // );
-          // otherPlayers.forEach((otherPlayer) => {
-          //   if (
-          //     otherPlayer.position.x < newPosition.x + PLAYER.SIZE / 2 &&
-          //     otherPlayer.position.x + PLAYER.SIZE / 2 > newPosition.x &&
-          //     otherPlayer.position.y < newPosition.y + PLAYER.SIZE / 2 &&
-          //     otherPlayer.position.y + PLAYER.SIZE / 2 > newPosition.y
-          //   ) {
-          //     newPosition.x = otherPlayer.position.x;
-          //     newPosition.y = otherPlayer.position.y;
-          //   }
-          // });
+          const newPosition = calculateNewPlayerPosition({
+            player,
+            movement,
+            allPlayers: playersLive,
+          });
 
           return {
             ...player,

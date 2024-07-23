@@ -65,15 +65,16 @@ const mapRenderer = (p: p5) => {
     );
   };
 
+  // this is the part where ball is supposed to go
   const drawGoalTargets = () => {
-    const height = MAP.FIELD_HEIGHT * MAP.GOAL_AREA_HEIGHT_RATIO;
-    const width = MAP.FIELD_WIDTH * MAP.GOAL_AREA_WIDTH_RATIO;
+    const height = MAP.FIELD_HEIGHT * MAP.GOAL_ZONE_HEIGHT_RATIO;
+    const width = MAP.FIELD_WIDTH * MAP.GOAL_ZONE_WIDTH_RATIO;
 
     // left side
     p.fill(0, 0, 0, 100);
     p.rect(
       -width,
-      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_AREA_HEIGHT_RATIO) / 2),
+      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_ZONE_HEIGHT_RATIO) / 2),
       width,
       height
     );
@@ -81,20 +82,20 @@ const mapRenderer = (p: p5) => {
     // right side
     p.rect(
       MAP.FIELD_WIDTH,
-      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_AREA_HEIGHT_RATIO) / 2),
+      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_ZONE_HEIGHT_RATIO) / 2),
       width,
       height
     );
   };
 
   const drawGoalAreas = () => {
-    const height = MAP.FIELD_HEIGHT * MAP.GOAL_ZONE_HEIGHT_RATIO;
-    const width = MAP.FIELD_WIDTH * MAP.GOAL_ZONE_WIDTH_RATIO;
+    const height = MAP.FIELD_HEIGHT * MAP.GOAL_AREA_HEIGHT_RATIO;
+    const width = MAP.FIELD_WIDTH * MAP.GOAL_AREA_WIDTH_RATIO;
 
     // left side
     p.rect(
       0,
-      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_ZONE_HEIGHT_RATIO) / 2),
+      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_AREA_HEIGHT_RATIO) / 2),
       width,
       height
     );
@@ -102,7 +103,7 @@ const mapRenderer = (p: p5) => {
     // right side
     p.rect(
       MAP.FIELD_WIDTH - width,
-      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_ZONE_HEIGHT_RATIO) / 2),
+      MAP.FIELD_HEIGHT * ((1 - MAP.GOAL_AREA_HEIGHT_RATIO) / 2),
       width,
       height
     );

@@ -1,4 +1,4 @@
-import { PositionType } from "../lobby-manager";
+import { PositionType } from "../../types/lobby";
 import MAP from "../const/map";
 
 const isInsideGoalZone = (position: PositionType, size: number) => {

@@ -1,17 +1,15 @@
-import { LobbyPlayerLive, Ball, PositionType } from "../lobby-manager"; // Make sure to add Ball type if it doesn't exist
+import { LobbyPlayerLive, Ball, PositionType } from "../../types/lobby";
 import PLAYER from "../const/player";
 import BALL from "../const/ball";
-import MAP from "../const/map";
 import constrainPositionToField from "./constrain-position-to-field";
 
 type Props = {
   player: LobbyPlayerLive;
   movement: Record<string, boolean>;
   allPlayers: LobbyPlayerLive[];
-  ball: Ball; // Add ball to the Props
+  ball: Ball;
 };
 
-// Helper function to check collision between player and ball
 const isColliding = (
   playerPosition: PositionType,
   ballPosition: PositionType

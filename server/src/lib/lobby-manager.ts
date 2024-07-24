@@ -4,53 +4,7 @@ import getInitialPosition from "./helpers/get-initial-position";
 import calculateNewPlayerPosition from "./helpers/calculate-new-player-position";
 import getInitialBallPosition from "./helpers/get-initial-ball-position";
 import GAME from "./const/game";
-
-type LobbyStatus = "warmup" | "in-progress" | "finished";
-
-export type PositionType = {
-  x: number;
-  y: number;
-};
-
-type ScoreType = [number, number];
-
-export type Ball = {
-  position: PositionType;
-};
-
-export type LobbyPlayer = {
-  id: string;
-  name: string;
-  emoji: number;
-  team: number; // 0 or 1
-};
-
-export type Lobby = {
-  id: string;
-  status: LobbyStatus;
-  name: string;
-  players: LobbyPlayer[];
-  teamSize: number;
-  countryCode: string;
-  score: ScoreType;
-};
-
-export type LobbyPlayerLive = LobbyPlayer & {
-  // status: "waiting" | "playing";
-  position: PositionType;
-};
-
-export type LobbyLive = {
-  id: string;
-  status: LobbyStatus;
-  players: LobbyPlayerLive[];
-  playersMovement: Record<string, Record<string, boolean>>;
-  score: ScoreType;
-  chatMessages: Record<string, { message: string; timestamp: number }>;
-  ball: Ball;
-  scoredThisTurn: boolean;
-  timeLeft: number;
-};
+import { LobbyStatus, LobbyPlayer, Lobby, LobbyLive } from "../types/lobby";
 
 type CreateLobby = {
   name: string;

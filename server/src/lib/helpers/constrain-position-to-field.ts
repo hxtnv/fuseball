@@ -1,4 +1,4 @@
-import { PositionType } from "../lobby-manager";
+import { PositionType } from "../../types/lobby";
 import PLAYER from "../const/player";
 import MAP from "../const/map";
 

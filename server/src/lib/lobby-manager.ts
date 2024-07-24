@@ -433,7 +433,7 @@ const lobbyManager = () => {
 
   const registerBallHit = (
     lobbyId: string,
-    team: 0 | 1,
+    team: number,
     callback?: () => void
   ) => {
     if (state.lobbiesLive[lobbyId].scoredThisTurn) {

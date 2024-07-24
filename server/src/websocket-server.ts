@@ -47,18 +47,18 @@ export const createServer = (port: number): WebSocket.Server => {
       });
 
       // check ball position to adjust score
-      const { isInside, whichTeam } = isInsideGoalZone(
+      const { isInside, whichTeamLost, whichTeamWon } = isInsideGoalZone(
         lobby.ball.position,
         BALL.SIZE
       );
 
-      if (isInside) {
-        lobbyManager.registerBallHit(lobby.id, whichTeam === 0 ? 1 : 0, () => {
+      if (isInside && typeof whichTeamWon === "number") {
+        lobbyManager.registerBallHit(lobby.id, whichTeamWon, () => {
           broadcast(
             wss,
             "lobby-live-goal",
             {
-              whichTeam: whichTeam === 0 ? 1 : 0,
+              whichTeam: whichTeamWon,
             },
             lobby.players.map((player) => player.id)
           );

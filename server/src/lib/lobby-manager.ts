@@ -3,6 +3,7 @@ import getCountryCodeFromTimezone from "./helpers/get-country-code-from-timezone
 import getInitialPosition from "./helpers/get-initial-position";
 import calculateNewPlayerPosition from "./helpers/calculate-new-player-position";
 import getInitialBallPosition from "./helpers/get-initial-ball-position";
+import GAME from "./const/game";
 
 type LobbyStatus = "warmup" | "in-progress" | "finished";
 
@@ -48,6 +49,7 @@ export type LobbyLive = {
   chatMessages: Record<string, { message: string; timestamp: number }>;
   ball: Ball;
   scoredThisTurn: boolean;
+  timeLeft: number;
 };
 
 type CreateLobby = {
@@ -201,6 +203,7 @@ const lobbyManager = () => {
       },
       chatMessages: {},
       scoredThisTurn: false,
+      timeLeft: 0,
     };
 
     console.log(
@@ -317,6 +320,16 @@ const lobbyManager = () => {
         [playerId]: {},
       },
     };
+
+    // update status if its in warmup
+    if (state.lobbiesLive[id].status === "warmup") {
+      updateStatus(id, {
+        status: "in-progress",
+        timeLeft: GAME.TIME,
+      });
+
+      // todo: start a countdown first and update player positions afterwards
+    }
 
     console.log(
       `Player "${player.name}" has joined the lobby "${lobby.lobby.name}" (${
@@ -461,6 +474,34 @@ const lobbyManager = () => {
     }
   };
 
+  const updateStatus = (
+    lobbyId: string,
+    {
+      status,
+      timeLeft,
+    }: {
+      status: LobbyStatus;
+      timeLeft?: number;
+    }
+  ) => {
+    if (!state.lobbiesLive[lobbyId]) {
+      return;
+    }
+
+    state.lobbiesLive[lobbyId].status = status;
+    state.lobbiesLive[lobbyId].timeLeft =
+      timeLeft ?? state.lobbiesLive[lobbyId].timeLeft;
+
+    state.lobbies = state.lobbies.map((lobby) =>
+      lobby.id === lobbyId
+        ? {
+            ...lobby,
+            status,
+          }
+        : lobby
+    );
+  };
+
   return {
     playerMoveStart,
     playerMoveEnd,
@@ -474,6 +515,7 @@ const lobbyManager = () => {
     removeClientFromLobbies,
     chatMessage,
     registerBallHit,
+    updateStatus,
   };
 };
 

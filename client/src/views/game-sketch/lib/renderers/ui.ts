@@ -7,6 +7,7 @@ import TEAM_COLORS from "@/lib/const/team-colors";
 import META from "@/lib/const/meta";
 import renderSeparation from "../helpers/render-separation";
 import { LobbyPlayerLive } from "@/context/game.context";
+import secondsToMinutesAndSeconds from "@/lib/helpers/seconds-to-minutes";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
@@ -205,10 +206,22 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     // const lobbyStatus = { text: "Warmup", color: "#6ae72c" };
     const lobbyStatus = LOBBY_STATUS[state.currentLobbyLive.status];
     const lobbyNameTextWidth = p.textWidth(state.currentLobbyMeta.name);
+    // secondsToMinutesAndSeconds
+    const lobbyStatusText = () => {
+      if (state.currentLobbyLive?.status === "in-progress") {
+        const { minutes, seconds } = secondsToMinutesAndSeconds(
+          state.currentLobbyLive.timeLeft
+        );
+
+        return `${minutes}:${seconds}`;
+      }
+
+      return lobbyStatus.text;
+    };
 
     p.textSize(24);
     p.fill(lobbyStatus.color);
-    p.text(lobbyStatus.text, p.width / 2, 66);
+    p.text(lobbyStatusText(), p.width / 2, 66);
 
     // scores
     p.fill(255);

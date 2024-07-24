@@ -46,9 +46,17 @@ export type LobbyLive = {
   players: LobbyPlayerLive[];
   chatMessages: Record<string, { message: string; timestamp: number }>;
   score: ScoreType;
+  timeLeft: 0;
   ball: {
     position: PositionType;
   };
+};
+
+export type LobbyMeta = {
+  id: string;
+  name: string;
+  teamSize: number;
+  countryCode: string;
 };
 
 type GameContextType = {
@@ -188,10 +196,11 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
   }, [onGetCurrentLobby]);
 
   useEffect(() => {
-    if (status !== "connected") {
+    if (status !== "connected" && currentLobby) {
+      emitter.emit("game:disconnected");
       setCurrentLobby(null);
     }
-  }, [status]);
+  }, [currentLobby, status]);
 
   return (
     <GameContext.Provider

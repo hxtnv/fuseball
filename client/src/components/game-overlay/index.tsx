@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import LeaveButton from "./leave-button";
 import MessageBox from "./message-box";
 import GoalAnnouncement from "./goal-announcement";
+import WaitingNotice from "./waiting-notice";
 import emitter from "@/lib/emitter";
 import styles from "./game-overlay.module.scss";
 
@@ -29,6 +30,7 @@ const GameOverlay: React.FC = () => {
     <div className={styles.game__overlay}>
       <LeaveButton inputFocus={inputFocus} />
       <MessageBox inputFocus={inputFocus} />
+      <WaitingNotice />
       <GoalAnnouncement />
     </div>
   );

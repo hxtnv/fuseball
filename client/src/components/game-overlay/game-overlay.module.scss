@@ -157,4 +157,82 @@
       }
     }
   }
+
+  .game__overlay__waiting__notice {
+    position: absolute;
+    top: 100px;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+
+    .game__overlay__waiting__notice__content {
+      display: flex;
+      position: relative;
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+      padding: 12px 20px;
+      border-radius: inherit;
+      background-color: rgba(0, 0, 0, 0.5);
+      outline: 2px solid rgba(0, 0, 0, 0.25);
+      border-radius: 16px;
+      overflow: hidden;
+
+      opacity: 1;
+      transform: none;
+
+      animation: slide-up 300ms;
+      transition: transform 300ms, opacity 300ms;
+
+      h4 {
+        font-size: 18px;
+      }
+
+      p {
+        color: #ffffff70;
+      }
+
+      &::before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: -100px;
+        width: 100px;
+        height: 3px;
+        background-color: #2cb580;
+        animation: leftToRight 1.5s linear infinite;
+      }
+    }
+
+    &[data-visibility="halfway-out"] {
+      .game__overlay__waiting__notice__content {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+    }
+
+    @keyframes leftToRight {
+      0% {
+        left: -100px;
+      }
+
+      100% {
+        left: 100%;
+      }
+    }
+
+    @keyframes slideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  }
 }

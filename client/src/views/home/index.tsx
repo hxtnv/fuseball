@@ -6,12 +6,19 @@ import logo from "@/assets/logo.png";
 import styles from "./home.module.scss";
 import useModal from "@/hooks/use-modal/use-modal";
 import Footer from "@/components/footer";
+import emitter from "@/lib/emitter";
 
 const Home: React.FC = () => {
   const [displayGameSketch, setDisplayGameSketch] = useState(false);
   const { currentLobby } = useGameContext();
 
   const { open, close, Modal } = useModal();
+  const { open: openDisconnectedModal, Modal: DisconnectedModal } = useModal();
+
+  const onDisconnected = () => {
+    console.log("disconnected");
+    openDisconnectedModal();
+  };
 
   useEffect(() => {
     if (currentLobby) {
@@ -32,12 +39,29 @@ const Home: React.FC = () => {
     };
   }, [currentLobby]);
 
+  useEffect(() => {
+    emitter.on("game:disconnected", onDisconnected);
+
+    return () => {
+      emitter.off("game:disconnected", onDisconnected);
+    };
+  }, []);
+
   if (displayGameSketch) {
     return <GameSketch />;
   }
 
   return (
     <div className={styles.home}>
+      <DisconnectedModal>
+        <div className={styles.loader__modal}>
+          <h4>Disconnected!</h4>
+          <p>
+            A network error has occured. Please check your internet connection.
+          </p>
+        </div>
+      </DisconnectedModal>
+
       <Modal hideCloseButton>
         <div className={styles.loader__modal}>
           <div className={styles.loader__modal__animation} />

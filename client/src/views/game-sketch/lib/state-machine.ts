@@ -4,16 +4,10 @@ import type {
   LobbyPlayerLive,
   PositionType,
   LobbyLive,
+  LobbyMeta,
 } from "@/context/game.context";
 import emitter from "@/lib/emitter";
 import playerController from "./player-controller";
-
-type LobbyMeta = {
-  id: string;
-  name: string;
-  teamSize: number;
-  countryCode: string;
-};
 
 export type StateType = {
   playerId: string | null;

@@ -1,5 +1,5 @@
 const config = {
-  wsUrl: "ws://192.168.162.71:8080",
+  wsUrl: "ws://localhost:8080",
   pingInterval: 1000,
 };
 

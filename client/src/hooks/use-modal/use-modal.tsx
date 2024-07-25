@@ -12,6 +12,7 @@ type ModalProps = {
   confirmText?: string;
   cancelText?: string;
   showFooter?: boolean;
+  hideCancelButton?: boolean;
 };
 type UseModalArgs = {
   onClose?: () => void;
@@ -19,11 +20,17 @@ type UseModalArgs = {
   noEscapeClose?: boolean;
 };
 
-const useModal = ({ onClose, onOpen, noEscapeClose }: UseModalArgs = {}) => {
+const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
   const [visibility, setVisibility] = useState<VisibilityState>("hidden");
 
-  const open = () => setVisibility("visible");
-  const close = () => setVisibility("hidden");
+  const open = () => {
+    setVisibility("visible");
+    // onOpen?.();
+  };
+  const close = () => {
+    setVisibility("hidden");
+    // onClose?.();
+  };
 
   const Modal = ({
     children,
@@ -33,6 +40,7 @@ const useModal = ({ onClose, onOpen, noEscapeClose }: UseModalArgs = {}) => {
     confirmText,
     cancelText,
     showFooter,
+    hideCancelButton,
   }: ModalProps) => {
     useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
@@ -76,6 +84,7 @@ const useModal = ({ onClose, onOpen, noEscapeClose }: UseModalArgs = {}) => {
             {!hideCloseButton && (
               <button
                 className={styles.modal__content__header__close}
+                style={title ? undefined : { marginLeft: "auto" }}
                 onClick={close}
               >
                 <X />
@@ -87,9 +96,11 @@ const useModal = ({ onClose, onOpen, noEscapeClose }: UseModalArgs = {}) => {
 
           {showFooter && (
             <div className={styles.modal__content__footer}>
-              <Button variant="secondary" onClick={close}>
-                {cancelText ?? "Cancel"}
-              </Button>
+              {!hideCancelButton && (
+                <Button variant="secondary" onClick={close}>
+                  {cancelText ?? "Cancel"}
+                </Button>
+              )}
 
               <Button onClick={onConfirm}>{confirmText ?? "Confirm"}</Button>
             </div>
@@ -101,13 +112,13 @@ const useModal = ({ onClose, onOpen, noEscapeClose }: UseModalArgs = {}) => {
 
   const memoizedModal = useMemo(() => Modal, [visibility]);
 
-  useEffect(() => {
-    if (visibility === "visible") {
-      onOpen?.();
-    } else if (visibility === "hidden") {
-      onClose?.();
-    }
-  }, [visibility]);
+  // useEffect(() => {
+  //   if (visibility === "visible") {
+  //     onOpen?.();
+  //   } else if (visibility === "hidden") {
+  //     onClose?.();
+  //   }
+  // }, [visibility]);
 
   return {
     Modal: memoizedModal,

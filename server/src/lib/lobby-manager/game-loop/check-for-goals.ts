@@ -14,8 +14,6 @@ const updateChatMsgs = (lobby: LobbyLive, wss: WebSocket.Server) => {
 
   if (isInside && typeof whichTeamWon === "number") {
     lobbyManager.registerBallHit(lobby.id, whichTeamWon, () => {
-      // broadcast(wss, "lobbies", lobbyManager.getAll());
-
       broadcast(
         wss,
         "lobby-live-goal",

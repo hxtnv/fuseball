@@ -13,13 +13,13 @@ export type PositionType = {
   y: number;
 };
 
-export type ScoreType = [number, number];
+export type ScoreType = number[];
 
 export type LobbyPlayer = {
   id: string;
   name: string;
   emoji: number;
-  team: 0 | 1;
+  team: number;
 };
 
 export type LobbyPlayerLive = LobbyPlayer & {
@@ -61,17 +61,20 @@ export type LobbyMeta = {
 
 type GameContextType = {
   currentLobby: Lobby | null;
+  setCurrentLobby: (lobby: Lobby | null) => void;
   lobbies: Lobby[];
   playerSettings: PlayerSettings;
   setPlayerSettings: (playerSettings: PlayerSettings) => void;
   createLobby: ({ name, teamSize }: { name: string; teamSize: number }) => void;
-  joinLobby: (id: string, team?: 0 | 1) => void;
+  joinLobby: (id: string, team?: number) => void;
   playersOnline: number;
   leaveLobby: () => void;
+  playerId: string | null;
 };
 
 const GameContext = React.createContext<GameContextType>({
   currentLobby: null,
+  setCurrentLobby: () => {},
   lobbies: [],
   playerSettings: {
     name: "",
@@ -82,6 +85,7 @@ const GameContext = React.createContext<GameContextType>({
   joinLobby: () => {},
   playersOnline: 0,
   leaveLobby: () => {},
+  playerId: null,
 });
 
 const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -127,7 +131,7 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  const joinLobby = (id: string, team?: 0 | 1) => {
+  const joinLobby = (id: string, team?: number) => {
     emitter.emit("ws:send", {
       event: "join-lobby",
       data: {
@@ -210,9 +214,11 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
         setPlayerSettings,
         createLobby,
         currentLobby,
+        setCurrentLobby,
         joinLobby,
         playersOnline,
         leaveLobby,
+        playerId,
       }}
     >
       {children}

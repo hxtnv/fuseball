@@ -22,7 +22,7 @@ const SingleRoom: React.FC<Lobby> = ({
   const { joinLobby } = useGameContext();
   const { Modal, open } = useModal();
 
-  const renderPlayer = (player: LobbyPlayer, index: number, team: 0 | 1) => {
+  const renderPlayer = (player: LobbyPlayer, index: number, team: number) => {
     if (player) {
       return (
         <div className={styles.room__player} key={index}>
@@ -80,7 +80,7 @@ const SingleRoom: React.FC<Lobby> = ({
             style={{ color: LOBBY_STATUS[status].color }}
           >
             {LOBBY_STATUS[status].text}
-            {status === "in-progress" ? ` (${score.join(" - ")})` : ""}
+            {status === "in-progress" ? ` (${score.join(" : ")})` : ""}
           </span>
         </div>
 

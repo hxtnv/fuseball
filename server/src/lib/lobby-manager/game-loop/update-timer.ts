@@ -1,8 +1,6 @@
 import WebSocket from "ws";
 import { LobbyLive } from "../../../types/lobby";
-import lobbyManager from "../";
 import { updateStatus } from "../utility";
-import { broadcast } from "../../utils";
 
 const updateTimer = (lobby: LobbyLive, wss: WebSocket.Server) => {
   if (lobby.status === "in-progress") {
@@ -12,8 +10,6 @@ const updateTimer = (lobby: LobbyLive, wss: WebSocket.Server) => {
       updateStatus(lobby.id, {
         status: "finished",
       });
-
-      // broadcast(wss, "lobbies", lobbyManager.getAll());
     }
   }
 };

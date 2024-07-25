@@ -19,7 +19,6 @@ export const handleConnection = (
   ws.on("close", () => {
     lobbyManager.removeClientFromLobbies(ws.id);
 
-    // broadcast(wss, "lobbies", lobbyManager.getAll());
     broadcast(wss, "players-online", wss.clients.size);
   });
 };

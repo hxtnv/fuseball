@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import { broadcast, send } from "../lib/utils";
+import { send } from "../lib/utils";
 import lobbyManager from "../lib/lobby-manager";
 
 type WebSocketClient = WebSocket & { id: string };
@@ -123,7 +123,6 @@ const handleCreateLobby = (
 
   if (lobby) {
     send(ws, "create-lobby-success", lobby);
-    // broadcast(wss, "lobbies", lobbyManager.getAll());
   }
 };
 
@@ -141,12 +140,9 @@ const handleJoinLobby = (
 
   if (lobby) {
     send(ws, "join-lobby-success", lobby);
-    // broadcast(wss, "lobbies", lobbyManager.getAll());
   }
 };
 
 const handleLeaveLobby = (ws: WebSocketClient, wss: WebSocket.Server) => {
   lobbyManager.removeClientFromLobbies(ws.id);
-
-  // broadcast(wss, "lobbies", lobbyManager.getAll());
 };

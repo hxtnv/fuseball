@@ -235,4 +235,35 @@
       }
     }
   }
+
+  .game__overlay__endgame__modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    h3 {
+      font-size: 24px;
+      margin: 0 0 20px;
+    }
+
+    p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.75);
+
+      span {
+        color: #fff;
+      }
+    }
+
+    .game__overlay__endgame__modal__score {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 15px;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      font-size: 20px;
+      margin: 20px 0;
+    }
+  }
 }

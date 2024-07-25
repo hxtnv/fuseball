@@ -3,6 +3,7 @@ import LeaveButton from "./leave-button";
 import MessageBox from "./message-box";
 import GoalAnnouncement from "./goal-announcement";
 import WaitingNotice from "./waiting-notice";
+import EndGameModal from "./endgame-modal";
 import emitter from "@/lib/emitter";
 import styles from "./game-overlay.module.scss";
 
@@ -32,6 +33,7 @@ const GameOverlay: React.FC = () => {
       <MessageBox inputFocus={inputFocus} />
       <WaitingNotice />
       <GoalAnnouncement />
+      <EndGameModal />
     </div>
   );
 };

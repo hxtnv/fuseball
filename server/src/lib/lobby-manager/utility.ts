@@ -23,6 +23,10 @@ export const registerBallHit = (
   );
 
   const timeout = setTimeout(() => {
+    if (!state.lobbiesLive[lobbyId]) {
+      return;
+    }
+
     state.lobbiesLive[lobbyId].ball.position = getInitialBallPosition();
 
     state.lobbiesLive[lobbyId].scoredThisTurn = false;
@@ -64,6 +68,11 @@ export const updateStatus = (
         }
       : lobby
   );
+
+  if (status === "finished") {
+    delete state.lobbiesLive[lobbyId];
+    state.lobbies = state.lobbies.filter((lobby) => lobby.id !== lobbyId);
+  }
 
   setState(state);
 };

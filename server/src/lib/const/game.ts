@@ -1,4 +1,4 @@
-const TIME = 12;
+const TIME = 120;
 
 export default {
   TIME,

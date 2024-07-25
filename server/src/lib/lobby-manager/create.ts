@@ -62,20 +62,21 @@ export const create = (
   const lobbySize = Math.min(teamSize, 4);
   const playerName = player.name.substring(0, 30);
 
+  const validatedPlayer = {
+    id: playerId,
+    team: 0,
+    emoji: player.emoji,
+    name: playerName,
+    position: getInitialPosition(0, 0),
+  };
+
   const newLobby: Lobby = {
     id,
     status: "warmup",
     name: lobbyName,
     teamSize: lobbySize,
     score: [0, 0],
-    players: [
-      {
-        ...player,
-        name: playerName,
-        id: playerId,
-        team: 0,
-      },
-    ],
+    players: [validatedPlayer],
     countryCode: getCountryCodeFromTimezone(timezone),
   };
 
@@ -89,8 +90,8 @@ export const create = (
       [playerId]: {},
     },
     players: newLobby.players.map((player, index) => ({
-      ...player,
-      position: getInitialPosition(index),
+      ...validatedPlayer,
+      position: getInitialPosition(index, 0),
     })),
     ball: {
       position: getInitialBallPosition(),

@@ -1,6 +1,7 @@
 import WebSocket from "ws";
 import { getState, setState } from "./state";
 import getInitialBallPosition from "../helpers/get-initial-ball-position";
+import getInitialPosition from "../helpers/get-initial-position";
 import { LobbyStatus } from "../../types/lobby";
 
 export const registerBallHit = (
@@ -27,9 +28,18 @@ export const registerBallHit = (
       return;
     }
 
-    state.lobbiesLive[lobbyId].ball.position = getInitialBallPosition();
-
-    state.lobbiesLive[lobbyId].scoredThisTurn = false;
+    state.lobbiesLive[lobbyId] = {
+      ...state.lobbiesLive[lobbyId],
+      ball: {
+        ...state.lobbiesLive[lobbyId].ball,
+        position: getInitialBallPosition(),
+      },
+      scoredThisTurn: false,
+      players: state.lobbiesLive[lobbyId].players.map((player, index) => ({
+        ...player,
+        position: getInitialPosition(index, player.team),
+      })),
+    };
   }, 2500);
 
   if (callback) {

@@ -8,6 +8,10 @@ const POSITIONS = [
 ];
 
 const getInitialPosition = (index: number, team: number) => {
+  if (!POSITIONS[index]) {
+    return { x: 0, y: 0 };
+  }
+
   const x = POSITIONS[index].x;
   const y = POSITIONS[index].y;
 

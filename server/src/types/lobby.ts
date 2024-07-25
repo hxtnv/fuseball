@@ -44,3 +44,16 @@ export type LobbyLive = {
   scoredThisTurn: boolean;
   timeLeft: number;
 };
+
+export type CreateLobby = {
+  name: string;
+  teamSize: number;
+  player: LobbyPlayer;
+  timezone: string;
+};
+
+export type JoinLobby = {
+  id: string;
+  team?: number;
+  player: LobbyPlayer;
+};

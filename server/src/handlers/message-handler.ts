@@ -123,7 +123,7 @@ const handleCreateLobby = (
 
   if (lobby) {
     send(ws, "create-lobby-success", lobby);
-    broadcast(wss, "lobbies", lobbyManager.getAll());
+    // broadcast(wss, "lobbies", lobbyManager.getAll());
   }
 };
 
@@ -141,12 +141,12 @@ const handleJoinLobby = (
 
   if (lobby) {
     send(ws, "join-lobby-success", lobby);
-    broadcast(wss, "lobbies", lobbyManager.getAll());
+    // broadcast(wss, "lobbies", lobbyManager.getAll());
   }
 };
 
 const handleLeaveLobby = (ws: WebSocketClient, wss: WebSocket.Server) => {
   lobbyManager.removeClientFromLobbies(ws.id);
 
-  broadcast(wss, "lobbies", lobbyManager.getAll());
+  // broadcast(wss, "lobbies", lobbyManager.getAll());
 };

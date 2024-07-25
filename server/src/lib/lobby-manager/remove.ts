@@ -17,7 +17,9 @@ export const removeClientFromLobbies = (playerId: string) => {
     lobby.id
   ].players.filter((player) => player.id !== playerId);
 
-  // todo: remove state.lobbiesLive entry if no players left
+  if (state.lobbiesLive[lobby.id].players.length === 0) {
+    delete state.lobbiesLive[lobby.id];
+  }
 
   console.log(
     `Player "${player.name}" has left the lobby "${lobby.name}" (${

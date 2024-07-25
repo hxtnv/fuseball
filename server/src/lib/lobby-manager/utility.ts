@@ -1,3 +1,4 @@
+import WebSocket from "ws";
 import { getState, setState } from "./state";
 import getInitialBallPosition from "../helpers/get-initial-ball-position";
 import { LobbyStatus } from "../../types/lobby";
@@ -15,13 +16,11 @@ export const registerBallHit = (
 
   state.lobbiesLive[lobbyId].scoredThisTurn = true;
   state.lobbiesLive[lobbyId].score[team]++;
-  state.lobbies.map((lobby) => {
-    if (lobby.id === lobbyId) {
-      lobby.score[team]++;
-    }
-
-    return lobby;
-  });
+  state.lobbies = state.lobbies.map((lobby) =>
+    lobby.id === lobbyId
+      ? { ...lobby, score: lobby.score.map((s, i) => (i === team ? s + 1 : s)) }
+      : lobby
+  );
 
   const timeout = setTimeout(() => {
     state.lobbiesLive[lobbyId].ball.position = getInitialBallPosition();
@@ -44,7 +43,8 @@ export const updateStatus = (
   }: {
     status: LobbyStatus;
     timeLeft?: number;
-  }
+  },
+  wss?: WebSocket.Server
 ) => {
   const state = getState();
 

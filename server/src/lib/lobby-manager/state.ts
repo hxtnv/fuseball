@@ -1,16 +1,26 @@
-import { Lobby, LobbyLive } from "../../types/lobby";
+import WebSocket from "ws";
 import { State } from "../../types/state";
+import didLobbiesChange from "../helpers/did-lobbies-change";
+import { broadcast } from "../utils";
 
-let state: State = {
-  lobbies: [],
-  lobbiesLive: {},
-};
+const createState = () =>
+  ({
+    lobbies: [],
+    lobbiesLive: {},
+    _wss: undefined,
+  } as State);
 
-export const getState = () => state;
+const state = createState();
+
+export const getState = () => ({ ...state });
 
 export const getAll = () => state.lobbies;
 
 export const getAllLive = () => state.lobbiesLive;
+
+export const setWss = (wss: WebSocket.Server) => {
+  state._wss = wss;
+};
 
 export const get = (id: string) => {
   const lobby = state.lobbies.find((lobby) => lobby.id === id);
@@ -38,7 +48,12 @@ export const getClientLobby = (playerId: string) => {
   };
 };
 
-// Export state directly for manipulation in other modules
 export const setState = (newState: State) => {
-  state = newState;
+  if (didLobbiesChange(state.lobbies, newState.lobbies)) {
+    if (state._wss) {
+      broadcast(state._wss, "lobbies", newState.lobbies);
+    }
+  }
+
+  Object.assign(state, newState);
 };

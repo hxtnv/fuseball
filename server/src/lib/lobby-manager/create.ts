@@ -79,7 +79,7 @@ export const create = (
     countryCode: getCountryCodeFromTimezone(timezone),
   };
 
-  state.lobbies.push(newLobby);
+  state.lobbies = [...state.lobbies, newLobby];
 
   state.lobbiesLive[id] = {
     id,

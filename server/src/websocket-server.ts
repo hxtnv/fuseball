@@ -2,6 +2,7 @@ import WebSocket from "ws";
 import { randomUUID } from "crypto";
 import { handleConnection } from "./handlers/connection-handler";
 import gameLoop from "./lib/game-loop";
+import { setWss } from "./lib/lobby-manager/state";
 
 type WebSocketClient = WebSocket & { id: string };
 
@@ -14,6 +15,7 @@ export const createServer = (port: number): WebSocket.Server => {
   });
 
   gameLoop(wss);
+  setWss(wss);
 
   return wss;
 };

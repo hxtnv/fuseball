@@ -5,7 +5,7 @@ export type PositionType = {
   y: number;
 };
 
-export type ScoreType = [number, number];
+export type ScoreType = number[];
 
 export type Ball = {
   position: PositionType;

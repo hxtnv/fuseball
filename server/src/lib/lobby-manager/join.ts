@@ -104,14 +104,18 @@ export const join = ({ id, team, player }: JoinLobby, playerId: string) => {
     },
   };
 
+  console.log("joining lobby", id, state.lobbiesLive[id].status);
+
+  setState(state);
+
   if (state.lobbiesLive[id].status === "warmup") {
+    // todo: this status update isnt working because
+    // its instantly overwritten by the setState call
     updateStatus(id, {
       status: "in-progress",
       timeLeft: GAME.TIME,
     });
   }
-
-  setState(state);
 
   console.log(
     `Player "${player.name}" has joined the lobby "${lobby.lobby.name}" (${

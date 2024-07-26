@@ -11,7 +11,10 @@ export const registerBallHit = (
 ) => {
   const state = getState();
 
-  if (state.lobbiesLive[lobbyId].scoredThisTurn) {
+  if (
+    state.lobbiesLive[lobbyId].scoredThisTurn ||
+    state.lobbiesLive[lobbyId].roundStatus !== "live"
+  ) {
     return;
   }
 
@@ -39,6 +42,9 @@ export const registerBallHit = (
         ...player,
         position: getInitialPosition(index, player.team),
       })),
+      roundStatus: "protected",
+      startingTeam: team === 0 ? 1 : 0,
+      timeSinceRoundStart: 0,
     };
   }, 2500);
 
@@ -78,6 +84,11 @@ export const updateStatus = (
         }
       : lobby
   );
+
+  if (status === "in-progress") {
+    state.lobbiesLive[lobbyId].roundStatus = "protected";
+    state.lobbiesLive[lobbyId].timeSinceRoundStart = 0;
+  }
 
   if (status === "finished") {
     delete state.lobbiesLive[lobbyId];

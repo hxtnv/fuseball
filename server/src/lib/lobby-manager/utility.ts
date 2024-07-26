@@ -13,7 +13,7 @@ export const registerBallHit = (
 
   if (
     state.lobbiesLive[lobbyId].scoredThisTurn ||
-    state.lobbiesLive[lobbyId].roundStatus !== "live"
+    state.lobbiesLive[lobbyId].status !== "in-progress"
   ) {
     return;
   }

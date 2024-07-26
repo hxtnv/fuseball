@@ -1,4 +1,5 @@
 import { LobbyPlayerLive, Ball, PositionType } from "../../types/lobby";
+import { State } from "../../types/state";
 import PLAYER from "../const/player";
 import BALL from "../const/ball";
 import constrainPositionToField from "./constrain-position-to-field";
@@ -8,6 +9,8 @@ type Props = {
   movement: Record<string, boolean>;
   allPlayers: LobbyPlayerLive[];
   ball: Ball;
+  state: State;
+  lobbyId: string;
 };
 
 const isColliding = (
@@ -27,6 +30,8 @@ const calculateNewPlayerPosition = ({
   movement,
   allPlayers,
   ball,
+  state,
+  lobbyId,
 }: Props) => {
   const newPosition = { ...player.position };
   const newBallPosition = { ...ball.position };
@@ -53,7 +58,11 @@ const calculateNewPlayerPosition = ({
     newBallPosition.y += newPosition.y - player.position.y;
   }
 
-  const constrainedPosition = constrainPositionToField(newPosition);
+  const constrainedPosition = constrainPositionToField(newPosition, {
+    state,
+    player,
+    lobbyId,
+  });
   const constrainedBallPosition = constrainPositionToField(newBallPosition);
 
   newPosition.x = constrainedPosition.x;
@@ -62,7 +71,11 @@ const calculateNewPlayerPosition = ({
   newBallPosition.x = constrainedBallPosition.x;
   newBallPosition.y = constrainedBallPosition.y;
 
-  return { newPosition, newBallPosition };
+  const didBallMove =
+    newBallPosition.x !== ball.position.x ||
+    newBallPosition.y !== ball.position.y;
+
+  return { newPosition, newBallPosition, didBallMove };
 };
 
 export default calculateNewPlayerPosition;

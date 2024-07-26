@@ -50,6 +50,9 @@ export type LobbyLive = {
   ball: {
     position: PositionType;
   };
+  timeSinceRoundStart: number;
+  roundStatus: "protected" | "live";
+  startingTeam: number;
 };
 
 export type LobbyMeta = {

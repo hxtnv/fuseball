@@ -46,12 +46,19 @@ export const updatePlayerPosition = ({
   state.lobbiesLive[lobbyId].players = lobbyState.players.map(
     (player, index, playersLive) => {
       if (player.id === playerId) {
-        const { newPosition, newBallPosition } = calculateNewPlayerPosition({
-          player,
-          movement,
-          allPlayers: playersLive,
-          ball: lobbyState.ball,
-        });
+        const { newPosition, newBallPosition, didBallMove } =
+          calculateNewPlayerPosition({
+            player,
+            movement,
+            allPlayers: playersLive,
+            ball: lobbyState.ball,
+            state,
+            lobbyId,
+          });
+
+        if (didBallMove) {
+          lobbyState.roundStatus = "live";
+        }
 
         lobbyState.ball.position = newBallPosition;
 

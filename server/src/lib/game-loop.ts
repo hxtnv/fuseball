@@ -6,6 +6,7 @@ import updatePlayerPositions from "./lobby-manager/game-loop/update-player-posit
 import updateChatMsgs from "./lobby-manager/game-loop/update-chat-msgs";
 import checkForGoals from "./lobby-manager/game-loop/check-for-goals";
 import updateTimer from "./lobby-manager/game-loop/update-timer";
+import updateRoundStatus from "./lobby-manager/game-loop/update-round-status";
 
 const gameLoop = (wss: WebSocket.Server) => {
   setInterval(() => {
@@ -27,6 +28,7 @@ const gameLoop = (wss: WebSocket.Server) => {
   setInterval(() => {
     Object.values(lobbyManager.getAllLive()).forEach((lobby) => {
       updateTimer(lobby, wss);
+      updateRoundStatus(lobby, wss);
     });
   }, 1000);
 };

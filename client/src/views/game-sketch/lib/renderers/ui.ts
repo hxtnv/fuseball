@@ -8,6 +8,8 @@ import META from "@/lib/const/meta";
 import renderSeparation from "../helpers/render-separation";
 import { LobbyPlayerLive } from "@/context/game.context";
 import secondsToMinutesAndSeconds from "@/lib/helpers/seconds-to-minutes";
+import MAP from "../const/map";
+import TEAM_NAMES from "@/lib/const/team-names";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
@@ -261,6 +263,21 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
+  const drawRoundStarter = () => {
+    if (state.currentLobbyLive?.roundStatus !== "protected") return;
+
+    p.textAlign(p.CENTER, p.CENTER);
+    p.fill(TEAM_COLORS[state.currentLobbyLive?.startingTeam]);
+    p.stroke(51);
+    p.strokeWeight(4);
+    p.textSize(22);
+    p.text(
+      `Team ${TEAM_NAMES[state.currentLobbyLive?.startingTeam]} is starting`,
+      MAP.FIELD_WIDTH / 2,
+      MAP.FIELD_HEIGHT / 2 - 50
+    );
+  };
+
   const draw = () => {
     p.textFont("Itim");
 
@@ -270,6 +287,7 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
       p.scale(state.cameraScale);
       p.translate(-state.cameraPosition.x, -state.cameraPosition.y);
 
+      drawRoundStarter();
       drawNametags();
       drawChatMessages();
     }, p);

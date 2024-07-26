@@ -41,8 +41,11 @@ export type LobbyLive = {
   score: ScoreType;
   chatMessages: Record<string, { message: string; timestamp: number }>;
   ball: Ball;
-  scoredThisTurn: boolean;
+  scoredThisTurn: boolean; // this determines if we already accounted for a goal this turn (to prevent counting a goal every game loop tick)
   timeLeft: number;
+  roundStatus: "live" | "protected"; // protected means that one team needs to start by touching the ball
+  startingTeam: number; // this is the team that needs to start by touching the ball
+  timeSinceRoundStart: number;
 };
 
 export type CreateLobby = {

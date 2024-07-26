@@ -99,6 +99,9 @@ export const create = (
     chatMessages: {},
     scoredThisTurn: false,
     timeLeft: 0,
+    roundStatus: "protected", // live
+    startingTeam: 0,
+    timeSinceRoundStart: 0,
   };
 
   console.log(

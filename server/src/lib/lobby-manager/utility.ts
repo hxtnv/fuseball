@@ -88,6 +88,11 @@ export const updateStatus = (
   if (status === "in-progress") {
     state.lobbiesLive[lobbyId].roundStatus = "protected";
     state.lobbiesLive[lobbyId].timeSinceRoundStart = 0;
+
+    state.lobbiesLive[lobbyId].players.forEach((player, index) => {
+      player.position = getInitialPosition(index, player.team);
+    });
+    state.lobbiesLive[lobbyId].ball.position = getInitialBallPosition();
   }
 
   if (status === "finished") {

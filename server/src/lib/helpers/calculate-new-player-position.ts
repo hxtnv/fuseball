@@ -27,6 +27,37 @@ const isColliding = (
   return distance < size1 / 2 + size2 / 2;
 };
 
+const handleCollision = (
+  position1: PositionType,
+  position2: PositionType,
+  size1: number,
+  size2: number
+) => {
+  const collisionDirectionX = position1.x - position2.x;
+  const collisionDirectionY = position1.y - position2.y;
+  const collisionDistance = Math.sqrt(
+    collisionDirectionX * collisionDirectionX +
+      collisionDirectionY * collisionDirectionY
+  );
+
+  if (collisionDistance === 0) {
+    return { adjustedPos1: position1, adjustedPos2: position2 };
+  }
+
+  const overlap = (size1 / 2 + size2 / 2 - collisionDistance) / 2;
+
+  const adjustmentX = (collisionDirectionX / collisionDistance) * overlap;
+  const adjustmentY = (collisionDirectionY / collisionDistance) * overlap;
+
+  position1.x += adjustmentX;
+  position1.y += adjustmentY;
+
+  position2.x -= adjustmentX;
+  position2.y -= adjustmentY;
+
+  return { adjustedPos1: position1, adjustedPos2: position2 };
+};
+
 const handlePlayerCollisions = (
   newPosition: PositionType,
   player: LobbyPlayerLive,
@@ -37,24 +68,14 @@ const handlePlayerCollisions = (
       otherPlayer.id !== player.id &&
       isColliding(newPosition, otherPlayer.position, PLAYER.SIZE, PLAYER.SIZE)
     ) {
-      const collisionDirectionX = newPosition.x - otherPlayer.position.x;
-      const collisionDirectionY = newPosition.y - otherPlayer.position.y;
-      const collisionDistance = Math.sqrt(
-        collisionDirectionX * collisionDirectionX +
-          collisionDirectionY * collisionDirectionY
+      const result = handleCollision(
+        newPosition,
+        otherPlayer.position,
+        PLAYER.SIZE,
+        PLAYER.SIZE
       );
-
-      const overlap =
-        (PLAYER.SIZE / 2 + PLAYER.SIZE / 2 - collisionDistance) / 2;
-
-      const adjustmentX = (collisionDirectionX / collisionDistance) * overlap;
-      const adjustmentY = (collisionDirectionY / collisionDistance) * overlap;
-
-      newPosition.x += adjustmentX;
-      newPosition.y += adjustmentY;
-
-      otherPlayer.position.x -= adjustmentX;
-      otherPlayer.position.y -= adjustmentY;
+      newPosition = result.adjustedPos1;
+      otherPlayer.position = result.adjustedPos2;
     }
   });
 
@@ -70,7 +91,6 @@ const calculateNewPlayerPosition = ({
   lobbyId,
 }: Props) => {
   let newPosition = { ...player.position };
-  const newBallPosition = { ...ball.position };
 
   if (movement.up) {
     newPosition.y -= PLAYER.SPEED;
@@ -90,9 +110,23 @@ const calculateNewPlayerPosition = ({
 
   newPosition = handlePlayerCollisions(newPosition, player, allPlayers);
 
-  if (isColliding(newPosition, newBallPosition, PLAYER.SIZE, BALL.SIZE)) {
-    newBallPosition.x += newPosition.x - player.position.x;
-    newBallPosition.y += newPosition.y - player.position.y;
+  // Ball displacement logic with added force
+  if (isColliding(newPosition, ball.position, PLAYER.SIZE, BALL.SIZE)) {
+    const kickDirectionX = ball.position.x - player.position.x;
+    const kickDirectionY = ball.position.y - player.position.y;
+
+    const kickDistance = Math.sqrt(
+      kickDirectionX * kickDirectionX + kickDirectionY * kickDirectionY
+    );
+
+    // Normalize the direction
+    const normalizedDirectionX = kickDirectionX / kickDistance;
+    const normalizedDirectionY = kickDirectionY / kickDistance;
+
+    // Add a velocity to the ball in the direction of the kick
+    const kickStrength = PLAYER.SPEED; // use player speed as the strength for consistency
+    ball.velocity.x = normalizedDirectionX * kickStrength;
+    ball.velocity.y = normalizedDirectionY * kickStrength;
   }
 
   const constrainedPosition = constrainPositionToField(newPosition, {
@@ -100,19 +134,14 @@ const calculateNewPlayerPosition = ({
     player,
     lobbyId,
   });
-  const constrainedBallPosition = constrainPositionToField(newBallPosition);
 
   newPosition.x = constrainedPosition.x;
   newPosition.y = constrainedPosition.y;
 
-  newBallPosition.x = constrainedBallPosition.x;
-  newBallPosition.y = constrainedBallPosition.y;
-
   const didBallMove =
-    newBallPosition.x !== ball.position.x ||
-    newBallPosition.y !== ball.position.y;
+    ball.position.x !== ball.position.x || ball.position.y !== ball.position.y;
 
-  return { newPosition, newBallPosition, didBallMove };
+  return { newPosition, newBallPosition: ball.position, didBallMove };
 };
 
 export default calculateNewPlayerPosition;

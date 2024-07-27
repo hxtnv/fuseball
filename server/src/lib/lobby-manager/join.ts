@@ -114,6 +114,10 @@ export const join = ({ id, team, player }: JoinLobby, playerId: string) => {
       status: "in-progress",
       timeLeft: GAME.TIME,
     });
+
+    state.lobbiesLive[id].players.forEach((player, index) => {
+      player.position = getInitialPosition(index, player.team);
+    });
   }
 
   console.log(

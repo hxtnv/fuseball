@@ -12,13 +12,13 @@ const playersRenderer = (p: p5, state: StateType) => {
 
     const newPosition = {
       x: lerp(
-        player.previousPosition?.x ?? 0,
-        player.targetPosition?.x ?? 0,
+        player.previousPosition?.x ?? player.position.x,
+        player.targetPosition?.x ?? player.position.x,
         PLAYER.LERP_AMT
       ),
       y: lerp(
-        player.previousPosition?.y ?? 0,
-        player.targetPosition?.y ?? 0,
+        player.previousPosition?.y ?? player.position.y,
+        player.targetPosition?.y ?? player.position.y,
         PLAYER.LERP_AMT
       ),
     };
@@ -43,7 +43,8 @@ const playersRenderer = (p: p5, state: StateType) => {
 
     p.pop();
 
-    player.previousPosition = { ...newPosition };
+    // Update previousPosition to the last drawn position for next frame interpolation
+    player.previousPosition = newPosition;
   };
 
   const drawBall = () => {

@@ -41,10 +41,6 @@ const createState = () =>
 const stateMachine = () => {
   const state = createState();
 
-  // this is the data we received from our react context
-  // we will use it populate the non-crucial state like
-  // the lobby name, and only then we will request the
-  // current live lobby data from the server
   const onGetCurrentLobby = ({
     data,
     playerId,
@@ -62,18 +58,18 @@ const stateMachine = () => {
     };
   };
 
-  // this is the live update data that we receive
-  // from the server as the game is running, which
-  // all the real-time data like player positions
   const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
     if (state.currentLobbyLive) {
       data.players.forEach((updatedPlayer) => {
-        const existingPlayer = state.currentLobbyLive?.players.find(
+        if (!state.currentLobbyLive) return;
+
+        const existingPlayer = state.currentLobbyLive.players.find(
           (player) => player.id === updatedPlayer.id
         );
 
         if (existingPlayer) {
-          updatedPlayer.previousPosition = existingPlayer.targetPosition;
+          updatedPlayer.previousPosition =
+            existingPlayer.targetPosition ?? existingPlayer.position;
           updatedPlayer.targetPosition = updatedPlayer.position;
         } else {
           updatedPlayer.previousPosition = updatedPlayer.position;
@@ -93,8 +89,6 @@ const stateMachine = () => {
     if (myPlayer) {
       state.targetCameraPosition = { ...myPlayer.position };
     }
-
-    // emitter.emit("game:lobby-live-update-processed");
   };
 
   const onPingReceived = (ping: number) => {

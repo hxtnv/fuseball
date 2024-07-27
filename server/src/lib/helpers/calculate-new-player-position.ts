@@ -14,15 +14,51 @@ type Props = {
 };
 
 const isColliding = (
-  playerPosition: PositionType,
-  ballPosition: PositionType
+  position1: PositionType,
+  position2: PositionType,
+  size1: number,
+  size2: number
 ) => {
   const distance = Math.sqrt(
-    Math.pow(playerPosition.x - ballPosition.x, 2) +
-      Math.pow(playerPosition.y - ballPosition.y, 2)
+    Math.pow(position1.x - position2.x, 2) +
+      Math.pow(position1.y - position2.y, 2)
   );
 
-  return distance < PLAYER.SIZE / 2 + BALL.SIZE / 2;
+  return distance < size1 / 2 + size2 / 2;
+};
+
+const handlePlayerCollisions = (
+  newPosition: PositionType,
+  player: LobbyPlayerLive,
+  allPlayers: LobbyPlayerLive[]
+) => {
+  allPlayers.forEach((otherPlayer) => {
+    if (
+      otherPlayer.id !== player.id &&
+      isColliding(newPosition, otherPlayer.position, PLAYER.SIZE, PLAYER.SIZE)
+    ) {
+      const collisionDirectionX = newPosition.x - otherPlayer.position.x;
+      const collisionDirectionY = newPosition.y - otherPlayer.position.y;
+      const collisionDistance = Math.sqrt(
+        collisionDirectionX * collisionDirectionX +
+          collisionDirectionY * collisionDirectionY
+      );
+
+      const overlap =
+        (PLAYER.SIZE / 2 + PLAYER.SIZE / 2 - collisionDistance) / 2;
+
+      const adjustmentX = (collisionDirectionX / collisionDistance) * overlap;
+      const adjustmentY = (collisionDirectionY / collisionDistance) * overlap;
+
+      newPosition.x += adjustmentX;
+      newPosition.y += adjustmentY;
+
+      otherPlayer.position.x -= adjustmentX;
+      otherPlayer.position.y -= adjustmentY;
+    }
+  });
+
+  return newPosition;
 };
 
 const calculateNewPlayerPosition = ({
@@ -33,7 +69,7 @@ const calculateNewPlayerPosition = ({
   state,
   lobbyId,
 }: Props) => {
-  const newPosition = { ...player.position };
+  let newPosition = { ...player.position };
   const newBallPosition = { ...ball.position };
 
   if (movement.up) {
@@ -52,8 +88,9 @@ const calculateNewPlayerPosition = ({
     newPosition.x += PLAYER.SPEED;
   }
 
-  // Ball displacement logic
-  if (isColliding(newPosition, newBallPosition)) {
+  newPosition = handlePlayerCollisions(newPosition, player, allPlayers);
+
+  if (isColliding(newPosition, newBallPosition, PLAYER.SIZE, BALL.SIZE)) {
     newBallPosition.x += newPosition.x - player.position.x;
     newBallPosition.y += newPosition.y - player.position.y;
   }

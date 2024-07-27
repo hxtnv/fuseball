@@ -71,20 +71,10 @@ const sketch = (p: p5) => {
   };
 
   p.keyPressed = () => {
-    if (p.key === "Shift") {
-      state.targetCameraScale = 0.9;
-    } else if (p.key === "Control") {
-      state.targetCameraScale = 1.1;
-    }
-
     playerController(state).onKeyDown(p.key);
   };
 
   p.keyReleased = () => {
-    if (p.key === "Shift" || p.key === "Control") {
-      state.targetCameraScale = 1;
-    }
-
     playerController(state).onKeyUp(p.key);
   };
 

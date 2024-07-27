@@ -265,11 +265,8 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   };
 
   const drawRoundStarter = () => {
-    // if (!state.currentLobbyLive) return;
     if (state.currentLobbyLive?.roundStatus !== "protected") return;
 
-    // state.currentLobbyLive.startingTeam = 0;
-    // state.currentLobbyLive.timeSinceRoundStart = 5;
     const timeLeft = Math.max(
       0,
       GAME.ROUND_START_TIMEOUT - state.currentLobbyLive.timeSinceRoundStart

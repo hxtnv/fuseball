@@ -36,6 +36,7 @@ export const registerBallHit = (
       ball: {
         ...state.lobbiesLive[lobbyId].ball,
         position: getInitialBallPosition(),
+        velocity: { x: 0, y: 0 },
       },
       scoredThisTurn: false,
       players: state.lobbiesLive[lobbyId].players.map((player, index) => ({
@@ -92,7 +93,10 @@ export const updateStatus = (
     state.lobbiesLive[lobbyId].players.forEach((player, index) => {
       player.position = getInitialPosition(index, player.team);
     });
-    state.lobbiesLive[lobbyId].ball.position = getInitialBallPosition();
+    state.lobbiesLive[lobbyId].ball = {
+      position: getInitialBallPosition(),
+      velocity: { x: 0, y: 0 },
+    };
   }
 
   if (status === "finished") {

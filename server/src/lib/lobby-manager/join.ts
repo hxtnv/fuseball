@@ -96,7 +96,8 @@ export const join = ({ id, team, player }: JoinLobby, playerId: string) => {
         id: playerId,
         team: teamToJoin,
         position: getInitialPosition(
-          state.lobbiesLive[id].players.length,
+          state.lobbiesLive[id].players.filter((p) => p.team === teamToJoin)
+            .length,
           teamToJoin
         ),
       },

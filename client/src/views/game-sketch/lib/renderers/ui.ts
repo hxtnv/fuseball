@@ -9,6 +9,7 @@ import renderSeparation from "../helpers/render-separation";
 import { LobbyPlayerLive } from "@/context/game.context";
 import secondsToMinutesAndSeconds from "@/lib/helpers/seconds-to-minutes";
 import MAP from "../const/map";
+import GAME from "../const/game";
 import TEAM_NAMES from "@/lib/const/team-names";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
@@ -264,18 +265,29 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
   };
 
   const drawRoundStarter = () => {
+    // if (!state.currentLobbyLive) return;
     if (state.currentLobbyLive?.roundStatus !== "protected") return;
+
+    // state.currentLobbyLive.startingTeam = 0;
+    // state.currentLobbyLive.timeSinceRoundStart = 5;
+    const timeLeft = Math.max(
+      0,
+      GAME.ROUND_START_TIMEOUT - state.currentLobbyLive.timeSinceRoundStart
+    );
 
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(TEAM_COLORS[state.currentLobbyLive?.startingTeam]);
     p.stroke(51);
     p.strokeWeight(4);
-    p.textSize(22);
+    p.textSize(18);
     p.text(
       `Team ${TEAM_NAMES[state.currentLobbyLive?.startingTeam]} is starting`,
       MAP.FIELD_WIDTH / 2,
-      MAP.FIELD_HEIGHT / 2 - 50
+      MAP.FIELD_HEIGHT / 2 - 70
     );
+    p.textSize(26);
+    p.fill(255);
+    p.text(timeLeft, MAP.FIELD_WIDTH / 2, MAP.FIELD_HEIGHT / 2 - 40);
   };
 
   const draw = () => {

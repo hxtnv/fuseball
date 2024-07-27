@@ -95,6 +95,7 @@ export const create = (
     })),
     ball: {
       position: getInitialBallPosition(),
+      velocity: { x: 0, y: 0 },
     },
     chatMessages: {},
     scoredThisTurn: false,

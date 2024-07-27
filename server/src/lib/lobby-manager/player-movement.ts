@@ -1,6 +1,8 @@
 import { getClientLobby, getState, setState } from "./state";
 import calculateNewPlayerPosition from "../helpers/calculate-new-player-position";
 
+const INTERPOLATION_INTERVAL = 100; // milliseconds
+
 export const playerMoveStart = (direction: string, playerId: string) => {
   const state = getState();
   const { lobby: existingLobby } = getClientLobby(playerId);
@@ -39,6 +41,7 @@ export const updatePlayerPosition = ({
   const state = getState();
   const lobbyState = state.lobbiesLive[lobbyId];
   const movement = lobbyState.playersMovement[playerId];
+
   if (!movement || !Object.values(movement).includes(true)) {
     return;
   }
@@ -56,15 +59,50 @@ export const updatePlayerPosition = ({
             lobbyId,
           });
 
+        // Apply interpolation logic here for player
+        player.lastPositionUpdateTime =
+          player.lastPositionUpdateTime || Date.now();
+
+        const elapsedTime = Date.now() - player.lastPositionUpdateTime;
+
+        if (elapsedTime < INTERPOLATION_INTERVAL) {
+          const t = elapsedTime / INTERPOLATION_INTERVAL;
+          player.position.x += t * (newPosition.x - player.position.x);
+          player.position.y += t * (newPosition.y - player.position.y);
+        } else {
+          player.position.x = newPosition.x;
+          player.position.y = newPosition.y;
+        }
+
+        player.lastPositionUpdateTime = Date.now();
+
         if (didBallMove) {
           lobbyState.roundStatus = "live";
         }
 
-        lobbyState.ball.position = newBallPosition;
+        // Apply interpolation logic here for ball
+        lobbyState.ball.lastPositionUpdateTime =
+          lobbyState.ball.lastPositionUpdateTime || Date.now();
+
+        const ballElapsedTime =
+          Date.now() - lobbyState.ball.lastPositionUpdateTime;
+
+        if (ballElapsedTime < INTERPOLATION_INTERVAL) {
+          const t = ballElapsedTime / INTERPOLATION_INTERVAL;
+          lobbyState.ball.position.x +=
+            t * (newBallPosition.x - lobbyState.ball.position.x);
+          lobbyState.ball.position.y +=
+            t * (newBallPosition.y - lobbyState.ball.position.y);
+        } else {
+          lobbyState.ball.position.x = newBallPosition.x;
+          lobbyState.ball.position.y = newBallPosition.y;
+        }
+
+        lobbyState.ball.lastPositionUpdateTime = Date.now();
 
         return {
           ...player,
-          position: newPosition,
+          position: player.position, // use interpolated position
         };
       }
 

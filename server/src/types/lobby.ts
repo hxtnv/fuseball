@@ -9,6 +9,8 @@ export type ScoreType = number[];
 
 export type Ball = {
   position: PositionType;
+  lastPositionUpdateTime?: number; // used for interpolation
+  velocity: PositionType;
 };
 
 export type LobbyPlayer = {
@@ -31,6 +33,7 @@ export type Lobby = {
 export type LobbyPlayerLive = LobbyPlayer & {
   // status: "waiting" | "playing";
   position: PositionType;
+  lastPositionUpdateTime?: number; // used for interpolation
 };
 
 export type LobbyLive = {

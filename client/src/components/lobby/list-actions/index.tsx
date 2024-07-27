@@ -154,6 +154,7 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
             placeholder="The squad is back!"
             value={lobbyName}
             setValue={setLobbyName}
+            maxLength={40}
           />
 
           <InputRadio

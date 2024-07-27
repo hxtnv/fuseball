@@ -35,6 +35,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      user-select: none;
 
       .modal__content__header__title {
         font-size: 18px;

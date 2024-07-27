@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import LobbyList from "@/components/lobby-list";
+import LobbyList from "@/components/lobby/list";
 import GameSketch from "@/views/game-sketch";
 import { useGameContext } from "@/context/game.context";
 import logo from "@/assets/logo.png";

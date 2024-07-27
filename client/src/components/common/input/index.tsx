@@ -7,6 +7,7 @@ type InputProps = {
   setValue: (value: string) => void;
   extraIcon?: React.ReactNode;
   extraIconOnClick?: () => void;
+  maxLength?: number;
 };
 
 type InputRadioProps = InputProps & {
@@ -21,6 +22,7 @@ export const Input: React.FC<InputProps> = ({
   placeholder,
   extraIcon,
   extraIconOnClick,
+  maxLength,
 }) => {
   return (
     <div className={styles.input}>
@@ -32,6 +34,7 @@ export const Input: React.FC<InputProps> = ({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
+          maxLength={maxLength}
         />
 
         {extraIcon && (

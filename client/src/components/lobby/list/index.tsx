@@ -1,7 +1,7 @@
 import { useGameContext } from "@/context/game.context";
-import SingleLobby from "@/components/lobby-single";
-import LobbyListActions from "@/components/lobby-list-actions";
-import LobbyListError from "@/components/lobby-list-error";
+import SingleLobby from "@/components/lobby/single";
+import LobbyListActions from "@/components/lobby/list-actions";
+import LobbyListError from "@/components/lobby/list-error";
 import Skeleton from "@/components/common/skeleton";
 import styles from "./lobby-list.module.scss";
 import { useWebSocket } from "@/context/websocket.context";

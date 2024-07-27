@@ -90,8 +90,9 @@ const calculateNewPlayerPosition = ({
   state,
   lobbyId,
 }: Props) => {
+  const prevPosition = { ...player.position };
+
   let newPosition = { ...player.position };
-  let newBallPosition = { ...ball.position };
 
   if (movement.up) {
     newPosition.y -= PLAYER.SPEED;
@@ -111,7 +112,13 @@ const calculateNewPlayerPosition = ({
 
   newPosition = handlePlayerCollisions(newPosition, player, allPlayers);
 
-  // Ball displacement logic with added force
+  // Calculate player velocity
+  const playerVelocity = {
+    x: newPosition.x - prevPosition.x,
+    y: newPosition.y - prevPosition.y,
+  };
+
+  // Ball displacement logic with added force based on player velocity
   if (isColliding(newPosition, ball.position, PLAYER.SIZE, BALL.SIZE)) {
     const kickDirectionX = ball.position.x - player.position.x;
     const kickDirectionY = ball.position.y - player.position.y;
@@ -125,7 +132,9 @@ const calculateNewPlayerPosition = ({
     const normalizedDirectionY = kickDirectionY / kickDistance;
 
     // Add a velocity to the ball in the direction of the kick
-    const kickStrength = PLAYER.SPEED; // use player speed as the strength for consistency
+    const kickStrength = Math.sqrt(
+      playerVelocity.x * playerVelocity.x + playerVelocity.y * playerVelocity.y
+    ); // use player velocity magnitude as the strength
     ball.velocity.x = normalizedDirectionX * kickStrength;
     ball.velocity.y = normalizedDirectionY * kickStrength;
   }
@@ -136,7 +145,7 @@ const calculateNewPlayerPosition = ({
     lobbyId,
   });
 
-  const constrainedBallPosition = constrainPositionToField(newBallPosition, {
+  const constrainedBallPosition = constrainPositionToField(ball.position, {
     state,
     ball,
     lobbyId,
@@ -145,8 +154,8 @@ const calculateNewPlayerPosition = ({
   newPosition.x = constrainedPosition.x;
   newPosition.y = constrainedPosition.y;
 
-  newBallPosition.x = constrainedBallPosition.x;
-  newBallPosition.y = constrainedBallPosition.y;
+  ball.position.x = constrainedBallPosition.x;
+  ball.position.y = constrainedBallPosition.y;
 
   const didBallMove =
     ball.position.x !== ball.position.x || ball.position.y !== ball.position.y;

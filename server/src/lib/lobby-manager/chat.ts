@@ -9,6 +9,7 @@ export const chatMessage = (message: string, playerId: string) => {
     return;
   }
 
+  // todo: remove this
   if (message === "/resetball") {
     state.lobbiesLive[existingLobby.id].ball.position =
       getInitialBallPosition();

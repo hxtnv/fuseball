@@ -40,11 +40,11 @@ export const updatePlayerPosition = ({
 }) => {
   const state = getState();
   const lobbyState = state.lobbiesLive[lobbyId];
-  const movement = lobbyState.playersMovement[playerId];
+  const movement = lobbyState.playersMovement[playerId] ?? {};
 
-  if (!movement || !Object.values(movement).includes(true)) {
-    return;
-  }
+  // if (!movement || !Object.values(movement).includes(true)) {
+  //   return;
+  // }
 
   state.lobbiesLive[lobbyId].players = lobbyState.players.map((player) => {
     if (player.id === playerId) {

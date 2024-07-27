@@ -91,6 +91,7 @@ const calculateNewPlayerPosition = ({
   lobbyId,
 }: Props) => {
   let newPosition = { ...player.position };
+  let newBallPosition = { ...ball.position };
 
   if (movement.up) {
     newPosition.y -= PLAYER.SPEED;
@@ -135,8 +136,17 @@ const calculateNewPlayerPosition = ({
     lobbyId,
   });
 
+  const constrainedBallPosition = constrainPositionToField(newBallPosition, {
+    state,
+    ball,
+    lobbyId,
+  });
+
   newPosition.x = constrainedPosition.x;
   newPosition.y = constrainedPosition.y;
+
+  newBallPosition.x = constrainedBallPosition.x;
+  newBallPosition.y = constrainedBallPosition.y;
 
   const didBallMove =
     ball.position.x !== ball.position.x || ball.position.y !== ball.position.y;

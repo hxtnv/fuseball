@@ -1,0 +1,33 @@
+.error {
+  background-color: #dd3b3b;
+  border-radius: 16px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  user-select: none;
+
+  .error__header {
+    display: flex;
+    gap: 15px;
+
+    svg {
+      fill: #451212;
+      height: 32px;
+    }
+
+    .error__content {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+
+      h4 {
+        font-size: 18px;
+      }
+
+      p {
+        font-size: 14px;
+        line-height: 1.4em;
+        color: rgba(255, 255, 255, 0.75);
+      }
+    }
+  }
+}

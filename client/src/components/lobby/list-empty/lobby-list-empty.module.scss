@@ -1,0 +1,29 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 15px;
+
+  svg {
+    height: 32px;
+    fill: #fff;
+  }
+
+  .empty__text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    h4 {
+      font-size: 18px;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 1.4em;
+      color: rgba(255, 255, 255, 0.75);
+    }
+  }
+}

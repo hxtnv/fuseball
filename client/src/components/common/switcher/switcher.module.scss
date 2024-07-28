@@ -1,0 +1,28 @@
+.switcher {
+  border-radius: 100px;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  height: 32px;
+
+  div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    font-size: 12px;
+    border-radius: 100px;
+    text-shadow: 1px 0px 4px #000;
+
+    &[data-active="true"] {
+      background-color: rgba(0, 0, 0, 0.3);
+      color: #fff;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+    }
+  }
+}

@@ -1,57 +1,30 @@
+<p align="center">
+  <img src="https://fuseball.io/logo.png" />
+</p>
 <h1 align="center">Welcome to Fuseball game! 👋</h1>
-<p align="center">
-  <img src="https://img.shields.io/github/languages/code-size/theneuetimes/fuseball.svg" />
-  <a href="https://github.com/theneuetimes/fuseball/issues">
-    <img alt="downloads" src="https://img.shields.io/github/issues-raw/theneuetimes/fuseball.svg" target="_blank" />
-  </a>
-  <a href="https://theneuetimes.github.io/fuseball/">
-    <img src="https://img.shields.io/website/https/theneuetimes.github.io/fuseball.svg?up_color=green&up_message=online" />
-  </a>
-  <a href="https://github.com/kefranabg/readme-md-generator/blob/master/LICENSE">
-    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" target="_blank" />
-  </a>
-</p>
-
-> Fuseball is a browser based, top down football game built with webpack and p5.js. <br />
-> It features a single player mode aswell as (soon) multiplayer mode. <br />
-> The game itself is inspired by haxball, but built to be more modern and have more features (e.g bots).
-
-## ✨ Demo
-
-You can play the game right now if you wish - simply <a href="https://theneuetimes.github.io/fuseball/" target="_blank">click here</a>.
 
 <p align="center">
-  <img width="700" align="center" src="https://i.imgur.com/ajw4fld.png" alt="demo"/>
+Fuseball is a web based multiplayer football game created with React, p5.js and Websockets.
 </p>
 
+![Logo](https://i.imgur.com/HxSoisH.png)
 
-## 🚀 How to build
+## Demo
 
-Make sure you have [npx](https://www.npmjs.com/package/npx) installed (`npx` is shipped by default since npm `5.2.0`).
+You can play the game at any time at https://fuseball.io
 
-Then, just run the following commands:
+## Authors
 
-```sh
-git clone https://github.com/theneuetimes/fuseball.git
-npm install
-npm run start
-```
+- [@hxtnv](https://www.github.com/hxtnv)
 
-Navigate to your browser and go to `http://localhost:8080` - you should see the game running there.
+## Contributing
 
-## 🤝 Contributing
+Contributions are always welcome! Check the open issues or create a new one if you have a new idea or improvement to make.
 
-Contributions, issues and feature requests are welcome.<br />
-Feel free to check [issues page](https://github.com/theneuetimes/fuseball/issues) if you want to contribute.
+## License
 
-
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0) with Commons Clause. See the LICENSE file for more details.
 
 ## Show your support
 
 Please ⭐️ this repository if you want to support this project!
-
-
-## 📝 License
-Copyright © 2019 Daniel Wygoński.
-
-This project is [GNU](https://github.com/theneuetimes/fuseball/blob/master/LICENSE.md) licensed.

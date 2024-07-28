@@ -1,0 +1,27 @@
+{
+  "name": "fuseball-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theneuetimes/fuseball.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theneuetimes/fuseball/issues"
+  },
+  "homepage": "https://github.com/theneuetimes/fuseball#readme",
+  "dependencies": {
+    "@types/node": "^20.14.11",
+    "@types/ws": "^8.5.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3",
+    "ws": "^8.18.0"
+  }
+}

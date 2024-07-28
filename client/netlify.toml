@@ -1,0 +1,10 @@
+[build]
+  base = "client/"
+  publish = "dist/"
+  command = "npm run build"
+  node_version = "20.11.1"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

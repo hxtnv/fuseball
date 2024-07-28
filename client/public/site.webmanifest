@@ -1,0 +1,20 @@
+{
+  "name": "Fuseball - Multiplayer Football Game",
+  "short_name": "Fuseball",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#128258",
+  "background_color": "#128258",
+  "start_url": "https://fuseball.io",
+  "display": "standalone"
+}

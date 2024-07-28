@@ -110,9 +110,9 @@ const stateMachine = () => {
   const init = () => {
     emitter.on("ws:message:lobby-live-update", onLobbyLiveUpdate);
     emitter.on("game:current-lobby-meta", onGetCurrentLobby);
-    emitter.on("game:ping", onPingReceived);
     emitter.on("game:chat-input-focus-start", onChatInputFocusStart);
     emitter.on("game:chat-input-focus-end", onChatInputFocusEnd);
+    emitter.on("game:ping", onPingReceived);
 
     emitter.emit("game:get-current-lobby");
   };
@@ -120,9 +120,9 @@ const stateMachine = () => {
   const cleanup = () => {
     emitter.off("ws:message:lobby-live-update", onLobbyLiveUpdate);
     emitter.off("game:current-lobby-meta", onGetCurrentLobby);
-    emitter.off("game:ping", onPingReceived);
     emitter.off("game:chat-input-focus-start", onChatInputFocusStart);
     emitter.off("game:chat-input-focus-end", onChatInputFocusEnd);
+    emitter.off("game:ping", onPingReceived);
   };
 
   return {

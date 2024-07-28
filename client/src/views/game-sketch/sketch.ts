@@ -1,16 +1,12 @@
 import p5 from "q5";
-
 import stateMachine from "./lib/state-machine";
-
 import uiRenderer from "./lib/renderers/ui";
 import mapRenderer from "./lib/renderers/map";
 import playersRenderer from "./lib/renderers/players";
 import playerController from "./lib/player-controller";
-
 import lerp from "./lib/helpers/lerp";
 import renderSeparation from "./lib/helpers/render-separation";
 import PLAYER from "./lib/const/player";
-import BALL from "./lib/const/ball";
 
 const sketch = (p: p5) => {
   const {
@@ -18,10 +14,10 @@ const sketch = (p: p5) => {
     cleanup: cleanupState,
     state,
   } = Object.freeze(stateMachine());
+  let lastTimestamp = 0;
 
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight);
-
     initState();
   };
 
@@ -57,14 +53,12 @@ const sketch = (p: p5) => {
       p.translate(-state.cameraPosition.x, -state.cameraPosition.y);
 
       map.draw();
-      if (state.currentLobbyLive) {
-        p.ellipse(
-          state.currentLobbyLive.ball.position.x,
-          state.currentLobbyLive.ball.position.y,
-          BALL.SIZE
-        );
-      }
-      players.draw();
+
+      const timestamp = performance.now();
+      const deltaTime = lastTimestamp ? timestamp - lastTimestamp : 16.67; // Approximate initial value to 60fps
+      lastTimestamp = timestamp;
+
+      players.draw(deltaTime);
     }, p);
 
     userInterface.draw();

@@ -7,19 +7,21 @@ import type { LobbyPlayerLive } from "@/context/game.context";
 import BALL from "../const/ball";
 
 const playersRenderer = (p: p5, state: StateType) => {
-  const drawPlayer = (player: LobbyPlayerLive) => {
+  const drawPlayer = (player: LobbyPlayerLive, deltaTime: number) => {
     p.push();
+
+    const lerpAmt = 1 - Math.pow(1 - PLAYER.LERP_AMT, deltaTime / 16.67); // Normalize to 60fps
 
     const newPosition = {
       x: lerp(
         player.previousPosition?.x ?? player.position.x,
         player.targetPosition?.x ?? player.position.x,
-        PLAYER.LERP_AMT
+        lerpAmt
       ),
       y: lerp(
         player.previousPosition?.y ?? player.position.y,
         player.targetPosition?.y ?? player.position.y,
-        PLAYER.LERP_AMT
+        lerpAmt
       ),
     };
 
@@ -71,10 +73,12 @@ const playersRenderer = (p: p5, state: StateType) => {
     p.pop();
   };
 
-  const draw = () => {
+  const draw = (deltaTime: number) => {
     if (!state.currentLobbyLive) return;
 
-    state.currentLobbyLive.players.forEach(drawPlayer);
+    state.currentLobbyLive.players.forEach((player) =>
+      drawPlayer(player, deltaTime)
+    );
 
     drawBall();
   };

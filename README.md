@@ -1,8 +1,11 @@
-![Logo](https://fuseball.io/logo.png)
+<p align="center">
+  <img src="https://fuseball.io/logo.png" />
+</p>
+<h1 align="center">Welcome to Fuseball game! 👋</h1>
 
-# Fuseball
-
+<p align="center">
 Fuseball is a web based multiplayer football game created with React, p5.js and Websockets.
+</p>
 
 ![Logo](https://i.imgur.com/HxSoisH.png)
 
@@ -20,7 +23,7 @@ Contributions are always welcome! Check the open issues or create a new one if y
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0) with Commons Clause. See the LICENSE file for more details.
 
 ## Show your support
 

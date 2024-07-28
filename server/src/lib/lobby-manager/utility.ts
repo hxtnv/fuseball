@@ -1,7 +1,6 @@
 import WebSocket from "ws";
 import { getState, setState } from "./state";
 import getInitialBallPosition from "../helpers/get-initial-ball-position";
-import getInitialPosition from "../helpers/get-initial-position";
 import { LobbyStatus } from "../../types/lobby";
 import getInitialPositions from "../helpers/get-initial-positions";
 
@@ -40,10 +39,6 @@ export const registerBallHit = (
         velocity: { x: 0, y: 0 },
       },
       scoredThisTurn: false,
-      // players: state.lobbiesLive[lobbyId].players.map((player, index) => ({
-      //   ...player,
-      //   position: getInitialPosition(index, player.team),
-      // })),
       players: getInitialPositions(state.lobbiesLive[lobbyId].players),
       roundStatus: "protected",
       startingTeam: team === 0 ? 1 : 0,
@@ -92,9 +87,6 @@ export const updateStatus = (
     state.lobbiesLive[lobbyId].roundStatus = "protected";
     state.lobbiesLive[lobbyId].timeSinceRoundStart = 0;
 
-    // state.lobbiesLive[lobbyId].players.forEach((player, index) => {
-    //   player.position = getInitialPosition(index, player.team);
-    // });
     state.lobbiesLive[lobbyId].players = getInitialPositions(
       state.lobbiesLive[lobbyId].players
     );

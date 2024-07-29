@@ -16,13 +16,13 @@ export const handleMessage = (
   try {
     const parsedMessage = JSON.parse(message);
 
-    if (
-      parsedMessage.event !== "ping" &&
-      parsedMessage.event !== "player-move-start" &&
-      parsedMessage.event !== "player-move-end"
-    ) {
-      console.log("got message", parsedMessage);
-    }
+    // if (
+    //   parsedMessage.event !== "ping" &&
+    //   parsedMessage.event !== "player-move-start" &&
+    //   parsedMessage.event !== "player-move-end"
+    // ) {
+    //   console.log("got message", parsedMessage);
+    // }
 
     switch (parsedMessage.event) {
       case "get-lobbies":
@@ -53,6 +53,10 @@ export const handleMessage = (
         handleChatMessage(parsedMessage.data?.message, ws, wss);
         break;
 
+      case "handshake":
+        handleHandshake(parsedMessage.data?.timezone, ws, wss);
+        break;
+
       case "ping":
         send(ws, "pong");
         break;
@@ -67,6 +71,18 @@ export const handleMessage = (
 
     send(ws, "error", "Invalid message format");
   }
+};
+
+const handleHandshake = (
+  timezone: string,
+  ws: WebSocketClient,
+  wss: WebSocket.Server
+) => {
+  if (typeof timezone !== "string") {
+    return;
+  }
+
+  console.log(`New player from "${timezone}" has connected`);
 };
 
 const handleChatMessage = (

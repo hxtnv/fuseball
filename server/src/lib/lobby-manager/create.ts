@@ -27,14 +27,22 @@ export const create = (
     };
   }
 
-  if (name.replace(/\s+/g, "") === "") {
+  if (typeof name !== "string") {
+    return {
+      lobby: undefined,
+      error:
+        "Invalid lobby name. Please enter a name that is at least 4 characters long.",
+    };
+  }
+
+  if (name?.replace(/\s+/g, "") === "") {
     return {
       lobby: undefined,
       error: "Lobby name cannot be empty!",
     };
   }
 
-  if (name.replace(/\s+/g, "").length < 4) {
+  if (name?.replace(/\s+/g, "").length < 4) {
     return {
       lobby: undefined,
       error: "Lobby name must be at least 4 characters long!",
@@ -106,7 +114,7 @@ export const create = (
   };
 
   console.log(
-    `New lobby named "${lobbyName}" has been created by "${playerName}" (1/${
+    `New lobby named "${lobbyName}" has been created by "${playerName}" from timezone "${timezone}" (1/${
       lobbySize * 2
     })`
   );

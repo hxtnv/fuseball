@@ -16,7 +16,6 @@ const Home: React.FC = () => {
   const { open: openDisconnectedModal, Modal: DisconnectedModal } = useModal();
 
   const onDisconnected = () => {
-    console.log("disconnected");
     openDisconnectedModal();
   };
 

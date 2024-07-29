@@ -68,6 +68,12 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     ws.onopen = () => {
       emitter.emit("ws:connected");
+      emitter.emit("ws:send", {
+        event: "handshake",
+        data: {
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+      });
       setStatus("connected");
     };
 

@@ -98,7 +98,16 @@ export const updateStatus = (
 
   if (status === "finished") {
     // delete state.lobbiesLive[lobbyId];
+    const lobbyDetails = state.lobbies.find((lobby) => lobby.id === lobbyId);
     state.lobbies = state.lobbies.filter((lobby) => lobby.id !== lobbyId);
+
+    if (lobbyDetails) {
+      console.log(
+        `Lobby "${
+          lobbyDetails.name
+        }" has finished with a score of ${lobbyDetails.score.join(" : ")}`
+      );
+    }
   }
 
   setState(state);

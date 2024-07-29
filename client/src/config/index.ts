@@ -1,6 +1,5 @@
 const config = {
-  // wsUrl: "ws://localhost:8080",
-  wsUrl: "wss://wss.fuseball.io",
+  wsUrl: import.meta.env.VITE_API_WS_URL ?? "ws://localhost:8080",
   pingInterval: 1000,
 };
 

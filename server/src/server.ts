@@ -1,5 +1,4 @@
 import { createServer } from "./websocket-server";
 
-const wss = createServer(8080);
-
-console.log("WebSocket server is running on ws://localhost:8080");
+const port = process.env.PORT || 8080;
+const wss = createServer(Number(port));

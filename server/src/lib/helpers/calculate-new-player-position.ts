@@ -93,6 +93,7 @@ const calculateNewPlayerPosition = ({
   const prevPosition = { ...player.position };
 
   let newPosition = { ...player.position };
+  let didBallMove = false;
 
   if (movement.up) {
     newPosition.y -= PLAYER.SPEED;
@@ -137,6 +138,8 @@ const calculateNewPlayerPosition = ({
     ); // use player velocity magnitude as the strength
     ball.velocity.x = normalizedDirectionX * kickStrength;
     ball.velocity.y = normalizedDirectionY * kickStrength;
+
+    didBallMove = true;
   }
 
   const constrainedPosition = constrainPositionToField(newPosition, {
@@ -156,9 +159,6 @@ const calculateNewPlayerPosition = ({
 
   ball.position.x = constrainedBallPosition.x;
   ball.position.y = constrainedBallPosition.y;
-
-  const didBallMove =
-    ball.position.x !== ball.position.x || ball.position.y !== ball.position.y;
 
   return { newPosition, newBallPosition: ball.position, didBallMove };
 };

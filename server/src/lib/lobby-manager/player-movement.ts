@@ -81,7 +81,7 @@ export const updatePlayerPosition = ({
 
       return {
         ...player,
-        position: player.position, // use interpolated position
+        position: player.position,
       };
     }
 

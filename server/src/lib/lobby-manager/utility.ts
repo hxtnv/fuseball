@@ -97,7 +97,7 @@ export const updateStatus = (
   }
 
   if (status === "finished") {
-    delete state.lobbiesLive[lobbyId];
+    // delete state.lobbiesLive[lobbyId];
     state.lobbies = state.lobbies.filter((lobby) => lobby.id !== lobbyId);
   }
 

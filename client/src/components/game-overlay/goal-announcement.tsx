@@ -15,7 +15,6 @@ const GoalAnnouncement: React.FC = () => {
   const [team, setTeam] = useState<number>(0);
 
   const onGoalAnnouncement = ({ data }: GoalType) => {
-    console.log("goal announced", data);
     setTeam(data.whichTeam);
     setVisible(true);
   };

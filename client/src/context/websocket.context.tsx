@@ -84,7 +84,6 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     ws.onerror = (event: ErrorEvent) => {
-      console.log("error", event);
       setStatus("error");
       emitter.emit("ws:disconnected", event);
     };

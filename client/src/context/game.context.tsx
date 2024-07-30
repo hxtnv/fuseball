@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import emitter from "@/lib/emitter";
-import getRandomPlayerSettings from "@/lib/helpers/get-random-player-settings";
 import { useWebSocket } from "./websocket.context";
-
-export type PlayerSettings = {
-  name: string;
-  emoji: number;
-};
 
 export type PositionType = {
   x: number;
@@ -66,43 +60,27 @@ type GameContextType = {
   currentLobby: Lobby | null;
   setCurrentLobby: (lobby: Lobby | null) => void;
   lobbies: Lobby[];
-  playerSettings: PlayerSettings;
-  setPlayerSettings: (playerSettings: PlayerSettings) => void;
   createLobby: ({ name, teamSize }: { name: string; teamSize: number }) => void;
   joinLobby: (id: string, team?: number) => void;
   playersOnline: number;
   leaveLobby: () => void;
-  playerId: string | null;
 };
 
 const GameContext = React.createContext<GameContextType>({
   currentLobby: null,
   setCurrentLobby: () => {},
   lobbies: [],
-  playerSettings: {
-    name: "",
-    emoji: 0,
-  },
-  setPlayerSettings: () => {},
   createLobby: () => {},
   joinLobby: () => {},
   playersOnline: 0,
   leaveLobby: () => {},
-  playerId: null,
 });
 
 const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const { status } = useWebSocket();
+  const { status, playerData } = useWebSocket();
   const [lobbies, setLobbies] = useState<Lobby[]>([]);
   const [currentLobby, setCurrentLobby] = useState<Lobby | null>(null);
-  const [playerId, setPlayerId] = useState<string | null>(null);
   const [playersOnline, setPlayersOnline] = useState<number>(0);
-  const [playerSettings, setPlayerSettings] = useState<PlayerSettings>(
-    JSON.parse(
-      window.localStorage.getItem("fuseball:player:settings") ??
-        JSON.stringify(getRandomPlayerSettings())
-    )
-  );
 
   const onConnected = () => {
     emitter.emit("ws:send", "get-lobbies");
@@ -128,7 +106,6 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
       data: {
         name,
         teamSize,
-        player: playerSettings,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
     });
@@ -140,13 +117,8 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
       data: {
         id,
         team,
-        player: playerSettings,
       },
     });
-  };
-
-  const onUserIdReceived = ({ data: userId }: { data: string }) => {
-    setPlayerId(userId);
   };
 
   const onLobbiesReceived = ({ data: lobbyList }: { data: Lobby[] }) => {
@@ -169,23 +141,15 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
         score: undefined,
         status: undefined,
       },
-      playerId,
+      playerData,
     });
   };
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      "fuseball:player:settings",
-      JSON.stringify(playerSettings)
-    );
-  }, [playerSettings]);
 
   useEffect(() => {
     emitter.on("ws:message:players-online", onPlayersOnline);
     emitter.on("ws:message:lobbies", onLobbiesReceived);
     emitter.on("ws:message:create-lobby-success", onLobbySuccess);
     emitter.on("ws:message:join-lobby-success", onLobbySuccess);
-    emitter.on("ws:message:user-id", onUserIdReceived);
     emitter.on("ws:connected", onConnected);
 
     emitter.on("game:get-current-lobby", onGetCurrentLobby);
@@ -195,7 +159,6 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
       emitter.off("ws:message:lobbies", onLobbiesReceived);
       emitter.off("ws:message:create-lobby-success", onLobbySuccess);
       emitter.off("ws:message:join-lobby-success", onLobbySuccess);
-      emitter.off("ws:message:user-id", onUserIdReceived);
       emitter.off("ws:connected", onConnected);
 
       emitter.off("game:get-current-lobby", onGetCurrentLobby);
@@ -213,15 +176,12 @@ const GameContextProvider = ({ children }: { children: React.ReactNode }) => {
     <GameContext.Provider
       value={{
         lobbies,
-        playerSettings,
-        setPlayerSettings,
         createLobby,
         currentLobby,
         setCurrentLobby,
         joinLobby,
         playersOnline,
         leaveLobby,
-        playerId,
       }}
     >
       {children}

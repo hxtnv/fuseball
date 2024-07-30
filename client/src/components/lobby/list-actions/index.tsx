@@ -23,7 +23,7 @@ type Props = {
 
 const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
   const [teamPreview, setTeamPreview] = useState<string>("red");
-  const { playerSettings, setPlayerSettings } = useGameContext();
+  const { playerData } = useWebSocket();
   const { Modal, open } = useModal();
 
   return (
@@ -42,10 +42,10 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
                 <p
                   style={{ color: TEAM_COLORS[teamPreview === "red" ? 0 : 1] }}
                 >
-                  {playerSettings.name}
+                  {playerData.name}
                 </p>
 
-                <div>{getEmoji(playerSettings.emoji)}</div>
+                <div>{getEmoji(playerData.emoji)}</div>
               </div>
 
               <div className={styles.player__settings__preview__actions}>
@@ -74,14 +74,14 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
             <Input
               label="Display name"
               placeholder="Funny yellow dog"
-              value={playerSettings.name}
+              value={playerData.name}
               setValue={(val: string) =>
-                setPlayerSettings({ ...playerSettings, name: val })
+                console.log({ ...playerData, name: val })
               }
               extraIcon={<DiceFiveSolid />}
               extraIconOnClick={() =>
-                setPlayerSettings({
-                  ...playerSettings,
+                console.log({
+                  ...playerData,
                   name: getRandomPlayerName(),
                 })
               }
@@ -90,9 +90,9 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
             <InputRadio
               label="Emoji"
               options={EMOJIS}
-              value={playerSettings.emoji.toString()}
+              value={playerData.emoji.toString()}
               setValue={(val: string) =>
-                setPlayerSettings({ ...playerSettings, emoji: Number(val) })
+                console.log({ ...playerData, emoji: Number(val) })
               }
             />
           </div>

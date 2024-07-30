@@ -1,6 +1,5 @@
 import WebSocket from "ws";
-
-type WebSocketClient = WebSocket & { id: string };
+import type { WebSocketClient } from "../types/ws";
 
 export const send = (ws: WebSocketClient, event: string, data?: any) => {
   ws.send(JSON.stringify({ event, data }));
@@ -13,8 +12,10 @@ export const broadcast = (
   playerIds?: string[]
 ) => {
   wss.clients.forEach(function each(client) {
-    if (playerIds && !playerIds.includes((client as WebSocketClient).id)) {
-      return;
+    if (playerIds) {
+      if (!playerIds.includes((client as WebSocketClient).playerData?.id)) {
+        return;
+      }
     }
 
     client.send(JSON.stringify({ event, data }));

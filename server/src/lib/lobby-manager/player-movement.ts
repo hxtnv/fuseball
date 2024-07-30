@@ -1,32 +1,35 @@
 import { getClientLobby, getState, setState } from "./state";
 import calculateNewPlayerPosition from "../helpers/calculate-new-player-position";
+import { PlayerData } from "../../types/player";
 
 const INTERPOLATION_INTERVAL = 100; // milliseconds
 
-export const playerMoveStart = (direction: string, playerId: string) => {
+export const playerMoveStart = (direction: string, playerData: PlayerData) => {
   const state = getState();
-  const { lobby: existingLobby } = getClientLobby(playerId);
+  const { lobby: existingLobby } = getClientLobby(playerData.id);
 
   if (!existingLobby) {
     return;
   }
 
-  state.lobbiesLive[existingLobby.id].playersMovement[playerId][direction] =
-    true;
+  state.lobbiesLive[existingLobby.id].playersMovement[playerData.id][
+    direction
+  ] = true;
 
   setState(state);
 };
 
-export const playerMoveEnd = (direction: string, playerId: string) => {
+export const playerMoveEnd = (direction: string, playerData: PlayerData) => {
   const state = getState();
-  const { lobby: existingLobby } = getClientLobby(playerId);
+  const { lobby: existingLobby } = getClientLobby(playerData.id);
 
   if (!existingLobby) {
     return;
   }
 
-  state.lobbiesLive[existingLobby.id].playersMovement[playerId][direction] =
-    false;
+  state.lobbiesLive[existingLobby.id].playersMovement[playerData.id][
+    direction
+  ] = false;
 
   setState(state);
 };

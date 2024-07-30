@@ -4,22 +4,18 @@ import getInitialPosition from "../helpers/get-initial-position";
 import getInitialBallPosition from "../helpers/get-initial-ball-position";
 import { getState, setState } from "./state";
 import { CreateLobby, Lobby } from "../../types/lobby";
+import { PlayerData } from "../../types/player";
 
 export const create = (
-  { name, teamSize, player, timezone }: CreateLobby,
-  playerId: string
+  { name, teamSize, timezone }: CreateLobby,
+  playerData: PlayerData
 ) => {
   const state = getState();
 
-  if (!playerId || typeof playerId !== "string") {
-    return {
-      lobby: undefined,
-      error: "Invalid player ID. Please refresh the page and try again.",
-    };
-  }
-
   if (
-    state.lobbies.find((lobby) => lobby.players.find((p) => p.id === playerId))
+    state.lobbies.find((lobby) =>
+      lobby.players.find((p) => p.id === playerData.id)
+    )
   ) {
     return {
       lobby: undefined,
@@ -56,26 +52,15 @@ export const create = (
     };
   }
 
-  if (typeof player?.name !== "string" || player?.name?.length < 3) {
-    return {
-      lobby: undefined,
-      error:
-        "Invalid player name! Choose a name that is at least 3 characters long.",
-    };
-  }
-
   const id = randomUUID();
 
   const lobbyName = name.substring(0, 40);
   const lobbySize = Math.min(teamSize, 4);
-  const playerName = player.name.substring(0, 30);
 
   const validatedPlayer = {
-    id: playerId,
-    team: 0,
-    emoji: player.emoji,
-    name: playerName,
+    ...playerData,
     position: getInitialPosition(0, 0),
+    team: 0,
   };
 
   const newLobby: Lobby = {
@@ -95,7 +80,7 @@ export const create = (
     status: newLobby.status,
     score: [0, 0],
     playersMovement: {
-      [playerId]: {},
+      [playerData.id]: {},
     },
     players: newLobby.players.map((player, index) => ({
       ...validatedPlayer,
@@ -114,9 +99,9 @@ export const create = (
   };
 
   console.log(
-    `New lobby named "${lobbyName}" has been created by "${playerName}" from timezone "${timezone}" (1/${
-      lobbySize * 2
-    })`
+    `New lobby named "${lobbyName}" has been created by "${
+      playerData.name
+    }" from timezone "${timezone}" (1/${lobbySize * 2})`
   );
 
   setState(state);

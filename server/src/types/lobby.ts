@@ -54,12 +54,10 @@ export type LobbyLive = {
 export type CreateLobby = {
   name: string;
   teamSize: number;
-  player: LobbyPlayer;
   timezone: string;
 };
 
 export type JoinLobby = {
   id: string;
   team?: number;
-  player: LobbyPlayer;
 };

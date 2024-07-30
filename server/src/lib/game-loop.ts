@@ -7,6 +7,7 @@ import updateChatMsgs from "./lobby-manager/game-loop/update-chat-msgs";
 import checkForGoals from "./lobby-manager/game-loop/check-for-goals";
 import updateTimer from "./lobby-manager/game-loop/update-timer";
 import updateRoundStatus from "./lobby-manager/game-loop/update-round-status";
+import { removeLobby } from "./lobby-manager/remove";
 
 const gameLoop = (wss: WebSocket.Server) => {
   setInterval(() => {
@@ -22,6 +23,10 @@ const gameLoop = (wss: WebSocket.Server) => {
         lobby,
         lobby.players.map((player) => player.id)
       );
+
+      if (lobby.status === "finished") {
+        removeLobby(lobby.id);
+      }
     });
   }, 1000 / 30);
 

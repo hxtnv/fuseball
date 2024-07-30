@@ -16,10 +16,10 @@ export const removeClientFromLobbies = (playerId: string) => {
     lobby.id
   ].players.filter((player) => player.id !== playerId);
 
-  if (state.lobbiesLive[lobby.id].players.length === 0) {
-    // delete state.lobbiesLive[lobby.id];
-    removeLobby(lobby.id);
-  }
+  console.log(
+    "state.lobbiesLive[lobby.id].players",
+    state.lobbiesLive[lobby.id].players
+  );
 
   console.log(
     `Player "${player.name}" has left the lobby "${lobby.name}" (${
@@ -28,6 +28,10 @@ export const removeClientFromLobbies = (playerId: string) => {
   );
 
   setState(state);
+
+  if (state.lobbiesLive[lobby.id].players.length === 0) {
+    removeLobby(lobby.id);
+  }
 };
 
 export const removeLobby = (lobbyId: string) => {

@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 import styles from "./game-overlay.module.scss";
 import type { LobbyLive } from "@/context/game.context";
 import emitter from "@/lib/emitter";
+import useCheckMobileScreen from "@/hooks/use-check-mobile";
 
 const MessageBox: React.FC = () => {
   const [visibility, setVisibility] = useState<
     "hidden" | "visible" | "halfway-out"
   >("hidden");
 
+  const isMobile = useCheckMobileScreen();
+
   const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
     setVisibility(data.status === "warmup" ? "visible" : "halfway-out");
-    // setVisibility(data.players.length <= 1 ? "visible" : "halfway-out");
   };
 
   useEffect(() => {
@@ -32,6 +34,19 @@ const MessageBox: React.FC = () => {
   }, []);
 
   if (visibility === "hidden") return null;
+
+  if (isMobile) {
+    return (
+      <div
+        className={styles.game__overlay__waiting__notice__mobile}
+        data-visibility={visibility}
+      >
+        <div className={styles.game__overlay__waiting__notice__content}>
+          <h4>Waiting for players...</h4>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

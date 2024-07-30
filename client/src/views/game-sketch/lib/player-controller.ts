@@ -52,10 +52,17 @@ const playerController = (state: StateType) => {
     }
   };
 
+  const stopAllMovements = () => {
+    ["up", "down", "left", "right"].forEach((direction) => {
+      move("end", direction);
+    });
+  };
+
   return {
     move,
     onKeyDown,
     onKeyUp,
+    stopAllMovements,
   };
 };
 

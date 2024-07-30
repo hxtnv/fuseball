@@ -6,6 +6,7 @@
   bottom: 0;
   z-index: 91;
   padding: 20px;
+  pointer-events: none;
 
   .game__overlay__button {
     width: 48px;
@@ -13,6 +14,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: all;
 
     transition: background-color 300ms;
 
@@ -158,11 +160,12 @@
     }
   }
 
-  .game__overlay__waiting__notice {
+  .game__overlay__waiting__notice,
+  .game__overlay__waiting__notice__mobile {
     position: absolute;
     top: 100px;
-    left: 0;
-    right: 0;
+    left: 20px;
+    right: 20px;
     pointer-events: none;
     display: flex;
     justify-content: center;
@@ -212,26 +215,17 @@
         transform: translateY(30px);
       }
     }
+  }
 
-    @keyframes leftToRight {
-      0% {
-        left: -100px;
-      }
+  .game__overlay__waiting__notice__mobile {
+    justify-content: flex-end;
+    top: 20px;
+    left: unset;
 
-      100% {
-        left: 100%;
-      }
-    }
-
-    @keyframes slideUp {
-      0% {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-
-      100% {
-        opacity: 1;
-        transform: none;
+    .game__overlay__waiting__notice__content {
+      h4 {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.75);
       }
     }
   }
@@ -266,5 +260,73 @@
       margin: 20px 0;
       user-select: none;
     }
+  }
+
+  .game__overlay__turn__phone__horizontal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    user-select: none;
+    pointer-events: none;
+
+    img {
+      height: 96px;
+      filter: invert(1);
+      opacity: 0.75;
+      margin: 0 0 30px;
+      margin-top: auto;
+    }
+
+    h4 {
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.4em;
+    }
+
+    .game__overlay__turn__phone__horizontal__attribution {
+      margin: auto 0 80px;
+      pointer-events: all;
+
+      a {
+        color: #2cb580;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+@keyframes leftToRight {
+  0% {
+    left: -100px;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
   }
 }

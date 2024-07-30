@@ -11,6 +11,8 @@ import secondsToMinutesAndSeconds from "@/lib/helpers/seconds-to-minutes";
 import MAP from "../const/map";
 import GAME from "../const/game";
 import TEAM_NAMES from "@/lib/const/team-names";
+import playerController from "../player-controller";
+import { PositionType } from "@/context/game.context";
 
 const userInterfaceRenderer = (p: p5, state: StateType) => {
   const debugLines = [
@@ -197,6 +199,8 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
     p.push();
 
+    p.translate(0, state.isMobile ? -20 : -10);
+
     p.textSize(18);
     p.textAlign(p.CENTER, p.CENTER);
     p.fill(255);
@@ -206,10 +210,8 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
 
     if (!state.currentLobbyLive) return;
 
-    // const lobbyStatus = { text: "Warmup", color: "#6ae72c" };
     const lobbyStatus = LOBBY_STATUS[state.currentLobbyLive.status];
     const lobbyNameTextWidth = p.textWidth(state.currentLobbyMeta.name);
-    // secondsToMinutesAndSeconds
     const lobbyStatusText = () => {
       if (state.currentLobbyLive?.status === "in-progress") {
         const { minutes, seconds } = secondsToMinutesAndSeconds(
@@ -287,6 +289,110 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     p.text(timeLeft, MAP.FIELD_WIDTH / 2, MAP.FIELD_HEIGHT / 2 - 40);
   };
 
+  const drawMobileControls = () => {
+    if (!state.isMobile || !state.isHorizontal) return;
+
+    const joystickSize = 160;
+    const paddingX = 50;
+    const paddingY = 20;
+
+    const centerX = paddingX + joystickSize / 2;
+    const centerY = p.height - paddingY - joystickSize / 2;
+
+    p.touchStarted = () => {
+      handleTouch();
+    };
+
+    p.touchMoved = () => {
+      handleTouch();
+    };
+
+    p.touchEnded = () => {
+      // touchX = centerX;
+      // touchY = centerY;
+      state.touch = { x: centerX, y: centerY };
+
+      playerController(state).stopAllMovements();
+    };
+
+    const handleTouch = () => {
+      if (p.touches.length === 0) return;
+
+      const touch = p.touches[0] as PositionType;
+      const dx = touch.x - centerX;
+      const dy = touch.y - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < joystickSize / 2) {
+        // touchX = touch.x;
+        // touchY = touch.y;
+        state.touch = { x: touch.x, y: touch.y };
+      } else {
+        // touchX = centerX + (dx / distance) * (joystickSize / 2);
+        // touchY = centerY + (dy / distance) * (joystickSize / 2);
+        state.touch = {
+          x: centerX + (dx / distance) * (joystickSize / 2),
+          y: centerY + (dy / distance) * (joystickSize / 2),
+        };
+      }
+
+      const tolerance = joystickSize * 0.1;
+
+      // horizontal movements
+      if (state.touch.x < centerX - tolerance) {
+        playerController(state).move("start", "left");
+        playerController(state).move("end", "right");
+      } else if (state.touch.x > centerX + tolerance) {
+        playerController(state).move("start", "right");
+        playerController(state).move("end", "left");
+      } else {
+        playerController(state).move("end", "left");
+        playerController(state).move("end", "right");
+      }
+
+      // vertical movements
+      if (state.touch.y < centerY - tolerance) {
+        playerController(state).move("start", "up");
+        playerController(state).move("end", "down");
+      } else if (state.touch.y > centerY + tolerance) {
+        playerController(state).move("start", "down");
+        playerController(state).move("end", "up");
+      } else {
+        playerController(state).move("end", "up");
+        playerController(state).move("end", "down");
+      }
+    };
+
+    const touchRender =
+      state.touch.x === 0 && state.touch.y === 0
+        ? {
+            x: centerX,
+            y: centerY,
+          }
+        : {
+            x: state.touch.x,
+            y: state.touch.y,
+          };
+
+    p.push();
+
+    p.translate(centerX, centerY);
+    p.noStroke();
+    p.fill(255, 255, 255, 80);
+    p.ellipse(0, 0, joystickSize); // outer circle
+
+    p.fill(255, 255, 255);
+    p.stroke(100);
+    p.strokeWeight(4);
+    p.ellipse(
+      touchRender.x - centerX,
+      touchRender.y - centerY,
+      joystickSize * 0.4
+    ); // inner circle
+
+    p.pop();
+  };
+
   const draw = () => {
     p.textFont("Itim");
 
@@ -301,11 +407,24 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
       drawChatMessages();
     }, p);
 
+    p.touchStarted = () => {
+      console.log("Touch started");
+    };
+
+    p.touchMoved = () => {
+      console.log("Touch moved");
+    };
+
+    p.touchEnded = () => {
+      console.log("Touch ended");
+    };
+
     // fixed elements
     renderSeparation(() => {
       drawLogo();
       drawDebugInfo();
       drawLobbyInfo();
+      drawMobileControls();
     }, p);
   };
 

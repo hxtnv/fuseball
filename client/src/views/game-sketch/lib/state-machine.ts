@@ -21,6 +21,9 @@ export type StateType = {
   targetCameraScale: number;
   assets: Record<string, p5.Image>;
   chatInputFocus: boolean;
+  isMobile: boolean;
+  isHorizontal: boolean;
+  touch: PositionType;
 };
 
 const createState = () =>
@@ -36,6 +39,9 @@ const createState = () =>
     targetCameraPosition: { x: 0, y: 0 },
     assets: {},
     chatInputFocus: false,
+    isMobile: false,
+    isHorizontal: false,
+    touch: { x: 0, y: 0 },
   } as StateType);
 
 const stateMachine = () => {
@@ -96,9 +102,10 @@ const stateMachine = () => {
   };
 
   const onChatInputFocusStart = () => {
-    ["up", "down", "left", "right"].forEach((direction) => {
-      playerController(state).move("end", direction);
-    });
+    // ["up", "down", "left", "right"].forEach((direction) => {
+    //   playerController(state).move("end", direction);
+    // });
+    playerController(state).stopAllMovements();
 
     state.chatInputFocus = true;
   };
@@ -107,12 +114,22 @@ const stateMachine = () => {
     state.chatInputFocus = false;
   };
 
+  const onIsMobile = (data: boolean) => {
+    state.isMobile = data;
+  };
+
+  const onIsHorizontal = (data: boolean) => {
+    state.isHorizontal = data;
+  };
+
   const init = () => {
     emitter.on("ws:message:lobby-live-update", onLobbyLiveUpdate);
     emitter.on("game:current-lobby-meta", onGetCurrentLobby);
     emitter.on("game:chat-input-focus-start", onChatInputFocusStart);
     emitter.on("game:chat-input-focus-end", onChatInputFocusEnd);
     emitter.on("game:ping", onPingReceived);
+    emitter.on("game:is-mobile", onIsMobile);
+    emitter.on("game:is-horizontal", onIsHorizontal);
 
     emitter.emit("game:get-current-lobby");
   };
@@ -123,6 +140,8 @@ const stateMachine = () => {
     emitter.off("game:chat-input-focus-start", onChatInputFocusStart);
     emitter.off("game:chat-input-focus-end", onChatInputFocusEnd);
     emitter.off("game:ping", onPingReceived);
+    emitter.off("game:is-mobile", onIsMobile);
+    emitter.off("game:is-horizontal", onIsHorizontal);
   };
 
   return {

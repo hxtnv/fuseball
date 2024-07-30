@@ -1,6 +1,7 @@
 import { useEffect, Fragment, useState, useRef } from "react";
 import styles from "./game-overlay.module.scss";
 import emitter from "@/lib/emitter";
+import useCheckMobileScreen from "@/hooks/use-check-mobile";
 
 type Props = {
   inputFocus: boolean;
@@ -9,6 +10,16 @@ type Props = {
 const MessageBox: React.FC<Props> = ({ inputFocus }) => {
   const [message, setMessage] = useState<string>("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const isMobile = useCheckMobileScreen();
+
+  const getPlaceholderMessage = () => {
+    if (isMobile) {
+      return "Click here to open chat...";
+    }
+
+    return "Press T to start typing...";
+  };
 
   const abandonMessage = () => {
     setMessage("");
@@ -73,7 +84,7 @@ const MessageBox: React.FC<Props> = ({ inputFocus }) => {
           <input
             type="text"
             placeholder={
-              inputFocus ? "Press Enter to send" : "Press T to start typing..."
+              inputFocus ? "Press Enter to send" : getPlaceholderMessage()
             }
             value={message}
             onChange={(e) => setMessage(e.target.value)}

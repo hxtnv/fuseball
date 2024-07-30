@@ -5,6 +5,9 @@ import btc from "@/assets/payments/btc.png";
 import eth from "@/assets/payments/eth.png";
 import ltc from "@/assets/payments/ltc.png";
 import paypal from "@/assets/payments/paypal.png";
+import Twitter from "@/assets/icons/twitter-brands-solid.svg?react";
+import Github from "@/assets/icons/github-brands-solid.svg?react";
+import Donate from "@/assets/icons/circle-dollar-to-slot-solid.svg?react";
 
 type PaymentMethod = "BTC" | "ETH" | "LTC" | "PAYPAL";
 
@@ -49,25 +52,30 @@ const Footer: React.FC = () => {
             </a>
           </p>
 
-          <p>
-            The game is open source and{" "}
+          <div className={styles.footer__content__socials}>
+            <a
+              href="https://twitter.com/fuseball_game"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Twitter style={{ fill: "#1DA1F2" }} />
+              <span>Twitter</span>
+            </a>
+
             <a
               href="https://github.com/hxtnv/fuseball"
               target="_blank"
               rel="noopener noreferrer"
             >
-              available on Github
+              <Github style={{ fill: "#181717" }} />
+              <span>Github</span>
             </a>
-            .
-          </p>
 
-          <p>
-            If you like the game, please{" "}
             <a role="button" onClick={open}>
-              consider donating
-            </a>{" "}
-            to support the project.
-          </p>
+              <Donate style={{ fill: "#2CB580" }} />
+              <span>Donate</span>
+            </a>
+          </div>
         </div>
       </div>
 

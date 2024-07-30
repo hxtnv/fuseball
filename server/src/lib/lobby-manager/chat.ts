@@ -19,6 +19,14 @@ export const chatMessage = (message: string, playerId: string) => {
     return;
   }
 
+  console.log(
+    `Player "${
+      existingLobby.players.find((player) => player.id === playerId)?.name
+    }" has sent a chat message in lobby "${
+      existingLobby.name
+    }" saying "${message}"`
+  );
+
   state.lobbiesLive[existingLobby.id].chatMessages[playerId] = {
     message,
     timestamp: Date.now(),

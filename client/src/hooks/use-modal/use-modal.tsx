@@ -32,6 +32,10 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
     // onClose?.();
   };
 
+  useEffect(() => {
+    document.body.style.overflow = visibility === "hidden" ? "" : "hidden";
+  }, [visibility]);
+
   const Modal = ({
     children,
     hideCloseButton,
@@ -69,13 +73,20 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
     if (visibility === "hidden") return null;
 
     return (
-      <div className={styles.modal} data-visibility={visibility}>
-        <div
+      <div
+        className={styles.modal}
+        data-visibility={visibility}
+        onClick={hideCloseButton ? undefined : close}
+      >
+        {/* <div
           className={styles.modal__overlay}
           onClick={hideCloseButton ? undefined : close}
-        />
+        /> */}
 
-        <div className={styles.modal__content}>
+        <div
+          className={`${styles.modal__content} generic-box`}
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className={styles.modal__content__header}>
             {title && (
               <p className={styles.modal__content__header__title}>{title}</p>

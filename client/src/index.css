@@ -35,11 +35,34 @@ html,
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100%;
 }
 
 #canvas {
   position: absolute;
   overflow: hidden;
   z-index: 90;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.generic-box {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid #111;
+  /* border-bottom: 4px solid rgba(0, 0, 0, 0.5); */
+  border-radius: 4px;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.25);
+  position: relative;
+  padding: 13px 16px 17px;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 }

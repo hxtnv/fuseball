@@ -16,6 +16,10 @@
   flex-direction: row-reverse;
   gap: 15px;
 
+  label {
+    font-size: 14px;
+  }
+
   .player__settings__preview {
     user-select: none;
     flex: 1 1 0px;
@@ -75,6 +79,12 @@
     flex-direction: column;
     gap: 15px;
     flex: 1 1 0px;
+
+    .player__settings__inputs__emojis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
   }
 }
 
@@ -88,6 +98,16 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+
+  label {
+    font-size: 14px;
+  }
+
+  .create__lobby__team__size {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
 
   .create__lobby__info {
     line-height: 1.4em;

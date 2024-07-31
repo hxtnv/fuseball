@@ -3,7 +3,7 @@ import styles from "./lobby-list-error.module.scss";
 
 const LobbyListError: React.FC = () => {
   return (
-    <div className={styles.error}>
+    <div className={`${styles.error} generic-box`}>
       <div className={styles.error__header}>
         <TriangleExclamation />
 

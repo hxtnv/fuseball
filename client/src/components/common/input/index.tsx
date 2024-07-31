@@ -35,6 +35,7 @@ export const Input: React.FC<InputProps> = ({
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
+          className={"generic-box"}
         />
 
         {extraIcon && (

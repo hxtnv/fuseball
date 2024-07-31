@@ -1,0 +1,54 @@
+.preview {
+  position: relative;
+  display: flex;
+  gap: 16px;
+
+  .preview__ribbon {
+    flex-shrink: 0;
+    width: 32px;
+    transform: translateY(-30px);
+
+    svg {
+      width: 100%;
+    }
+  }
+
+  .preview__content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 5px;
+
+    label {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .preview__content__stats {
+      display: flex;
+      gap: 20px;
+      margin: 15px 0 0;
+
+      div {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+
+        p {
+          font-size: 18px;
+        }
+
+        svg {
+          height: 16px;
+          fill: rgba(255, 255, 255, 0.75);
+        }
+      }
+    }
+
+    button {
+      margin-top: 15px;
+    }
+  }
+}

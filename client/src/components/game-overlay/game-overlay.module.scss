@@ -9,28 +9,10 @@
   pointer-events: none;
 
   .game__overlay__button {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     pointer-events: all;
 
-    transition: background-color 300ms;
-
-    color: #fff;
-    border-radius: 16px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border: 2px solid rgba(0, 0, 0, 0.25);
-
-    &:hover {
-      cursor: pointer;
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-
-    svg {
-      height: 22px;
-      fill: #fff;
+    button {
+      width: 48px;
     }
   }
 
@@ -176,11 +158,6 @@
       flex-direction: column;
       gap: 10px;
       text-align: center;
-      padding: 12px 20px;
-      border-radius: inherit;
-      background-color: rgba(0, 0, 0, 0.5);
-      outline: 2px solid rgba(0, 0, 0, 0.25);
-      border-radius: 16px;
       overflow: hidden;
 
       opacity: 1;
@@ -194,10 +171,10 @@
       }
 
       p {
-        color: #ffffff70;
+        color: rgba(255, 255, 255, 0.75);
       }
 
-      &::before {
+      &::after {
         content: "";
         position: absolute;
         bottom: 0;

@@ -5,7 +5,9 @@ import { useGameContext } from "@/context/game.context";
 import logo from "@/assets/logo.png";
 import styles from "./home.module.scss";
 import useModal from "@/hooks/use-modal/use-modal";
-import Footer from "@/components/footer";
+import Footer from "@/components/domain/footer";
+import PlayerPreview from "@/components/domain/player-preview";
+import News from "@/components/domain/news";
 import emitter from "@/lib/emitter";
 
 const Home: React.FC = () => {
@@ -72,13 +74,20 @@ const Home: React.FC = () => {
 
       <img src={logo} alt="Fuseball logo" className={styles.logo} />
 
-      <p className={styles.description}>
+      {/* <p className={styles.description}>
         Fuseball is a casual browser based multiplayer football game where you
         can compete with your friends or other players from all over the world!
-      </p>
+      </p> */}
 
-      <LobbyList />
-      <Footer />
+      <div className={styles.home__content}>
+        <LobbyList />
+        <Footer />
+
+        <div className={styles.home__secondary__content}>
+          <PlayerPreview />
+          <News />
+        </div>
+      </div>
     </div>
   );
 };

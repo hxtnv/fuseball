@@ -14,7 +14,7 @@ const Skeleton: React.FC<Props> = ({ height }) => {
             }
           : undefined
       }
-      className={styles.skeleton}
+      className={`${styles.skeleton} generic-box`}
     />
   );
 };

@@ -41,7 +41,9 @@ const MessageBox: React.FC = () => {
         className={styles.game__overlay__waiting__notice__mobile}
         data-visibility={visibility}
       >
-        <div className={styles.game__overlay__waiting__notice__content}>
+        <div
+          className={`${styles.game__overlay__waiting__notice__content} generic-box`}
+        >
           <h4>Waiting for players...</h4>
         </div>
       </div>
@@ -53,7 +55,9 @@ const MessageBox: React.FC = () => {
       className={styles.game__overlay__waiting__notice}
       data-visibility={visibility}
     >
-      <div className={styles.game__overlay__waiting__notice__content}>
+      <div
+        className={`${styles.game__overlay__waiting__notice__content} generic-box`}
+      >
         <h4>Waiting for players...</h4>
         <p>The game will start when two or more players join.</p>
       </div>

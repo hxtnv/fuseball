@@ -8,7 +8,7 @@ import usePing from "@/hooks/use-ping";
 export type WebSocketContextType = {
   ws: ReconnectingWebSocket | null;
   status: "connecting" | "connected" | "disconnected" | "error";
-  playerData: PlayerData;
+  playerData: PlayerData | null;
 };
 
 export type PlayerData = {
@@ -27,26 +27,15 @@ type Handshake = {
 const WebSocketContext = React.createContext<WebSocketContextType>({
   ws: null,
   status: "connecting",
-  playerData: {
-    authenticated: false,
-    emoji: 0,
-    id: "",
-    name: "",
-    timezone: "",
-  },
+  playerData: null,
 });
 
 const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [ws, setWs] = useState<ReconnectingWebSocket | null>(null);
   const [status, setStatus] =
     useState<WebSocketContextType["status"]>("connecting");
-  const [playerData, setPlayerData] = useState<PlayerData>({
-    authenticated: false,
-    emoji: 0,
-    id: "",
-    name: "",
-    timezone: "",
-  });
+  const [playerData, setPlayerData] =
+    useState<WebSocketContextType["playerData"]>(null);
 
   usePing(ws, status);
 

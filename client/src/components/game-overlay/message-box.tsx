@@ -90,6 +90,7 @@ const MessageBox: React.FC<Props> = ({ inputFocus }) => {
             onChange={(e) => setMessage(e.target.value)}
             ref={inputRef}
             maxLength={50}
+            className="generic-box"
           />
 
           <p>

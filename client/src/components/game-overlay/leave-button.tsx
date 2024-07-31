@@ -1,4 +1,5 @@
 import React, { useEffect, Fragment } from "react";
+import Button from "@/components/common/button";
 import SignOut from "@/assets/icons/sign-out-alt-solid.svg?react";
 import styles from "./game-overlay.module.scss";
 import { useGameContext } from "@/context/game.context";
@@ -29,9 +30,11 @@ const LeaveButton: React.FC<Props> = ({ inputFocus }) => {
 
   return (
     <Fragment>
-      <button className={styles.game__overlay__button} onClick={open}>
-        <SignOut />
-      </button>
+      <div className={styles.game__overlay__button}>
+        <Button variant="secondary" onClick={open}>
+          <SignOut />
+        </Button>
+      </div>
 
       <Modal
         title="Quit game"

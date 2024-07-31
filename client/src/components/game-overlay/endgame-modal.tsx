@@ -34,7 +34,7 @@ const EndGameModal: React.FC = () => {
     if (data.status !== "finished") return;
 
     const ourTeam = data.players.find(
-      (player) => player.id == playerData.id
+      (player) => player.id == playerData?.id
     )?.team;
 
     if (ourTeam === undefined) return;
@@ -54,7 +54,7 @@ const EndGameModal: React.FC = () => {
     return () => {
       emitter.off("ws:message:lobby-live-update", onLobbyLiveUpdate);
     };
-  }, [playerData.id]);
+  }, [playerData?.id]);
 
   return (
     <Modal

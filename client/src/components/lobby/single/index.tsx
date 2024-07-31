@@ -69,7 +69,7 @@ const SingleRoom: React.FC<Lobby> = ({
 
   return (
     <>
-      <div className={styles.room}>
+      <div className={`${styles.room} generic-box`}>
         <div className={styles.room__header}>
           <img src={`https://flagsapi.com/${countryCode}/shiny/32.png`} />
           <p>{name}</p>

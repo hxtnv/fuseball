@@ -1,16 +1,13 @@
 .skeleton {
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+  width: calc(100% - 4px);
   height: 88px;
   float: left;
-
+  padding: 0 !important;
   z-index: 0;
   overflow: hidden;
   position: relative;
 
-  &::after {
+  &::before {
     content: "";
     top: 0;
     bottom: 0;

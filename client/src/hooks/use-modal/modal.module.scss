@@ -10,6 +10,10 @@
   z-index: 100;
   pointer-events: all;
 
+  overflow: auto;
+  flex-wrap: wrap;
+  background-color: rgba(0, 0, 0, 0.75);
+
   .modal__overlay {
     position: absolute;
     top: 0;
@@ -21,10 +25,8 @@
   }
 
   .modal__content {
+    background-color: #272727 !important;
     color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
-    border-radius: 16px;
-    padding: 20px;
     width: 500px;
     max-width: 100%;
     margin: 20px;

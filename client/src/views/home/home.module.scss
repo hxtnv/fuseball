@@ -2,16 +2,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  max-width: 550px;
-  margin: 0 auto;
+  // justify-content: center;
+  width: 550px;
+  max-width: 100%;
   padding: 0 25px;
+  position: relative;
 
   .logo {
-    width: 400px;
+    width: 300px;
     max-width: 100%;
     user-select: none;
-    margin-bottom: 30px;
+    margin-bottom: 150px;
     transition: transform 300ms, filter 300ms;
 
     &:hover {
@@ -31,7 +32,7 @@
   &::before,
   &::after {
     content: "";
-    height: 20px;
+    height: 30px;
     width: 100%;
   }
 
@@ -71,6 +72,22 @@
         box-sizing: border-box;
       }
     }
+  }
+
+  .home__content {
+    position: relative;
+    width: 100%;
+  }
+
+  .home__secondary__content {
+    position: absolute;
+    right: -330px;
+    top: 0;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 0 30px;
   }
 }
 

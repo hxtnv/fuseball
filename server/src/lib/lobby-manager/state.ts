@@ -49,12 +49,16 @@ export const removeClient = (client: PlayerData) => {
 
   if (!isActiveInOtherTab) {
     delete state.clients[client.id];
-  }
 
-  removeClientFromLobbies(client);
+    removeClientFromLobbies(client);
 
-  if (state._wss) {
-    broadcast(state._wss, "players-online", Object.keys(state.clients).length);
+    if (state._wss) {
+      broadcast(
+        state._wss,
+        "players-online",
+        Object.keys(state.clients).length
+      );
+    }
   }
 };
 

@@ -1,6 +1,6 @@
 import useModal from "@/hooks/use-modal/use-modal";
 import styles from "./footer.module.scss";
-import { Fragment } from "react/jsx-runtime";
+import { Fragment } from "react";
 import btc from "@/assets/payments/btc.png";
 import eth from "@/assets/payments/eth.png";
 import ltc from "@/assets/payments/ltc.png";

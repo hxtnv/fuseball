@@ -4,6 +4,7 @@ import didLobbiesChange from "../helpers/did-lobbies-change";
 import { broadcast } from "../utils";
 import { removeClientFromLobbies } from "./remove";
 import type { PlayerData } from "../../types/player";
+import { WebSocketClient } from "../../types/ws";
 
 const createState = () =>
   ({
@@ -38,7 +39,18 @@ export const addClient = (client: PlayerData) => {
 export const removeClient = (client: PlayerData) => {
   if (!client.id) return;
 
-  delete state.clients[client.id];
+  let isActiveInOtherTab = false;
+  for (const wsClient of state._wss?.clients ?? new Set()) {
+    if ((wsClient as WebSocketClient).playerData.id === client.id) {
+      isActiveInOtherTab = true;
+      break;
+    }
+  }
+
+  if (!isActiveInOtherTab) {
+    delete state.clients[client.id];
+  }
+
   removeClientFromLobbies(client);
 
   if (state._wss) {

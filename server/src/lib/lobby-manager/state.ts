@@ -2,6 +2,7 @@ import WebSocket from "ws";
 import { State } from "../../types/state";
 import didLobbiesChange from "../helpers/did-lobbies-change";
 import { broadcast } from "../utils";
+import { removeClientFromLobbies } from "./remove";
 import type { PlayerData } from "../../types/player";
 
 const createState = () =>
@@ -38,6 +39,7 @@ export const removeClient = (client: PlayerData) => {
   if (!client.id) return;
 
   delete state.clients[client.id];
+  removeClientFromLobbies(client);
 
   if (state._wss) {
     broadcast(state._wss, "players-online", Object.keys(state.clients).length);

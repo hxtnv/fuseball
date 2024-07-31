@@ -1,3 +1,5 @@
+import type { PlayerData } from "./player";
+
 export type LobbyStatus = "warmup" | "in-progress" | "finished";
 
 export type PositionType = {
@@ -13,10 +15,7 @@ export type Ball = {
   velocity: PositionType;
 };
 
-export type LobbyPlayer = {
-  id: string;
-  name: string;
-  emoji: number;
+export type LobbyPlayer = PlayerData & {
   team: number; // 0 or 1
 };
 

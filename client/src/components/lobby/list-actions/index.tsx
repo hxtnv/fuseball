@@ -34,6 +34,33 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
 
       <Modal title="Player settings">
         <div className={styles.player__settings}>
+          <div className={styles.player__settings__inputs}>
+            <Input
+              label="Display name"
+              placeholder="Funny yellow dog"
+              value={playerData.name}
+              setValue={(val: string) =>
+                console.log({ ...playerData, name: val })
+              }
+              extraIcon={<DiceFiveSolid />}
+              extraIconOnClick={() =>
+                console.log({
+                  ...playerData,
+                  name: getRandomPlayerName(),
+                })
+              }
+            />
+
+            <InputRadio
+              label="Emoji"
+              options={EMOJIS}
+              value={playerData.emoji.toString()}
+              setValue={(val: string) =>
+                console.log({ ...playerData, emoji: Number(val) })
+              }
+            />
+          </div>
+
           <div className={styles.player__settings__preview}>
             <div className={styles.player__settings__preview__wrapper}>
               <img src={playerPreviewBg} alt="Player preview" />
@@ -68,33 +95,6 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
                 />
               </div>
             </div>
-          </div>
-
-          <div className={styles.player__settings__inputs}>
-            <Input
-              label="Display name"
-              placeholder="Funny yellow dog"
-              value={playerData.name}
-              setValue={(val: string) =>
-                console.log({ ...playerData, name: val })
-              }
-              extraIcon={<DiceFiveSolid />}
-              extraIconOnClick={() =>
-                console.log({
-                  ...playerData,
-                  name: getRandomPlayerName(),
-                })
-              }
-            />
-
-            <InputRadio
-              label="Emoji"
-              options={EMOJIS}
-              value={playerData.emoji.toString()}
-              setValue={(val: string) =>
-                console.log({ ...playerData, emoji: Number(val) })
-              }
-            />
           </div>
         </div>
       </Modal>

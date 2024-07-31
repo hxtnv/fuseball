@@ -19,7 +19,8 @@ const LobbyList: React.FC = () => {
         style={status === "connected" ? undefined : { visibility: "hidden" }}
       >
         <p>
-          <span>{lobbies.length}</span> available lobbies
+          <span>{lobbies.length}</span> available{" "}
+          {lobbies.length === 1 ? "lobby" : "lobbies"}
         </p>
 
         <p>

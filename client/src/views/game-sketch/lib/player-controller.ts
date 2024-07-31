@@ -17,7 +17,7 @@ const KICK_BUTTONS = ["x", "Control", " "];
 
 const playerController = (state: StateType) => {
   const move = (type: "start" | "end", direction: string) => {
-    if (!state.playerId || state.chatInputFocus) {
+    if (state.chatInputFocus) {
       return;
     }
 

@@ -8,9 +8,10 @@ import type {
 } from "@/context/game.context";
 import emitter from "@/lib/emitter";
 import playerController from "./player-controller";
+import { PlayerData } from "@/context/websocket.context";
 
 export type StateType = {
-  playerId: string | null;
+  playerData: PlayerData | null;
   followingPlayer: LobbyPlayerLive | null;
   currentLobbyMeta: LobbyMeta | null;
   currentLobbyLive: LobbyLive | null;
@@ -28,7 +29,7 @@ export type StateType = {
 
 const createState = () =>
   ({
-    playerId: null,
+    playerData: null,
     followingPlayer: null,
     currentLobbyMeta: null,
     currentLobbyLive: null,
@@ -49,12 +50,12 @@ const stateMachine = () => {
 
   const onGetCurrentLobby = ({
     data,
-    playerId,
+    playerData,
   }: {
     data: Lobby;
-    playerId: string;
+    playerData: PlayerData;
   }) => {
-    state.playerId = playerId;
+    state.playerData = playerData;
 
     state.currentLobbyMeta = {
       id: data.id,
@@ -86,7 +87,7 @@ const stateMachine = () => {
 
     const myPlayer =
       state.currentLobbyLive?.players.find(
-        (player) => player.id === state.playerId
+        (player) => player.id === state.playerData?.id
       ) ?? null;
 
     state.currentLobbyLive = data;
@@ -102,9 +103,6 @@ const stateMachine = () => {
   };
 
   const onChatInputFocusStart = () => {
-    // ["up", "down", "left", "right"].forEach((direction) => {
-    //   playerController(state).move("end", direction);
-    // });
     playerController(state).stopAllMovements();
 
     state.chatInputFocus = true;

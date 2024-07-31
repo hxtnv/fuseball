@@ -3,10 +3,11 @@ import getInitialPosition from "../helpers/get-initial-position";
 import GAME from "../const/game";
 import { JoinLobby } from "../../types/lobby";
 import { updateStatus } from "./utility";
+import { PlayerData } from "../../types/player";
 
-export const join = ({ id, team, player }: JoinLobby, playerId: string) => {
+export const join = ({ id, team }: JoinLobby, playerData: PlayerData) => {
   const state = getState();
-  const { lobby: existingLobby } = getClientLobby(playerId);
+  const { lobby: existingLobby } = getClientLobby(playerData.id);
   const lobby = get(id);
 
   if (existingLobby) {
@@ -78,9 +79,8 @@ export const join = ({ id, team, player }: JoinLobby, playerId: string) => {
           players: [
             ...lobby.players,
             {
-              ...player,
+              ...playerData,
               team: teamToJoin,
-              id: playerId,
             },
           ],
         }
@@ -92,8 +92,7 @@ export const join = ({ id, team, player }: JoinLobby, playerId: string) => {
     players: [
       ...state.lobbiesLive[id].players,
       {
-        ...player,
-        id: playerId,
+        ...playerData,
         team: teamToJoin,
         position: getInitialPosition(
           state.lobbiesLive[id].players.filter((p) => p.team === teamToJoin)
@@ -104,7 +103,7 @@ export const join = ({ id, team, player }: JoinLobby, playerId: string) => {
     ],
     playersMovement: {
       ...state.lobbiesLive[id].playersMovement,
-      [playerId]: {},
+      [playerData.id]: {},
     },
   };
 
@@ -118,7 +117,7 @@ export const join = ({ id, team, player }: JoinLobby, playerId: string) => {
   }
 
   console.log(
-    `Player "${player.name}" has joined the lobby "${lobby.lobby.name}" (${
+    `Player "${playerData.name}" has joined the lobby "${lobby.lobby.name}" (${
       lobby.lobby.players.length + 1
     }/${lobby.lobby.teamSize * 2})`
   );

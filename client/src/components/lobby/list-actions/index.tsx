@@ -23,7 +23,7 @@ type Props = {
 
 const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
   const [teamPreview, setTeamPreview] = useState<string>("red");
-  const { playerSettings, setPlayerSettings } = useGameContext();
+  const { playerData } = useWebSocket();
   const { Modal, open } = useModal();
 
   return (
@@ -34,6 +34,33 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
 
       <Modal title="Player settings">
         <div className={styles.player__settings}>
+          <div className={styles.player__settings__inputs}>
+            <Input
+              label="Display name"
+              placeholder="Funny yellow dog"
+              value={playerData.name}
+              setValue={(val: string) =>
+                console.log({ ...playerData, name: val })
+              }
+              extraIcon={<DiceFiveSolid />}
+              extraIconOnClick={() =>
+                console.log({
+                  ...playerData,
+                  name: getRandomPlayerName(),
+                })
+              }
+            />
+
+            <InputRadio
+              label="Emoji"
+              options={EMOJIS}
+              value={playerData.emoji.toString()}
+              setValue={(val: string) =>
+                console.log({ ...playerData, emoji: Number(val) })
+              }
+            />
+          </div>
+
           <div className={styles.player__settings__preview}>
             <div className={styles.player__settings__preview__wrapper}>
               <img src={playerPreviewBg} alt="Player preview" />
@@ -42,10 +69,10 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
                 <p
                   style={{ color: TEAM_COLORS[teamPreview === "red" ? 0 : 1] }}
                 >
-                  {playerSettings.name}
+                  {playerData.name}
                 </p>
 
-                <div>{getEmoji(playerSettings.emoji)}</div>
+                <div>{getEmoji(playerData.emoji)}</div>
               </div>
 
               <div className={styles.player__settings__preview__actions}>
@@ -68,33 +95,6 @@ const PlayerSettingsModal: React.FC<Props> = ({ disabled }) => {
                 />
               </div>
             </div>
-          </div>
-
-          <div className={styles.player__settings__inputs}>
-            <Input
-              label="Display name"
-              placeholder="Funny yellow dog"
-              value={playerSettings.name}
-              setValue={(val: string) =>
-                setPlayerSettings({ ...playerSettings, name: val })
-              }
-              extraIcon={<DiceFiveSolid />}
-              extraIconOnClick={() =>
-                setPlayerSettings({
-                  ...playerSettings,
-                  name: getRandomPlayerName(),
-                })
-              }
-            />
-
-            <InputRadio
-              label="Emoji"
-              options={EMOJIS}
-              value={playerSettings.emoji.toString()}
-              setValue={(val: string) =>
-                setPlayerSettings({ ...playerSettings, emoji: Number(val) })
-              }
-            />
           </div>
         </div>
       </Modal>

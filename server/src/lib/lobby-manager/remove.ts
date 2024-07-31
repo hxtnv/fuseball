@@ -1,25 +1,20 @@
+import { PlayerData } from "../../types/player";
 import { getClientLobby, getState, setState } from "./state";
 
-export const removeClientFromLobbies = (playerId: string) => {
+export const removeClientFromLobbies = (playerData: PlayerData) => {
   const state = getState();
-  const { lobby, player } = getClientLobby(playerId);
+  const { lobby, player } = getClientLobby(playerData.id);
 
   if (!lobby || !player) return;
 
   state.lobbies = state.lobbies.map((lobby) => ({
     ...lobby,
-    players: lobby.players.filter((player) => player.id !== playerId),
+    players: lobby.players.filter((player) => player.id !== playerData.id),
   }));
-  // .filter((lobby) => lobby.players.length > 0);
 
   state.lobbiesLive[lobby.id].players = state.lobbiesLive[
     lobby.id
-  ].players.filter((player) => player.id !== playerId);
-
-  console.log(
-    "state.lobbiesLive[lobby.id].players",
-    state.lobbiesLive[lobby.id].players
-  );
+  ].players.filter((player) => player.id !== playerData.id);
 
   console.log(
     `Player "${player.name}" has left the lobby "${lobby.name}" (${
@@ -36,11 +31,12 @@ export const removeClientFromLobbies = (playerId: string) => {
 
 export const removeLobby = (lobbyId: string) => {
   const state = getState();
+  const lobbyDetails = state.lobbies.find((lobby) => lobby.id === lobbyId);
 
   state.lobbies = state.lobbies.filter((lobby) => lobby.id !== lobbyId);
   delete state.lobbiesLive[lobbyId];
 
-  console.log(`Lobby "${lobbyId}" has been removed`);
+  console.log(`Lobby "${lobbyDetails?.name}" has been removed`);
 
   setState(state);
 };

@@ -2,11 +2,15 @@ import WebSocket from "ws";
 import { State } from "../../types/state";
 import didLobbiesChange from "../helpers/did-lobbies-change";
 import { broadcast } from "../utils";
+import { removeClientFromLobbies } from "./remove";
+import type { PlayerData } from "../../types/player";
+import { WebSocketClient } from "../../types/ws";
 
 const createState = () =>
   ({
     lobbies: [],
     lobbiesLive: {},
+    clients: {},
     _wss: undefined,
   } as State);
 
@@ -20,6 +24,38 @@ export const getAllLive = () => state.lobbiesLive;
 
 export const setWss = (wss: WebSocket.Server) => {
   state._wss = wss;
+};
+
+export const addClient = (client: PlayerData) => {
+  if (!client.id) return;
+
+  state.clients[client.id] = client;
+
+  if (state._wss) {
+    broadcast(state._wss, "players-online", Object.keys(state.clients).length);
+  }
+};
+
+export const removeClient = (client: PlayerData) => {
+  if (!client.id) return;
+
+  let isActiveInOtherTab = false;
+  for (const wsClient of state._wss?.clients ?? new Set()) {
+    if ((wsClient as WebSocketClient).playerData.id === client.id) {
+      isActiveInOtherTab = true;
+      break;
+    }
+  }
+
+  if (!isActiveInOtherTab) {
+    delete state.clients[client.id];
+  }
+
+  removeClientFromLobbies(client);
+
+  if (state._wss) {
+    broadcast(state._wss, "players-online", Object.keys(state.clients).length);
+  }
 };
 
 export const get = (id: string) => {

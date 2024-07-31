@@ -20,8 +20,12 @@
   "dependencies": {
     "@types/node": "^20.14.11",
     "@types/ws": "^8.5.11",
+    "jsonwebtoken": "^9.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3",
     "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6"
   }
 }

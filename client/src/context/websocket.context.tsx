@@ -2,28 +2,60 @@ import React, { useState, useEffect, useContext } from "react";
 import emitter from "@/lib/emitter";
 import config from "@/config";
 import ReconnectingWebSocket, { ErrorEvent } from "reconnecting-websocket";
+import getRandomPlayerSettings from "@/lib/helpers/get-random-player-settings";
+import usePing from "@/hooks/use-ping";
 
-type WebSocketContextType = {
+export type WebSocketContextType = {
   ws: ReconnectingWebSocket | null;
   status: "connecting" | "connected" | "disconnected" | "error";
+  playerData: PlayerData;
+};
+
+export type PlayerData = {
+  authenticated: boolean;
+  emoji: number;
+  id: string;
+  name: string;
+  timezone: string;
+};
+
+type Handshake = {
+  jwt: string;
+  playerData: PlayerData;
 };
 
 const WebSocketContext = React.createContext<WebSocketContextType>({
   ws: null,
   status: "connecting",
+  playerData: {
+    authenticated: false,
+    emoji: 0,
+    id: "",
+    name: "",
+    timezone: "",
+  },
 });
 
 const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   const [ws, setWs] = useState<ReconnectingWebSocket | null>(null);
   const [status, setStatus] =
     useState<WebSocketContextType["status"]>("connecting");
+  const [playerData, setPlayerData] = useState<PlayerData>({
+    authenticated: false,
+    emoji: 0,
+    id: "",
+    name: "",
+    timezone: "",
+  });
+
+  usePing(ws, status);
 
   const onEmitterSend = (event: string | any) => {
     if (!ws) {
       return;
     }
 
-    ws?.send(
+    ws.send(
       JSON.stringify({
         event: typeof event === "string" ? event : event.event,
         data:
@@ -37,22 +69,14 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
-  const measurePing = () => {
-    if (!ws) {
-      return;
-    }
+  const onHandshakeReceived = ({ data }: { data: Handshake }) => {
+    console.log("handshake received", data.playerData);
 
-    const pingTimestamp = Date.now();
-    ws.send(JSON.stringify({ event: "ping" }));
+    localStorage.setItem("fuseball:jwt", data.jwt);
+    setPlayerData(data.playerData);
 
-    const onPongReceived = () => {
-      const roundTripTime = Date.now() - pingTimestamp;
-
-      emitter.emit("game:ping", roundTripTime);
-      emitter.off("ws:message:pong", onPongReceived);
-    };
-
-    emitter.on("ws:message:pong", onPongReceived);
+    emitter.emit("ws:connected");
+    setStatus("connected");
   };
 
   useEffect(() => {
@@ -67,14 +91,20 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     const ws = new ReconnectingWebSocket(config.wsUrl);
 
     ws.onopen = () => {
-      emitter.emit("ws:connected");
+      const jwt = localStorage.getItem("fuseball:jwt");
+      const playerSettings = jwt
+        ? { name: "", emoji: 0 }
+        : getRandomPlayerSettings();
+
       emitter.emit("ws:send", {
         event: "handshake",
         data: {
+          jwt: jwt ?? "",
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          playerName: jwt ? undefined : playerSettings.name,
+          playerEmoji: jwt ? undefined : playerSettings.emoji,
         },
       });
-      setStatus("connected");
     };
 
     ws.onmessage = (event) => {
@@ -102,14 +132,15 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (status === "connected") {
-      const interval = setInterval(measurePing, config.pingInterval);
-      return () => clearInterval(interval);
-    }
-  }, [ws, status]);
+    emitter.on("ws:message:handshake", onHandshakeReceived);
+
+    return () => {
+      emitter.off("ws:message:handshake", onHandshakeReceived);
+    };
+  }, []);
 
   return (
-    <WebSocketContext.Provider value={{ ws, status }}>
+    <WebSocketContext.Provider value={{ ws, status, playerData }}>
       {children}
     </WebSocketContext.Provider>
   );

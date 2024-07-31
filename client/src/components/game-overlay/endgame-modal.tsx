@@ -4,6 +4,7 @@ import { useGameContext, type LobbyLive } from "@/context/game.context";
 import emitter from "@/lib/emitter";
 import useModal from "@/hooks/use-modal/use-modal";
 import TEAM_COLORS from "@/lib/const/team-colors";
+import { useWebSocket } from "@/context/websocket.context";
 
 type DisplayData = {
   didWeWin: boolean;
@@ -26,12 +27,15 @@ const EndGameModal: React.FC = () => {
   };
 
   const { open, close, Modal } = useModal();
-  const { playerId, setCurrentLobby } = useGameContext();
+  const { setCurrentLobby } = useGameContext();
+  const { playerData } = useWebSocket();
 
   const onLobbyLiveUpdate = ({ data }: { data: LobbyLive }) => {
     if (data.status !== "finished") return;
 
-    const ourTeam = data.players.find((player) => player.id == playerId)?.team;
+    const ourTeam = data.players.find(
+      (player) => player.id == playerData.id
+    )?.team;
 
     if (ourTeam === undefined) return;
 
@@ -50,7 +54,7 @@ const EndGameModal: React.FC = () => {
     return () => {
       emitter.off("ws:message:lobby-live-update", onLobbyLiveUpdate);
     };
-  }, [playerId]);
+  }, [playerData.id]);
 
   return (
     <Modal

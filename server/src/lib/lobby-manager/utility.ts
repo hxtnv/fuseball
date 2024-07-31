@@ -97,7 +97,6 @@ export const updateStatus = (
   }
 
   if (status === "finished") {
-    // delete state.lobbiesLive[lobbyId];
     state.lobbiesLive[lobbyId].playersMovement = {};
 
     const lobbyDetails = state.lobbies.find((lobby) => lobby.id === lobbyId);

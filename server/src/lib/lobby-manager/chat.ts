@@ -1,9 +1,10 @@
 import { getClientLobby, getState, setState } from "./state";
 import getInitialBallPosition from "../helpers/get-initial-ball-position";
+import { PlayerData } from "../../types/player";
 
-export const chatMessage = (message: string, playerId: string) => {
+export const chatMessage = (message: string, playerData: PlayerData) => {
   const state = getState();
-  const { lobby: existingLobby } = getClientLobby(playerId);
+  const { lobby: existingLobby } = getClientLobby(playerData.id);
 
   if (!existingLobby) {
     return;
@@ -20,14 +21,10 @@ export const chatMessage = (message: string, playerId: string) => {
   }
 
   console.log(
-    `Player "${
-      existingLobby.players.find((player) => player.id === playerId)?.name
-    }" has sent a chat message in lobby "${
-      existingLobby.name
-    }" saying "${message}"`
+    `Player "${playerData.name}" has sent a chat message in lobby "${existingLobby.name}" saying "${message}"`
   );
 
-  state.lobbiesLive[existingLobby.id].chatMessages[playerId] = {
+  state.lobbiesLive[existingLobby.id].chatMessages[playerData.id] = {
     message,
     timestamp: Date.now(),
   };

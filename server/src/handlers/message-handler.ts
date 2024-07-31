@@ -1,11 +1,23 @@
 import WebSocket from "ws";
+import jwt from "jsonwebtoken";
+import { randomUUID } from "crypto";
 import { send } from "../lib/utils";
 import lobbyManager from "../lib/lobby-manager";
-
-type WebSocketClient = WebSocket & { id: string };
+import type { PlayerData } from "../types/player";
+import { addClient } from "../lib/lobby-manager/state";
+import { WebSocketClient } from "../types/ws";
+import { CreateLobby, JoinLobby } from "../types/lobby";
+import getCountryCodeFromTimezone from "../lib/helpers/get-country-code-from-timezone";
 
 type PlayerMove = {
   direction: "up" | "down" | "left" | "right";
+};
+
+type Handshake = {
+  jwt: string;
+  timezone: string;
+  playerName: string;
+  playerEmoji: number;
 };
 
 export const handleMessage = (
@@ -50,11 +62,11 @@ export const handleMessage = (
         break;
 
       case "chat-message":
-        handleChatMessage(parsedMessage.data?.message, ws, wss);
+        handleChatMessage(parsedMessage.data, ws, wss);
         break;
 
       case "handshake":
-        handleHandshake(parsedMessage.data?.timezone, ws, wss);
+        handleHandshake(parsedMessage.data, ws, wss);
         break;
 
       case "ping":
@@ -74,31 +86,101 @@ export const handleMessage = (
 };
 
 const handleHandshake = (
-  timezone: string,
+  data: Handshake,
   ws: WebSocketClient,
   wss: WebSocket.Server
 ) => {
-  if (typeof timezone !== "string") {
+  if (typeof data !== "object" || Array.isArray(data) || !data?.timezone) {
     return;
   }
 
-  console.log(`New player from "${timezone}" has connected`);
+  if (typeof data.timezone !== "string" || typeof data?.jwt !== "string") {
+    return;
+  }
+
+  // if no jwt, we will make a new one
+  if (data.jwt === "") {
+    if (
+      typeof data.playerName !== "string" ||
+      typeof data.playerEmoji !== "number"
+    ) {
+      return;
+    }
+
+    const playerData = {
+      authenticated: false,
+      timezone: data.timezone,
+      id: randomUUID(),
+      name: data.playerName, // todo: sanitize
+      emoji: data.playerEmoji,
+      countryCode: getCountryCodeFromTimezone(data.timezone),
+    } as PlayerData;
+
+    const token = jwt.sign(
+      playerData,
+      process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET"
+    );
+
+    ws.playerData = playerData;
+
+    ws.send(
+      JSON.stringify({ event: "handshake", data: { jwt: token, playerData } })
+    );
+
+    addClient(playerData);
+
+    console.log(
+      `New player "${playerData.name}" from "${data.timezone}" has connected`
+    );
+
+    return;
+  }
+
+  // decode jwt
+  try {
+    const playerData = jwt.verify(
+      data.jwt,
+      process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET"
+    ) as PlayerData;
+
+    ws.playerData = playerData;
+
+    ws.send(
+      JSON.stringify({
+        event: "handshake",
+        data: { jwt: data.jwt, playerData },
+      })
+    );
+
+    addClient(playerData);
+
+    console.log(
+      `New player "${playerData.name}" from "${data.timezone}" has connected (Valid JWT)`
+    );
+  } catch (e) {
+    console.error("failed to decode jwt", e);
+    // todo: handle this better
+    return;
+  }
 };
 
 const handleChatMessage = (
-  message: string,
+  data: { message: string },
   ws: WebSocketClient,
   wss: WebSocket.Server
 ) => {
-  if (typeof message !== "string") {
+  if (typeof data !== "object" || Array.isArray(data) || !data?.message) {
+    return;
+  }
+  if (typeof data.message !== "string") {
     return;
   }
 
-  if (message.replace(/\s+/g, "") === "") {
+  if (data.message.replace(/\s+/g, "") === "") {
     return;
   }
 
-  lobbyManager.chatMessage(message.substring(0, 50), ws.id);
+  lobbyManager.chatMessage(data.message.substring(0, 50), ws.playerData);
 };
 
 const handlePlayerMoveStart = (
@@ -110,7 +192,7 @@ const handlePlayerMoveStart = (
     return;
   }
 
-  lobbyManager.playerMoveStart(data.direction, ws.id);
+  lobbyManager.playerMoveStart(data.direction, ws.playerData);
 };
 
 const handlePlayerMoveEnd = (
@@ -122,15 +204,15 @@ const handlePlayerMoveEnd = (
     return;
   }
 
-  lobbyManager.playerMoveEnd(data.direction, ws.id);
+  lobbyManager.playerMoveEnd(data.direction, ws.playerData);
 };
 
 const handleCreateLobby = (
-  data: any, // todo: fix types
+  data: CreateLobby,
   ws: WebSocketClient,
   wss: WebSocket.Server
 ) => {
-  const { lobby, error } = lobbyManager.create(data, ws.id);
+  const { lobby, error } = lobbyManager.create(data, ws.playerData);
 
   if (error) {
     send(ws, "create-lobby-error", error);
@@ -143,11 +225,11 @@ const handleCreateLobby = (
 };
 
 const handleJoinLobby = (
-  data: any, // todo: fix types
+  data: JoinLobby,
   ws: WebSocketClient,
   wss: WebSocket.Server
 ) => {
-  const { lobby, error } = lobbyManager.join(data, ws.id);
+  const { lobby, error } = lobbyManager.join(data, ws.playerData);
 
   if (error) {
     send(ws, "join-lobby-error", error);
@@ -160,5 +242,5 @@ const handleJoinLobby = (
 };
 
 const handleLeaveLobby = (ws: WebSocketClient, wss: WebSocket.Server) => {
-  lobbyManager.removeClientFromLobbies(ws.id);
+  lobbyManager.removeClientFromLobbies(ws.playerData);
 };

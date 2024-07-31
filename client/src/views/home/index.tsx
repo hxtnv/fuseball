@@ -81,11 +81,11 @@ const Home: React.FC = () => {
 
       <div className={styles.home__content}>
         <LobbyList />
-        <Footer />
 
         <div className={styles.home__secondary__content}>
           <PlayerPreview />
           <News />
+          <Footer />
         </div>
       </div>
     </div>

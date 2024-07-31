@@ -99,3 +99,12 @@
     transform: rotate(360deg);
   }
 }
+
+@media (max-width: 1024px) {
+  .home {
+    .home__secondary__content {
+      position: initial;
+      width: 100%;
+    }
+  }
+}

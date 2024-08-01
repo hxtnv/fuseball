@@ -158,6 +158,12 @@ const handleHandshake = (
       `New player "${playerData.name}" from "${data.timezone}" has connected (Valid JWT)`
     );
   } catch (e: any) {
+    ws.send(
+      JSON.stringify({
+        event: "handshake-failed",
+        data: { error: "Failed to decode JWT" },
+      })
+    );
     console.error("failed to decode jwt", e?.message);
     // todo: handle this better
     return;

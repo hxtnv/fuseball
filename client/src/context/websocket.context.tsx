@@ -58,6 +58,11 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
+  const onHandshakeFailed = ({ data }: { data: { error: string } }) => {
+    console.error("handshake failed", data.error);
+    sendHandshake(true);
+  };
+
   const onHandshakeReceived = ({ data }: { data: Handshake }) => {
     console.log("handshake received", data.playerData);
 
@@ -66,6 +71,23 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     emitter.emit("ws:connected");
     setStatus("connected");
+  };
+
+  const sendHandshake = (skipJwt?: boolean) => {
+    const jwt = skipJwt ? "" : localStorage.getItem("fuseball:jwt");
+    const playerSettings = jwt
+      ? { name: "", emoji: 0 }
+      : getRandomPlayerSettings();
+
+    emitter.emit("ws:send", {
+      event: "handshake",
+      data: {
+        jwt: jwt ?? "",
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        playerName: jwt ? undefined : playerSettings.name,
+        playerEmoji: jwt ? undefined : playerSettings.emoji,
+      },
+    });
   };
 
   useEffect(() => {
@@ -80,20 +102,7 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     const ws = new ReconnectingWebSocket(config.wsUrl);
 
     ws.onopen = () => {
-      const jwt = localStorage.getItem("fuseball:jwt");
-      const playerSettings = jwt
-        ? { name: "", emoji: 0 }
-        : getRandomPlayerSettings();
-
-      emitter.emit("ws:send", {
-        event: "handshake",
-        data: {
-          jwt: jwt ?? "",
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          playerName: jwt ? undefined : playerSettings.name,
-          playerEmoji: jwt ? undefined : playerSettings.emoji,
-        },
-      });
+      sendHandshake();
     };
 
     ws.onmessage = (event) => {
@@ -122,9 +131,11 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     emitter.on("ws:message:handshake", onHandshakeReceived);
+    emitter.on("ws:message:handshake-failed", onHandshakeFailed);
 
     return () => {
       emitter.off("ws:message:handshake", onHandshakeReceived);
+      emitter.off("ws:message:handshake-failed", onHandshakeFailed);
     };
   }, []);
 

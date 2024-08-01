@@ -8,6 +8,7 @@ import paypal from "@/assets/payments/paypal.png";
 import Twitter from "@/assets/icons/twitter-brands-solid.svg?react";
 import Github from "@/assets/icons/github-brands-solid.svg?react";
 import Donate from "@/assets/icons/circle-dollar-to-slot-solid.svg?react";
+import Button from "@/components/common/button";
 
 type PaymentMethod = "BTC" | "ETH" | "LTC" | "PAYPAL";
 
@@ -41,6 +42,32 @@ const Footer: React.FC = () => {
     <Fragment>
       <div className={styles.footer}>
         <div className={styles.footer__content}>
+          <div className={styles.footer__content__socials}>
+            <a
+              href="https://twitter.com/fuseball_game"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="secondary">
+                <Twitter style={{ fill: "#1DA1F2" }} />
+              </Button>
+            </a>
+            <a
+              href="https://github.com/hxtnv/fuseball"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="secondary">
+                <Github />
+              </Button>
+            </a>
+            <a role="button" onClick={open}>
+              <Button variant="secondary">
+                <Donate />
+              </Button>
+            </a>
+          </div>
+
           <p>
             Made with <span style={{ color: "#e25555" }}>❤</span> by{" "}
             <a
@@ -51,31 +78,6 @@ const Footer: React.FC = () => {
               hxtnv
             </a>
           </p>
-
-          <div className={styles.footer__content__socials}>
-            <a
-              href="https://twitter.com/fuseball_game"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Twitter style={{ fill: "#1DA1F2" }} />
-              <span>Twitter</span>
-            </a>
-
-            <a
-              href="https://github.com/hxtnv/fuseball"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Github style={{ fill: "#181717" }} />
-              <span>Github</span>
-            </a>
-
-            <a role="button" onClick={open}>
-              <Donate style={{ fill: "#2CB580" }} />
-              <span>Donate</span>
-            </a>
-          </div>
         </div>
       </div>
 

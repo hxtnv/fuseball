@@ -33,6 +33,7 @@ html,
 
 #root {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
@@ -50,7 +51,6 @@ html,
 .generic-box {
   background-color: rgba(0, 0, 0, 0.5);
   border: 2px solid #111;
-  /* border-bottom: 4px solid rgba(0, 0, 0, 0.5); */
   border-radius: 4px;
   box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.25);
   position: relative;

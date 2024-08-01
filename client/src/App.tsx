@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
-import WebSocketProvider from "./context/websocket.context";
-import GameContextProvider from "./context/game.context";
+import WebSocketProvider from "@/context/websocket.context";
+import GameContextProvider from "@/context/game.context";
 
-import Home from "./views/home";
-import GameSketch from "./views/game-sketch";
+import Home from "@/views/home";
+import GameSketch from "@/views/game-sketch";
 
+import Navbar from "@/components/domain/navbar";
 import DisconnectedModal from "@/components/modals/disconnected";
-import GameLoaderModal from "./components/modals/game-loader";
+import GameLoaderModal from "@/components/modals/game-loader";
 
 import { useGameContext } from "@/context/game.context";
 
@@ -55,8 +56,14 @@ const AppInner = () => {
       <DisconnectedModal />
       <GameLoaderModal displayGameSketch={displayGameSketch} />
 
-      {/* <Home /> */}
-      {displayGameSketch ? <GameSketch /> : <Home />}
+      {displayGameSketch ? (
+        <GameSketch />
+      ) : (
+        <Fragment>
+          <Navbar />
+          <Home />
+        </Fragment>
+      )}
     </>
   );
 };

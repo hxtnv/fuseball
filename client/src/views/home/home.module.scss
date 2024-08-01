@@ -4,24 +4,9 @@
   align-items: center;
   // justify-content: center;
   width: 550px;
-  max-width: 100%;
+  max-width: calc(100% - 50px);
   padding: 0 25px;
   position: relative;
-
-  .logo {
-    width: 300px;
-    max-width: 100%;
-    user-select: none;
-    margin-bottom: 150px;
-    transition: transform 300ms, filter 300ms;
-
-    &:hover {
-      cursor: pointer;
-      transform: scale(1.05);
-      filter: brightness(1.1);
-      -webkit-filter: brightness(1.1);
-    }
-  }
 
   .description {
     font-size: 1.2rem;

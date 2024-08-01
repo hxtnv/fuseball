@@ -58,14 +58,11 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
-  const onHandshakeFailed = ({ data }: { data: { error: string } }) => {
-    console.error("handshake failed", data.error);
+  const onHandshakeFailed = () => {
     sendHandshake(true);
   };
 
   const onHandshakeReceived = ({ data }: { data: Handshake }) => {
-    console.log("handshake received", data.playerData);
-
     localStorage.setItem("fuseball:jwt", data.jwt);
     setPlayerData(data.playerData);
 

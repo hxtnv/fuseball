@@ -126,7 +126,11 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  const { Modal, open, close } = useModal({ onClose: () => setError("") });
+  const {
+    Modal,
+    open: openModal,
+    close,
+  } = useModal({ onClose: () => setError("") });
   const { createLobby } = useGameContext();
 
   const create = () => {
@@ -160,7 +164,11 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
 
   return (
     <>
-      <Button onClick={open} disabled={disabled} style={{ height: "70px" }}>
+      <Button
+        onClick={openModal}
+        disabled={disabled}
+        style={{ height: "70px" }}
+      >
         Create a lobby
       </Button>
 
@@ -194,7 +202,7 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
             <p className={styles.create__lobby__error}>{error}</p>
           )}
 
-          <Button onClick={create} loading={loading}>
+          <Button onClick={() => create()} loading={loading}>
             Create lobby
           </Button>
 

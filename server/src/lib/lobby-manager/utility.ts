@@ -3,6 +3,7 @@ import { getState, setState } from "./state";
 import getInitialBallPosition from "../helpers/get-initial-ball-position";
 import { LobbyStatus } from "../../types/lobby";
 import getInitialPositions from "../helpers/get-initial-positions";
+import { log } from "../logger";
 
 export const registerBallHit = (
   lobbyId: string,
@@ -103,7 +104,7 @@ export const updateStatus = (
     state.lobbies = state.lobbies.filter((lobby) => lobby.id !== lobbyId);
 
     if (lobbyDetails) {
-      console.log(
+      log(
         `Lobby "${
           lobbyDetails.name
         }" has finished with a score of ${lobbyDetails.score.join(" : ")}`

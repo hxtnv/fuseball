@@ -78,11 +78,6 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
         data-visibility={visibility}
         onClick={hideCloseButton ? undefined : close}
       >
-        {/* <div
-          className={styles.modal__overlay}
-          onClick={hideCloseButton ? undefined : close}
-        /> */}
-
         <div
           className={`${styles.modal__content} generic-box`}
           onClick={(e) => e.stopPropagation()}

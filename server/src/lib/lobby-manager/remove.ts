@@ -1,4 +1,5 @@
 import { PlayerData } from "../../types/player";
+import { log } from "../logger";
 import { getClientLobby, getState, setState } from "./state";
 
 export const removeClientFromLobbies = (playerData: PlayerData) => {
@@ -16,7 +17,7 @@ export const removeClientFromLobbies = (playerData: PlayerData) => {
     lobby.id
   ].players.filter((player) => player.id !== playerData.id);
 
-  console.log(
+  log(
     `Player "${player.name}" has left the lobby "${lobby.name}" (${
       lobby.players.length - 1
     }/${lobby.teamSize * 2})`
@@ -36,7 +37,7 @@ export const removeLobby = (lobbyId: string) => {
   state.lobbies = state.lobbies.filter((lobby) => lobby.id !== lobbyId);
   delete state.lobbiesLive[lobbyId];
 
-  console.log(`Lobby "${lobbyDetails?.name}" has been removed`);
+  log(`Lobby "${lobbyDetails?.name}" has been removed`);
 
   setState(state);
 };

@@ -8,6 +8,7 @@ import { addClient } from "../lib/lobby-manager/state";
 import { WebSocketClient } from "../types/ws";
 import { CreateLobby, JoinLobby } from "../types/lobby";
 import getCountryCodeFromTimezone from "../lib/helpers/get-country-code-from-timezone";
+import { log } from "../lib/logger";
 
 type PlayerMove = {
   direction: "up" | "down" | "left" | "right";
@@ -129,7 +130,7 @@ const handleHandshake = (
 
     addClient(playerData);
 
-    console.log(
+    log(
       `New player "${playerData.name}" from "${data.timezone}" has connected`
     );
 
@@ -154,7 +155,7 @@ const handleHandshake = (
 
     addClient(playerData);
 
-    console.log(
+    log(
       `New player "${playerData.name}" from "${data.timezone}" has connected (Valid JWT)`
     );
   } catch (e: any) {
@@ -164,9 +165,6 @@ const handleHandshake = (
         data: { error: "Failed to decode JWT" },
       })
     );
-    console.error("failed to decode jwt", e?.message);
-    // todo: handle this better
-    return;
   }
 };
 

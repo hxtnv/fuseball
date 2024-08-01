@@ -2,6 +2,7 @@ import WebSocket from "ws";
 import { handleMessage } from "./message-handler";
 import lobbyManager from "../lib/lobby-manager";
 import { WebSocketClient } from "../types/ws";
+import { log } from "../lib/logger";
 
 export const handleConnection = (
   ws: WebSocketClient,
@@ -14,7 +15,7 @@ export const handleConnection = (
   ws.on("close", () => {
     if (!ws.playerData) return;
 
-    console.log(
+    log(
       `Player "${ws.playerData.name}" from "${ws.playerData.timezone}" has disconnected`
     );
 

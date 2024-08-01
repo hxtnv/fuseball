@@ -4,6 +4,7 @@ import GAME from "../const/game";
 import { JoinLobby } from "../../types/lobby";
 import { updateStatus } from "./utility";
 import { PlayerData } from "../../types/player";
+import { log } from "../logger";
 
 export const join = ({ id, team }: JoinLobby, playerData: PlayerData) => {
   const state = getState();
@@ -116,7 +117,7 @@ export const join = ({ id, team }: JoinLobby, playerData: PlayerData) => {
     });
   }
 
-  console.log(
+  log(
     `Player "${playerData.name}" has joined the lobby "${lobby.lobby.name}" (${
       lobby.lobby.players.length + 1
     }/${lobby.lobby.teamSize * 2})`

@@ -1,6 +1,7 @@
 import { getClientLobby, getState, setState } from "./state";
 import getInitialBallPosition from "../helpers/get-initial-ball-position";
 import { PlayerData } from "../../types/player";
+import { log } from "../logger";
 
 export const chatMessage = (message: string, playerData: PlayerData) => {
   const state = getState();
@@ -20,7 +21,7 @@ export const chatMessage = (message: string, playerData: PlayerData) => {
     return;
   }
 
-  console.log(
+  log(
     `Player "${playerData.name}" has sent a chat message in lobby "${existingLobby.name}" saying "${message}"`
   );
 

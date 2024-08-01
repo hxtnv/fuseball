@@ -407,18 +407,6 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
       drawChatMessages();
     }, p);
 
-    p.touchStarted = () => {
-      console.log("Touch started");
-    };
-
-    p.touchMoved = () => {
-      console.log("Touch moved");
-    };
-
-    p.touchEnded = () => {
-      console.log("Touch ended");
-    };
-
     // fixed elements
     renderSeparation(() => {
       drawLogo();

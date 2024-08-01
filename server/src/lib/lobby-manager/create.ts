@@ -5,6 +5,7 @@ import getInitialBallPosition from "../helpers/get-initial-ball-position";
 import { getState, setState } from "./state";
 import { CreateLobby, Lobby } from "../../types/lobby";
 import { PlayerData } from "../../types/player";
+import { log } from "../logger";
 
 export const create = (
   { name, teamSize, timezone }: CreateLobby,
@@ -98,7 +99,7 @@ export const create = (
     timeSinceRoundStart: 0,
   };
 
-  console.log(
+  log(
     `New lobby named "${lobbyName}" has been created by "${
       playerData.name
     }" from timezone "${timezone}" (1/${lobbySize * 2})`

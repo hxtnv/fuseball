@@ -1,22 +1,11 @@
 import styles from "./skeleton.module.scss";
 
 type Props = {
-  height?: string;
+  style?: React.CSSProperties;
 };
 
-const Skeleton: React.FC<Props> = ({ height }) => {
-  return (
-    <div
-      style={
-        height
-          ? {
-              height,
-            }
-          : undefined
-      }
-      className={`${styles.skeleton} generic-box`}
-    />
-  );
+const Skeleton: React.FC<Props> = ({ style }) => {
+  return <div style={style} className={`${styles.skeleton} generic-box`} />;
 };
 
 export default Skeleton;

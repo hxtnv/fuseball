@@ -74,17 +74,17 @@ const Home: React.FC = () => {
 
       <img src={logo} alt="Fuseball logo" className={styles.logo} />
 
-      {/* <p className={styles.description}>
-        Fuseball is a casual browser based multiplayer football game where you
-        can compete with your friends or other players from all over the world!
-      </p> */}
-
-      <div className={styles.home__content}>
-        <LobbyList />
-
-        <div className={styles.home__secondary__content}>
-          <PlayerPreview />
+      <div className={styles.home__layout}>
+        <div className={styles.home__layout__column}>
           <News />
+        </div>
+
+        <div className={styles.home__layout__column}>
+          <LobbyList />
+        </div>
+
+        <div className={styles.home__layout__column}>
+          <PlayerPreview />
           <Footer />
         </div>
       </div>

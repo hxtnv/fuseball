@@ -8,7 +8,10 @@ const LobbyListEmpty: React.FC = () => {
 
       <div className={styles.empty__text}>
         <h4>No active lobbies</h4>
-        <p>Be the first to start the fun and create your own lobby!</p>
+        <p>
+          You can still play! Create your own lobby to fool around in warmup
+          mode while waiting for other players to join.
+        </p>
       </div>
     </div>
   );

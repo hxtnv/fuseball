@@ -7,11 +7,13 @@ export const handleConnection = (
   ws: WebSocketClient,
   wss: WebSocket.Server
 ) => {
-  ws.on("message", (message: string) => {
+  ws.on("message", async (message: string) => {
     handleMessage(message, ws, wss);
   });
 
   ws.on("close", () => {
+    if (!ws.playerData) return;
+
     console.log(
       `Player "${ws.playerData.name}" from "${ws.playerData.timezone}" has disconnected`
     );

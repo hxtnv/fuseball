@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model news {
+  id          BigInt   @id @default(autoincrement())
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  title       String?
+  description String?
+  image       String?
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model users {
+  id           BigInt   @id @default(autoincrement())
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  name         String?
+  emoji        Int?     @db.SmallInt
+  timezone     String?
+  country_code String?
+  total_wins   BigInt?
+  total_games  BigInt?
+  total_goals  BigInt?
+  xp           BigInt?
+  email        String?
+}

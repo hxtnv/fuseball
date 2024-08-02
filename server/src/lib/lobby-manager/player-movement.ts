@@ -39,7 +39,7 @@ export const updatePlayerPosition = ({
   playerId,
 }: {
   lobbyId: string;
-  playerId: string;
+  playerId: number;
 }) => {
   const state = getState();
   const lobbyState = state.lobbiesLive[lobbyId];

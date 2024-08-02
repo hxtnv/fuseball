@@ -6,6 +6,7 @@ import Button from "@/components/common/button";
 import Skeleton from "@/components/common/skeleton";
 import { useWebSocket } from "@/context/websocket.context";
 import useModal from "@/hooks/use-modal/use-modal";
+import SignInModal from "@/components/modals/sign-in";
 
 type StatBoxProps = {
   title: string;
@@ -25,15 +26,18 @@ const StatBox: React.FC<StatBoxProps> = ({ title, value, locked }) => {
 
 const PlayerPreview: React.FC = () => {
   const { playerData } = useWebSocket();
-  const { open, Modal } = useModal();
+  const { open, close, Modal } = useModal();
+  const { open: openEdit, Modal: EditModal } = useModal();
 
   return (
     <Fragment>
       <Modal title="Sign in">
-        <p style={{ margin: "20px 0", textAlign: "center" }}>
-          Work in progress
-        </p>
+        <SignInModal open={open} close={close} />
       </Modal>
+
+      <EditModal title="Edit profile">
+        <p style={{ margin: "20px 0", textAlign: "center" }}>Coming soon!</p>
+      </EditModal>
 
       <div className={`${styles.preview} generic-box`}>
         <div className={styles.preview__ribbon}>
@@ -54,6 +58,10 @@ const PlayerPreview: React.FC = () => {
                   </div>
                 ))}
               </div>
+
+              <Skeleton
+                style={{ height: "42px", width: "100%", marginTop: "15px" }}
+              />
             </Fragment>
           ) : (
             <Fragment>
@@ -61,14 +69,39 @@ const PlayerPreview: React.FC = () => {
               <h4>{playerData.name}</h4>
 
               <div className={styles.preview__content__stats}>
-                <StatBox title="Total wins" value={5} locked={true} />
-                <StatBox title="Total goals" value={100} locked={true} />
-                <StatBox title="Win rate" value={"78%"} locked={true} />
+                <StatBox
+                  title="Total wins"
+                  value={playerData.total_wins}
+                  locked={!playerData.authenticated}
+                />
+                <StatBox
+                  title="Total goals"
+                  value={playerData.total_goals}
+                  locked={!playerData.authenticated}
+                />
+                <StatBox
+                  title="Win rate"
+                  value={`${
+                    playerData.total_games === 0
+                      ? 0
+                      : (
+                          (playerData.total_wins / playerData.total_games ||
+                            1) * 100
+                        ).toFixed(1)
+                  }%`}
+                  locked={!playerData.authenticated}
+                />
               </div>
 
-              <Button variant="primary" size="small" onClick={open}>
-                Sign in to unlock stats
-              </Button>
+              {playerData.authenticated ? (
+                <Button variant="secondary" size="small" onClick={openEdit}>
+                  Edit profile
+                </Button>
+              ) : (
+                <Button variant="primary" size="small" onClick={open}>
+                  Sign in to unlock stats
+                </Button>
+              )}
             </Fragment>
           )}
         </div>

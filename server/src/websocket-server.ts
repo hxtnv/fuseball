@@ -8,7 +8,24 @@ import gameLoop from "./lib/game-loop";
 import { setWss } from "./lib/lobby-manager/state";
 import { WebSocketClient } from "./types/ws";
 import express from "express";
-import supabase from "./lib/supabase";
+import session from "express-session";
+import dotenv from "dotenv";
+
+import newsFeature from "./features/news";
+import oauthFeature from "./features/oauth";
+
+dotenv.config();
+
+declare global {
+  interface BigInt {
+    toJSON: () => number | string;
+  }
+}
+
+BigInt.prototype.toJSON = function () {
+  const int = Number.parseInt(this.toString());
+  return int ?? this.toString();
+};
 
 export const createServer = (port: number): WebSocket.Server => {
   const isProd = process.env.NODE_ENV === "production";
@@ -23,19 +40,20 @@ export const createServer = (port: number): WebSocket.Server => {
   const app = express();
 
   app.use(cors());
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET ?? "FUSEBALL_VERY_SECRET",
+      resave: false,
+      saveUninitialized: false,
+    })
+  );
 
   app.get("/", (req, res) => {
     res.send("Fuseball API");
   });
 
-  app.get("/news", async (req, res) => {
-    const { data, error } = await supabase
-      .from("news")
-      .select()
-      .order("id", { ascending: false });
-
-    res.json(data);
-  });
+  app.use("/news", newsFeature);
+  app.use("/auth", oauthFeature);
 
   const server = isProd
     ? https.createServer(serverOptions, app)

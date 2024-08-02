@@ -9,6 +9,8 @@ import { WebSocketClient } from "../types/ws";
 import { CreateLobby, JoinLobby } from "../types/lobby";
 import getCountryCodeFromTimezone from "../lib/helpers/get-country-code-from-timezone";
 import { log } from "../lib/logger";
+import prisma from "../lib/prisma";
+import getRandomPlayerName from "../lib/helpers/get-random-player-name";
 
 type PlayerMove = {
   direction: "up" | "down" | "left" | "right";
@@ -86,7 +88,7 @@ export const handleMessage = (
   }
 };
 
-const handleHandshake = (
+const handleHandshake = async (
   data: Handshake,
   ws: WebSocketClient,
   wss: WebSocket.Server
@@ -101,20 +103,25 @@ const handleHandshake = (
 
   // if no jwt, we will make a new one
   if (data.jwt === "") {
-    if (
-      typeof data.playerName !== "string" ||
-      typeof data.playerEmoji !== "number"
-    ) {
-      return;
-    }
+    // if (
+    //   typeof data.playerName !== "string" ||
+    //   typeof data.playerEmoji !== "number"
+    // ) {
+    //   return;
+    // }
 
     const playerData = {
       authenticated: false,
       timezone: data.timezone,
-      id: randomUUID(),
-      name: data.playerName, // todo: sanitize
-      emoji: data.playerEmoji,
-      countryCode: getCountryCodeFromTimezone(data.timezone),
+      id: 0,
+      name: getRandomPlayerName(),
+      emoji: 0, // todo: get random emoji
+      country_code: getCountryCodeFromTimezone(data.timezone),
+      total_wins: 0,
+      total_goals: 0,
+      total_games: 0,
+      xp: 0,
+      email: "",
     } as PlayerData;
 
     const token = jwt.sign(
@@ -131,7 +138,7 @@ const handleHandshake = (
     addClient(playerData);
 
     log(
-      `New player "${playerData.name}" from "${data.timezone}" has connected`
+      `New player "${playerData.name}" from "${data.timezone}" has connected (no jwt)`
     );
 
     return;
@@ -144,20 +151,64 @@ const handleHandshake = (
       process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET"
     ) as PlayerData;
 
-    ws.playerData = playerData;
+    if (playerData.authenticated) {
+      const playerDataDb = await prisma.users.findFirst({
+        where: { id: playerData.id },
+      });
 
-    ws.send(
-      JSON.stringify({
-        event: "handshake",
-        data: { jwt: data.jwt, playerData },
-      })
-    );
+      if (!playerDataDb) {
+        ws.send(
+          JSON.stringify({
+            event: "handshake-failed",
+            data: { error: "JWT decoded but no user found in database" },
+          })
+        );
+        return;
+      }
 
-    addClient(playerData);
+      ws.playerData = {
+        ...playerDataDb,
+        id: parseInt(playerDataDb.id.toString()) ?? 0,
+        name: playerDataDb.name ?? "",
+        country_code: playerDataDb.country_code ?? "",
+        total_wins: parseInt(playerDataDb.total_wins?.toString() ?? "0") ?? 0,
+        total_goals: parseInt(playerDataDb.total_goals?.toString() ?? "0") ?? 0,
+        total_games: parseInt(playerDataDb.total_games?.toString() ?? "0") ?? 0,
+        xp: parseInt(playerDataDb.xp?.toString() ?? "0") ?? 0,
+        timezone: playerDataDb.timezone ?? "",
+        email: playerDataDb.email ?? "",
+        emoji: 0,
+        authenticated: true,
+      };
 
-    log(
-      `New player "${playerData.name}" from "${data.timezone}" has connected (Valid JWT)`
-    );
+      ws.send(
+        JSON.stringify({
+          event: "handshake",
+          data: { jwt: data.jwt, playerData: ws.playerData },
+        })
+      );
+
+      addClient(playerData);
+
+      log(
+        `New player "${playerData.name}" from "${data.timezone}" has connected (signed in)`
+      );
+    } else {
+      ws.playerData = playerData;
+
+      ws.send(
+        JSON.stringify({
+          event: "handshake",
+          data: { jwt: data.jwt, playerData },
+        })
+      );
+
+      addClient(playerData);
+
+      log(
+        `New player "${playerData.name}" from "${data.timezone}" has connected (valid jwt)`
+      );
+    }
   } catch (e: any) {
     ws.send(
       JSON.stringify({

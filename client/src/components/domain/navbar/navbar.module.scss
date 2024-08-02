@@ -14,6 +14,7 @@
     max-width: 1160px;
     margin: 0 auto;
     padding: 15px 25px;
+    min-height: 42px;
 
     .navbar__logo {
       position: absolute;
@@ -34,7 +35,7 @@
 
         &:hover {
           cursor: pointer;
-          transform: scale(1.05);
+          transform: translateY(20px) scale(1.05);
           filter: brightness(1.1);
           -webkit-filter: brightness(1.1);
         }

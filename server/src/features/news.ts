@@ -10,7 +10,10 @@ newsFeature.get("/", async (req, res) => {
     },
   });
 
-  res.json(data);
+  res.json({
+    success: true,
+    data,
+  });
 });
 
 export default newsFeature;

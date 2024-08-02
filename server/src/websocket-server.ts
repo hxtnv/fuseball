@@ -13,6 +13,7 @@ import dotenv from "dotenv";
 
 import newsFeature from "./features/news";
 import oauthFeature from "./features/oauth";
+import selfFeature from "./features/self";
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ export const createServer = (port: number): WebSocket.Server => {
 
   app.use("/news", newsFeature);
   app.use("/auth", oauthFeature);
+  app.use("/self", selfFeature);
 
   const server = isProd
     ? https.createServer(serverOptions, app)

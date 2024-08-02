@@ -30,3 +30,15 @@ model users {
   xp           BigInt?
   email        String?
 }
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model matches {
+  id           BigInt   @id @default(autoincrement())
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  name         String?
+  score        String?
+  players      Json?
+  goals        Json?
+  team_size    Int?     @db.SmallInt
+  country_code String?
+}

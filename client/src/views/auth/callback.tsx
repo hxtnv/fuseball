@@ -8,14 +8,12 @@ const Callback: React.FC = () => {
     const broadcast = new BroadcastChannel("fuseball-auth");
     broadcast.postMessage(token);
 
-    // window.close();
-
     return () => {
       broadcast.close();
     };
   }, [token]);
 
-  return <div>You can close this window now</div>;
+  return <div style={{ margin: "50px 0" }}>You can close this window now</div>;
 };
 
 export default Callback;

@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 
-import WebSocketProvider from "@/context/websocket.context";
+import WebSocketProvider, { useWebSocket } from "@/context/websocket.context";
 import GameContextProvider from "@/context/game.context";
 
 import Home from "@/views/home";
@@ -35,6 +35,13 @@ const App = () => {
 const AppInner = () => {
   const [displayGameSketch, setDisplayGameSketch] = useState(false);
   const { currentLobby } = useGameContext();
+  const { getSelfPlayerData } = useWebSocket();
+
+  useEffect(() => {
+    if (!displayGameSketch) {
+      getSelfPlayerData();
+    }
+  }, [displayGameSketch]);
 
   useEffect(() => {
     const timeout = setTimeout(

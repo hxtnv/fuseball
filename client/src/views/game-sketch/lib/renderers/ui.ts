@@ -169,14 +169,14 @@ const userInterfaceRenderer = (p: p5, state: StateType) => {
     if (!state.currentLobbyLive) return;
 
     Object.keys(state.currentLobbyLive.chatMessages).forEach((playerId) => {
-      const message = state.currentLobbyLive?.chatMessages[playerId];
+      const message = state.currentLobbyLive?.chatMessages[Number(playerId)];
 
       if (!message) {
         return;
       }
 
       const player = state.currentLobbyLive?.players.find(
-        (player) => player.id === playerId
+        (player) => player.id === Number(playerId)
       );
 
       if (!player) {

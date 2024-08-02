@@ -13,6 +13,14 @@ export type Ball = {
   position: PositionType;
   lastPositionUpdateTime?: number; // used for interpolation
   velocity: PositionType;
+  lastTouchedBy?: number; // player id
+};
+
+export type GoalType = {
+  winningTeam: number;
+  losingTeam: number;
+  scoredBy: number; // player id
+  scoredAt: number; // time in the round
 };
 
 export type LobbyPlayer = PlayerData & {
@@ -48,6 +56,7 @@ export type LobbyLive = {
   roundStatus: "live" | "protected"; // protected means that one team needs to start by touching the ball
   startingTeam: number; // this is the team that needs to start by touching the ball
   timeSinceRoundStart: number;
+  goals: GoalType[];
 };
 
 export type CreateLobby = {

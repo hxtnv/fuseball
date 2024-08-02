@@ -3,6 +3,7 @@ import emitter from "@/lib/emitter";
 import config from "@/config";
 import ReconnectingWebSocket, { ErrorEvent } from "reconnecting-websocket";
 import usePing from "@/hooks/use-ping";
+import callAPI from "@/lib/helpers/call-api";
 
 export type WebSocketContextType = {
   ws: ReconnectingWebSocket | null;
@@ -10,6 +11,7 @@ export type WebSocketContextType = {
   playerData: PlayerData | null;
   signOut: () => void;
   sendHandshake: (overwriteJwt?: string) => void;
+  getSelfPlayerData: () => void;
 };
 
 export type PlayerData = {
@@ -37,6 +39,7 @@ const WebSocketContext = React.createContext<WebSocketContextType>({
   playerData: null,
   signOut: () => {},
   sendHandshake: () => {},
+  getSelfPlayerData: () => {},
 });
 
 const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
@@ -79,8 +82,18 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     sendHandshake("");
   };
 
+  const getSelfPlayerData = () => {
+    setPlayerData(null);
+
+    callAPI("/self", { method: "GET" })
+      .then((data) => {
+        setPlayerData(data as PlayerData);
+      })
+      .catch(console.error);
+  };
+
   const onHandshakeReceived = ({ data }: { data: Handshake }) => {
-    console.log("onHandshakeReceived", data.playerData);
+    // todo: move this into a http call
     localStorage.setItem("fuseball:jwt", data.jwt);
     setPlayerData(data.playerData);
 
@@ -156,7 +169,14 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <WebSocketContext.Provider
-      value={{ ws, status, playerData, signOut, sendHandshake }}
+      value={{
+        ws,
+        status,
+        playerData,
+        signOut,
+        sendHandshake,
+        getSelfPlayerData,
+      }}
     >
       {children}
     </WebSocketContext.Provider>

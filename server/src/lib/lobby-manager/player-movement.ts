@@ -80,6 +80,7 @@ export const updatePlayerPosition = ({
 
       if (didBallMove) {
         lobbyState.roundStatus = "live";
+        lobbyState.ball.lastTouchedBy = player.id;
       }
 
       return {

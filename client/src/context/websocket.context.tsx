@@ -100,7 +100,9 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
         emitter.emit("ws:connected");
         setStatus("connected");
       })
-      .catch(console.error);
+      .catch(() => {
+        sendHandshake("");
+      });
   };
 
   const onHandshakeReceived = ({ data }: { data: Handshake }) => {

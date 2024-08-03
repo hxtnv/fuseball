@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma";
 import { PlayerData } from "../types/player";
 import getCountryCodeFromTimezone from "../lib/helpers/get-country-code-from-timezone";
+import timezoneToCountryMap from "../lib/const/timezone-country-map";
 
 const selfFeature = Router();
 
@@ -57,6 +58,7 @@ selfFeature.get("/", async (req, res) => {
           id: playerDataDb.id,
         },
         data: {
+          timezone: timezoneToCountryMap[timezone] ? timezone : "UTC",
           country_code: countryCode,
         },
       });

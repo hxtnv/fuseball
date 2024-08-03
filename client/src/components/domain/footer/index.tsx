@@ -22,14 +22,14 @@ const PAYMENT_ICON_MAP: Record<PaymentMethod, string> = {
 
 const SOCIALS = [
   {
-    icon: <Twitter style={{ fill: "#1DA1F2" }} />,
+    icon: <Twitter />,
     link: "https://twitter.com/fuseball_game",
   },
-  { icon: <Github />, link: "https://github.com/hxtnv/fuseball" },
   {
-    icon: <Discord style={{ fill: "#5865f2" }} />,
+    icon: <Discord />,
     link: "https://discord.gg/B8Pp9nrpdD",
   },
+  { icon: <Github />, link: "https://github.com/hxtnv/fuseball" },
 ];
 
 type DonationBoxProps = {

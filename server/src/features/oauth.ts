@@ -1,12 +1,10 @@
 import { Router } from "express";
 import dotenv from "dotenv";
-import passport from "passport";
 import prisma from "../lib/prisma";
 import getRandomPlayerName from "../lib/helpers/get-random-player-name";
 import jwt from "jsonwebtoken";
-// import DiscordOauth2 from "discord-oauth2";
-// import { OAuth2Client } from "google-auth-library";
 import { OAuth2Client } from "google-auth-library";
+import authCreateAccount from "../lib/helpers/auth-create-account";
 
 dotenv.config();
 const authFeature = Router();
@@ -32,35 +30,6 @@ const oauth2Client = new OAuth2Client(
   process.env.OAUTH_GOOGLE_CLIENT_SECRET,
   "http://localhost:8080/auth/google/callback"
 );
-
-// authFeature.get("/discord", async (req, res) => {
-//   console.log(process.env.OAUTH_DISCORD_CLIENT_ID);
-//   const oauth = new DiscordOauth2({
-//     clientId: process.env.OAUTH_DISCORD_CLIENT_ID,
-//     clientSecret: process.env.OAUTH_DISCORD_CLIENT_SECRET,
-//   });
-
-//   oauth
-//     .tokenRequest({
-//       code: "query code",
-//       scope: "identify",
-//       grantType: "authorization_code",
-
-//       redirectUri: "http://localhost:8080/oauth/discord-callback",
-//     })
-//     .then((data) => {
-//       console.log(data);
-//       res.json(data);
-//     });
-// });
-
-// authFeature.get("/discord-callback", async (req, res) => {
-//   res.json(req.query);
-// });
-
-authFeature.get("/discord-callback", async (req, res) => {
-  res.json(req.query);
-});
 
 authFeature.get("/google", (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
@@ -102,6 +71,12 @@ authFeature.get("/google/callback", async (req, res) => {
   }
 
   // new sign up
+  const token = await authCreateAccount({
+    email: payload.email,
+  });
+  return res.redirect(`${process.env.FRONTEND_URL}/auth/callback/${token}`);
+
+  /*
   const playerData = {
     timezone: "",
     name: getRandomPlayerName(),
@@ -113,7 +88,7 @@ authFeature.get("/google/callback", async (req, res) => {
     xp: 0,
     email: payload.email,
   };
-
+  
   const playerDataInsert = await prisma.users.create({ data: playerData });
 
   const token = jwt.sign(
@@ -126,6 +101,7 @@ authFeature.get("/google/callback", async (req, res) => {
   );
 
   return res.redirect(`${process.env.FRONTEND_URL}/auth/callback/${token}`);
+  */
 });
 
 export default authFeature;

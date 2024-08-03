@@ -24,12 +24,18 @@ const SOCIALS = [
   {
     icon: <Twitter />,
     link: "https://twitter.com/fuseball_game",
+    name: "Twitter",
   },
   {
     icon: <Discord />,
     link: "https://discord.gg/B8Pp9nrpdD",
+    name: "Discord",
   },
-  { icon: <Github />, link: "https://github.com/hxtnv/fuseball" },
+  {
+    icon: <Github />,
+    link: "https://github.com/hxtnv/fuseball",
+    name: "Github",
+  },
 ];
 
 type DonationBoxProps = {
@@ -56,18 +62,20 @@ const Footer: React.FC = () => {
       <div className={styles.footer}>
         <div className={styles.footer__content}>
           <div className={styles.footer__content__socials}>
-            {SOCIALS.map(({ icon, link }, index) => (
+            {SOCIALS.map(({ icon, link, name }, index) => (
               <a
                 key={index}
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={name}
+                title={name}
               >
                 <Button variant="secondary">{icon}</Button>
               </a>
             ))}
 
-            <a role="button" onClick={open}>
+            <a role="button" onClick={open} aria-label="Donate" title="Donate">
               <Button variant="secondary">
                 <Donate />
               </Button>

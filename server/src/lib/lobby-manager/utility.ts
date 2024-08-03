@@ -36,8 +36,6 @@ export const registerBallHit = (
     scoredAt: GAME.TIME - state.lobbiesLive[lobbyId].timeLeft,
   });
 
-  console.log(state.lobbiesLive[lobbyId].goals);
-
   const timeout = setTimeout(() => {
     if (!state.lobbiesLive[lobbyId]) {
       return;

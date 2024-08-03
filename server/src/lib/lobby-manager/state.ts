@@ -37,7 +37,6 @@ export const addClient = (client: PlayerData) => {
 };
 
 export const removeClient = (client: PlayerData) => {
-  console.log("removeClient", client);
   if (typeof client.id === "undefined") return;
 
   let isActiveInOtherTab = false;
@@ -47,8 +46,6 @@ export const removeClient = (client: PlayerData) => {
       break;
     }
   }
-
-  console.log("isActiveInOtherTab", isActiveInOtherTab);
 
   if (!isActiveInOtherTab) {
     delete state.clients[client.id];

@@ -9,7 +9,6 @@ import { WebSocketClient } from "../types/ws";
 import { CreateLobby, JoinLobby } from "../types/lobby";
 import getCountryCodeFromTimezone from "../lib/helpers/get-country-code-from-timezone";
 import { log } from "../lib/logger";
-import prisma from "../lib/prisma";
 import getRandomPlayerName from "../lib/helpers/get-random-player-name";
 
 type PlayerMove = {
@@ -113,7 +112,7 @@ const handleHandshake = async (
     const playerData = {
       authenticated: false,
       timezone: data.timezone,
-      id: 0,
+      id: Math.floor(Math.random() * Number.MAX_SAFE_INTEGER), // todo: this is a pretty bad solution but its gonna stay until we have a better one
       name: getRandomPlayerName(),
       emoji: 0, // todo: get random emoji
       country_code: getCountryCodeFromTimezone(data.timezone),

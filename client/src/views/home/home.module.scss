@@ -26,16 +26,16 @@
     gap: 30px;
 
     .home__layout__column {
-      &:nth-child(1),
-      &:nth-child(3) {
-        width: 300px;
-      }
-
       width: 500px;
       max-width: 100%;
       display: flex;
       flex-direction: column;
       gap: 15px;
+
+      &:nth-child(1),
+      &:nth-child(3) {
+        width: 300px;
+      }
     }
 
     .home__content {
@@ -49,6 +49,7 @@
   .home {
     .home__layout {
       flex-direction: column;
+      width: 100%;
 
       .home__layout__column {
         width: 100% !important;

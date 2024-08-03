@@ -27,7 +27,7 @@ export const setWss = (wss: WebSocket.Server) => {
 };
 
 export const addClient = (client: PlayerData) => {
-  if (!client.id) return;
+  if (typeof client.id === "undefined") return;
 
   state.clients[client.id] = client;
 
@@ -37,7 +37,8 @@ export const addClient = (client: PlayerData) => {
 };
 
 export const removeClient = (client: PlayerData) => {
-  if (!client.id) return;
+  console.log("removeClient", client);
+  if (typeof client.id === "undefined") return;
 
   let isActiveInOtherTab = false;
   for (const wsClient of state._wss?.clients ?? new Set()) {
@@ -46,6 +47,8 @@ export const removeClient = (client: PlayerData) => {
       break;
     }
   }
+
+  console.log("isActiveInOtherTab", isActiveInOtherTab);
 
   if (!isActiveInOtherTab) {
     delete state.clients[client.id];

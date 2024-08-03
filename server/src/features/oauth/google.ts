@@ -1,10 +1,9 @@
 import { Router } from "express";
 import dotenv from "dotenv";
-import prisma from "../lib/prisma";
-import getRandomPlayerName from "../lib/helpers/get-random-player-name";
+import prisma from "../../lib/prisma";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
-import authCreateAccount from "../lib/helpers/auth-create-account";
+import authCreateAccount from "../../lib/helpers/auth-create-account";
 
 dotenv.config();
 const authFeature = Router();
@@ -31,7 +30,7 @@ const oauth2Client = new OAuth2Client(
   "http://localhost:8080/auth/google/callback"
 );
 
-authFeature.get("/google", (req, res) => {
+authFeature.get("/", (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: [
@@ -42,7 +41,7 @@ authFeature.get("/google", (req, res) => {
   res.redirect(authUrl);
 });
 
-authFeature.get("/google/callback", async (req, res) => {
+authFeature.get("/callback", async (req, res) => {
   // @ts-ignore
   const { tokens } = await oauth2Client.getToken(req.query.code);
 
@@ -54,6 +53,7 @@ authFeature.get("/google/callback", async (req, res) => {
   });
   const payload = ticket.getPayload() as GooglePayload;
 
+  //
   const playerDataDb = await prisma.users.findFirst({
     where: { email: payload.email },
   });
@@ -75,33 +75,6 @@ authFeature.get("/google/callback", async (req, res) => {
     email: payload.email,
   });
   return res.redirect(`${process.env.FRONTEND_URL}/auth/callback/${token}`);
-
-  /*
-  const playerData = {
-    timezone: "",
-    name: getRandomPlayerName(),
-    emoji: 0, // todo: get random emoji
-    country_code: "",
-    total_wins: 0,
-    total_goals: 0,
-    total_games: 0,
-    xp: 0,
-    email: payload.email,
-  };
-  
-  const playerDataInsert = await prisma.users.create({ data: playerData });
-
-  const token = jwt.sign(
-    {
-      ...playerData,
-      id: playerDataInsert.id,
-      authenticated: true,
-    },
-    process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET"
-  );
-
-  return res.redirect(`${process.env.FRONTEND_URL}/auth/callback/${token}`);
-  */
 });
 
 export default authFeature;

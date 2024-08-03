@@ -4,6 +4,7 @@ import config from "@/config";
 import Button from "@/components/common/button";
 import popupCenter from "@/lib/helpers/popup-center";
 import Google from "@/assets/icons/google-brands-solid.svg?react";
+import Discord from "@/assets/icons/discord-brands-solid.svg?react";
 import { useWebSocket } from "@/context/websocket.context";
 
 type Props = {
@@ -22,7 +23,7 @@ const SignInModal: React.FC<Props> = ({ close }) => {
 
     // todo: reset after closing window (when cancelling)
     windowRef.current = window.open(
-      config.apiUrl + `/auth/${provider.toLowerCase()}`,
+      config.apiUrl + `/auth/${provider}`,
       "_blank",
       popupCenter()
     );
@@ -68,12 +69,22 @@ const SignInModal: React.FC<Props> = ({ close }) => {
         <div className={styles.modal__content__socials}>
           <Button
             variant="secondary"
-            onClick={() => signIn("Google")}
-            loading={loading.Google}
+            onClick={() => signIn("google")}
+            loading={loading.google}
             disabled={disableOtherOptions}
           >
             <Google />
             <span>Sign in with Google</span>
+          </Button>
+
+          <Button
+            variant="secondary"
+            onClick={() => signIn("discord")}
+            loading={loading.discord}
+            disabled={disableOtherOptions}
+          >
+            <Discord />
+            <span>Sign in with Discord</span>
           </Button>
         </div>
       </div>

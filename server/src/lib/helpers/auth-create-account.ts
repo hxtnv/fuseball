@@ -6,11 +6,12 @@ dotenv.config();
 
 type Props = {
   email: string;
+  name?: string;
 };
 
 const authCreateAccount = async (payload: Props) => {
   const playerData = {
-    name: getRandomPlayerName(),
+    name: payload.name ?? getRandomPlayerName(),
     emoji: 0, // todo: get random emoji
     country_code: "",
     total_wins: 0,

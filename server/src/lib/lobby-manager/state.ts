@@ -76,7 +76,7 @@ export const get = (id: string) => {
   };
 };
 
-export const getClientLobby = (playerId: string) => {
+export const getClientLobby = (playerId: number) => {
   const lobby = state.lobbies.find((lobby) =>
     lobby.players.map((player) => player.id).includes(playerId)
   );

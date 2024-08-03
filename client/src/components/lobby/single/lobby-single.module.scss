@@ -96,6 +96,12 @@
       // border: 2px solid #111;
       box-shadow: 4px 4px 0 #111;
       // text-shadow: 1px 1px 0 #000;
+
+      &:hover {
+        background-color: #2cb580;
+        filter: brightness(1.1);
+        -webkit-filter: brightness(1.1);
+      }
     }
   }
 }

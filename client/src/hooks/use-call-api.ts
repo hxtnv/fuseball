@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import callAPI, { Props } from "@/lib/helpers/call-api";
-import config from "@/config";
 
 const useCallAPI = (url: string, props: Props = {}) => {
   const [data, setData] = useState<any>(null);
@@ -10,7 +9,7 @@ const useCallAPI = (url: string, props: Props = {}) => {
   const fetch = useCallback(() => {
     setLoading(true);
 
-    callAPI(`${config.apiUrl}${url}`, props)
+    callAPI(url, props)
       .then((res) => setData(res))
       .catch((err) => setError(err))
       .finally(() => setLoading(false));

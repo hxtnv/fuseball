@@ -39,7 +39,7 @@ export const updatePlayerPosition = ({
   playerId,
 }: {
   lobbyId: string;
-  playerId: string;
+  playerId: number;
 }) => {
   const state = getState();
   const lobbyState = state.lobbiesLive[lobbyId];
@@ -80,6 +80,7 @@ export const updatePlayerPosition = ({
 
       if (didBallMove) {
         lobbyState.roundStatus = "live";
+        lobbyState.ball.lastTouchedBy = player.id;
       }
 
       return {

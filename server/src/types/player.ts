@@ -1,8 +1,13 @@
 export type PlayerData = {
   authenticated: boolean;
   emoji: number;
-  id: string;
+  id: number;
   name: string;
   timezone: string;
-  countryCode: string;
+  country_code: string;
+  total_wins: number;
+  total_goals: number;
+  total_games: number;
+  xp: number;
+  email: string;
 };

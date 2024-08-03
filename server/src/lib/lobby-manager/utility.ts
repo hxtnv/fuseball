@@ -4,6 +4,9 @@ import getInitialBallPosition from "../helpers/get-initial-ball-position";
 import { LobbyStatus } from "../../types/lobby";
 import getInitialPositions from "../helpers/get-initial-positions";
 import { log } from "../logger";
+import GAME from "../const/game";
+import prisma from "../prisma";
+import { removeLobby } from "./remove";
 
 export const registerBallHit = (
   lobbyId: string,
@@ -26,6 +29,14 @@ export const registerBallHit = (
       ? { ...lobby, score: lobby.score.map((s, i) => (i === team ? s + 1 : s)) }
       : lobby
   );
+  state.lobbiesLive[lobbyId].goals.push({
+    winningTeam: team,
+    losingTeam: team === 0 ? 1 : 0,
+    scoredBy: state.lobbiesLive[lobbyId].ball.lastTouchedBy ?? 0, // todo: get player id
+    scoredAt: GAME.TIME - state.lobbiesLive[lobbyId].timeLeft,
+  });
+
+  console.log(state.lobbiesLive[lobbyId].goals);
 
   const timeout = setTimeout(() => {
     if (!state.lobbiesLive[lobbyId]) {
@@ -54,7 +65,7 @@ export const registerBallHit = (
   setState(state);
 };
 
-export const updateStatus = (
+export const updateStatus = async (
   lobbyId: string,
   {
     status,
@@ -104,11 +115,64 @@ export const updateStatus = (
     state.lobbies = state.lobbies.filter((lobby) => lobby.id !== lobbyId);
 
     if (lobbyDetails) {
+      await prisma.matches.create({
+        data: {
+          name: lobbyDetails.name,
+          score: lobbyDetails.score.join(":"),
+          players: lobbyDetails.players.map((player) => player.id),
+          goals: state.lobbiesLive[lobbyId].goals.map((goal) => ({
+            winningTeam: goal.winningTeam,
+            losingTeam: goal.losingTeam,
+            scoredBy: goal.scoredBy,
+            scoredAt: goal.scoredAt,
+          })),
+          team_size: lobbyDetails.teamSize,
+          country_code: lobbyDetails.countryCode,
+        },
+      });
+
+      // todo: update all players
+      const winningTeam =
+        lobbyDetails.score[0] === lobbyDetails.score[1]
+          ? -1
+          : lobbyDetails.score[0] > lobbyDetails.score[1]
+          ? 0
+          : 1;
+
+      state.lobbiesLive[lobbyId].players
+        .filter((p) => !!p.authenticated)
+        .forEach(async (p) => {
+          try {
+            await prisma.users.update({
+              where: {
+                id: p.id ?? 0,
+              },
+              data: {
+                total_wins: {
+                  increment: p.team === winningTeam ? 1 : 0,
+                },
+                total_games: {
+                  increment: 1,
+                },
+                total_goals: {
+                  increment: state.lobbiesLive[lobbyId].goals.filter(
+                    (goal) => goal.scoredBy === p.id
+                  ).length,
+                },
+              },
+            });
+          } catch (e) {
+            console.error("Failed to update user stats", e);
+          }
+        });
+
       log(
         `Lobby "${
           lobbyDetails.name
         }" has finished with a score of ${lobbyDetails.score.join(" : ")}`
       );
+
+      removeLobby(lobbyId);
     }
   }
 

@@ -97,6 +97,7 @@ export const create = (
     roundStatus: "live",
     startingTeam: 0,
     timeSinceRoundStart: 0,
+    goals: [],
   };
 
   log(

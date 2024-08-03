@@ -9,7 +9,7 @@ export const broadcast = (
   wss: WebSocket.Server,
   event: string,
   data: any,
-  playerIds?: string[]
+  playerIds?: number[]
 ) => {
   wss.clients.forEach(function each(client) {
     if (playerIds) {

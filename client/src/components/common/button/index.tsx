@@ -1,4 +1,6 @@
+import { Fragment } from "react";
 import styles from "./button.module.scss";
+import Fan from "@/assets/icons/fan-solid.svg?react";
 
 type Props = {
   children: React.ReactNode;
@@ -28,7 +30,14 @@ const Button: React.FC<Props> = ({
       style={style}
       disabled={disabled || loading}
     >
-      {loading ? "Loading..." : children}
+      {loading ? (
+        <Fragment>
+          <Fan className={styles.btn__loading} />
+          <span>Loading...</span>
+        </Fragment>
+      ) : (
+        children
+      )}
     </button>
   );
 };

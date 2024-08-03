@@ -23,9 +23,9 @@ const gameLoop = (wss: WebSocket.Server) => {
         lobby.players.map((player) => player.id)
       );
 
-      if (lobby.status === "finished") {
-        lobbyManager.removeLobby(lobby.id);
-      }
+      // if (lobby.status === "finished") {
+      //   lobbyManager.removeLobby(lobby.id);
+      // }
     });
   }, 1000 / 30);
 

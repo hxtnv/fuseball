@@ -2,21 +2,30 @@ import React, { useState, useEffect, useContext } from "react";
 import emitter from "@/lib/emitter";
 import config from "@/config";
 import ReconnectingWebSocket, { ErrorEvent } from "reconnecting-websocket";
-import getRandomPlayerSettings from "@/lib/helpers/get-random-player-settings";
 import usePing from "@/hooks/use-ping";
+import callAPI from "@/lib/helpers/call-api";
 
 export type WebSocketContextType = {
   ws: ReconnectingWebSocket | null;
   status: "connecting" | "connected" | "disconnected" | "error";
   playerData: PlayerData | null;
+  signOut: () => void;
+  sendHandshake: (overwriteJwt?: string) => void;
+  getSelfPlayerData: () => void;
 };
 
 export type PlayerData = {
   authenticated: boolean;
   emoji: number;
-  id: string;
+  id: number;
   name: string;
   timezone: string;
+  country_code: string;
+  total_wins: number;
+  total_goals: number;
+  total_games: number;
+  xp: number;
+  email: string;
 };
 
 type Handshake = {
@@ -28,6 +37,9 @@ const WebSocketContext = React.createContext<WebSocketContextType>({
   ws: null,
   status: "connecting",
   playerData: null,
+  signOut: () => {},
+  sendHandshake: () => {},
+  getSelfPlayerData: () => {},
 });
 
 const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
@@ -38,6 +50,14 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
     useState<WebSocketContextType["playerData"]>(null);
 
   usePing(ws, status);
+
+  const signOut = () => {
+    localStorage.removeItem("fuseball:jwt");
+    setPlayerData(null);
+
+    // todo: this could be improved
+    window.location.reload();
+  };
 
   const onEmitterSend = (event: string | any) => {
     if (!ws) {
@@ -59,30 +79,48 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onHandshakeFailed = () => {
-    sendHandshake(true);
+    sendHandshake("");
+  };
+
+  const getSelfPlayerData = () => {
+    const jwt = localStorage.getItem("fuseball:jwt");
+
+    if (!jwt) {
+      return;
+    }
+
+    setPlayerData(null);
+
+    callAPI("/self", {
+      method: "GET",
+      headers: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+    })
+      .then((data: any) => {
+        setPlayerData(data?.data as PlayerData);
+        emitter.emit("ws:connected");
+        setStatus("connected");
+      })
+      .catch(console.error);
   };
 
   const onHandshakeReceived = ({ data }: { data: Handshake }) => {
     localStorage.setItem("fuseball:jwt", data.jwt);
-    setPlayerData(data.playerData);
-
-    emitter.emit("ws:connected");
-    setStatus("connected");
+    getSelfPlayerData();
   };
 
-  const sendHandshake = (skipJwt?: boolean) => {
-    const jwt = skipJwt ? "" : localStorage.getItem("fuseball:jwt");
-    const playerSettings = jwt
-      ? { name: "", emoji: 0 }
-      : getRandomPlayerSettings();
+  const sendHandshake = (overwriteJwt?: string) => {
+    const jwt =
+      typeof overwriteJwt === "string"
+        ? overwriteJwt
+        : localStorage.getItem("fuseball:jwt");
+
+    setPlayerData(null);
 
     emitter.emit("ws:send", {
       event: "handshake",
       data: {
         jwt: jwt ?? "",
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        playerName: jwt ? undefined : playerSettings.name,
-        playerEmoji: jwt ? undefined : playerSettings.emoji,
       },
     });
   };
@@ -137,7 +175,16 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <WebSocketContext.Provider value={{ ws, status, playerData }}>
+    <WebSocketContext.Provider
+      value={{
+        ws,
+        status,
+        playerData,
+        signOut,
+        sendHandshake,
+        getSelfPlayerData,
+      }}
+    >
       {children}
     </WebSocketContext.Provider>
   );

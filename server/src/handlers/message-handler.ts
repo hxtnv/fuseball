@@ -9,6 +9,8 @@ import { WebSocketClient } from "../types/ws";
 import { CreateLobby, JoinLobby } from "../types/lobby";
 import getCountryCodeFromTimezone from "../lib/helpers/get-country-code-from-timezone";
 import { log } from "../lib/logger";
+import prisma from "../lib/prisma";
+import getRandomPlayerName from "../lib/helpers/get-random-player-name";
 
 type PlayerMove = {
   direction: "up" | "down" | "left" | "right";
@@ -86,7 +88,7 @@ export const handleMessage = (
   }
 };
 
-const handleHandshake = (
+const handleHandshake = async (
   data: Handshake,
   ws: WebSocketClient,
   wss: WebSocket.Server
@@ -101,20 +103,25 @@ const handleHandshake = (
 
   // if no jwt, we will make a new one
   if (data.jwt === "") {
-    if (
-      typeof data.playerName !== "string" ||
-      typeof data.playerEmoji !== "number"
-    ) {
-      return;
-    }
+    // if (
+    //   typeof data.playerName !== "string" ||
+    //   typeof data.playerEmoji !== "number"
+    // ) {
+    //   return;
+    // }
 
     const playerData = {
       authenticated: false,
       timezone: data.timezone,
-      id: randomUUID(),
-      name: data.playerName, // todo: sanitize
-      emoji: data.playerEmoji,
-      countryCode: getCountryCodeFromTimezone(data.timezone),
+      id: 0,
+      name: getRandomPlayerName(),
+      emoji: 0, // todo: get random emoji
+      country_code: getCountryCodeFromTimezone(data.timezone),
+      total_wins: 0,
+      total_goals: 0,
+      total_games: 0,
+      xp: 0,
+      email: "",
     } as PlayerData;
 
     const token = jwt.sign(
@@ -124,14 +131,12 @@ const handleHandshake = (
 
     ws.playerData = playerData;
 
-    ws.send(
-      JSON.stringify({ event: "handshake", data: { jwt: token, playerData } })
-    );
+    ws.send(JSON.stringify({ event: "handshake", data: { jwt: token } }));
 
     addClient(playerData);
 
     log(
-      `New player "${playerData.name}" from "${data.timezone}" has connected`
+      `New player "${playerData.name}" from "${data.timezone}" has connected (no jwt)`
     );
 
     return;
@@ -149,14 +154,14 @@ const handleHandshake = (
     ws.send(
       JSON.stringify({
         event: "handshake",
-        data: { jwt: data.jwt, playerData },
+        data: { jwt: data.jwt },
       })
     );
 
     addClient(playerData);
 
     log(
-      `New player "${playerData.name}" from "${data.timezone}" has connected (Valid JWT)`
+      `New player "${playerData.name}" from "${data.timezone}" has connected (signed in)`
     );
   } catch (e: any) {
     ws.send(

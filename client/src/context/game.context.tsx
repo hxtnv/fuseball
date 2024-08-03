@@ -10,7 +10,7 @@ export type PositionType = {
 export type ScoreType = number[];
 
 export type LobbyPlayer = {
-  id: string;
+  id: number;
   name: string;
   emoji: number;
   team: number;
@@ -38,7 +38,7 @@ export type LobbyLive = {
   status: "warmup" | "in-progress" | "finished";
   name: string;
   players: LobbyPlayerLive[];
-  chatMessages: Record<string, { message: string; timestamp: number }>;
+  chatMessages: Record<number, { message: string; timestamp: number }>;
   score: ScoreType;
   timeLeft: 0;
   ball: {

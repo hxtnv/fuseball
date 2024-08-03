@@ -35,10 +35,10 @@ const App = () => {
 const AppInner = () => {
   const [displayGameSketch, setDisplayGameSketch] = useState(false);
   const { currentLobby } = useGameContext();
-  const { getSelfPlayerData } = useWebSocket();
+  const { getSelfPlayerData, playerData } = useWebSocket();
 
   useEffect(() => {
-    if (!displayGameSketch) {
+    if (!displayGameSketch && playerData) {
       getSelfPlayerData();
     }
   }, [displayGameSketch]);

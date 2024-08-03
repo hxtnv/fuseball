@@ -8,6 +8,7 @@ import paypal from "@/assets/payments/paypal.png";
 import Twitter from "@/assets/icons/twitter-brands-solid.svg?react";
 import Github from "@/assets/icons/github-brands-solid.svg?react";
 import Donate from "@/assets/icons/circle-dollar-to-slot-solid.svg?react";
+import Discord from "@/assets/icons/discord-brands-solid.svg?react";
 import Button from "@/components/common/button";
 
 type PaymentMethod = "BTC" | "ETH" | "LTC" | "PAYPAL";
@@ -18,6 +19,18 @@ const PAYMENT_ICON_MAP: Record<PaymentMethod, string> = {
   LTC: ltc,
   PAYPAL: paypal,
 };
+
+const SOCIALS = [
+  {
+    icon: <Twitter style={{ fill: "#1DA1F2" }} />,
+    link: "https://twitter.com/fuseball_game",
+  },
+  { icon: <Github />, link: "https://github.com/hxtnv/fuseball" },
+  {
+    icon: <Discord style={{ fill: "#5865f2" }} />,
+    link: "https://discord.gg/B8Pp9nrpdD",
+  },
+];
 
 type DonationBoxProps = {
   method: PaymentMethod;
@@ -43,24 +56,17 @@ const Footer: React.FC = () => {
       <div className={styles.footer}>
         <div className={styles.footer__content}>
           <div className={styles.footer__content__socials}>
-            <a
-              href="https://twitter.com/fuseball_game"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="secondary">
-                <Twitter style={{ fill: "#1DA1F2" }} />
-              </Button>
-            </a>
-            <a
-              href="https://github.com/hxtnv/fuseball"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="secondary">
-                <Github />
-              </Button>
-            </a>
+            {SOCIALS.map(({ icon, link }, index) => (
+              <a
+                key={index}
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="secondary">{icon}</Button>
+              </a>
+            ))}
+
             <a role="button" onClick={open}>
               <Button variant="secondary">
                 <Donate />

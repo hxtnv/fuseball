@@ -9,8 +9,7 @@ const Home: React.FC = () => {
     <div className={styles.home}>
       <div className={styles.home__layout}>
         <div className={styles.home__layout__column}>
-          <News />
-          <Footer />
+          <PlayerPreview />
         </div>
 
         <div className={styles.home__layout__column}>
@@ -18,7 +17,8 @@ const Home: React.FC = () => {
         </div>
 
         <div className={styles.home__layout__column}>
-          <PlayerPreview />
+          <News />
+          <Footer />
         </div>
       </div>
     </div>

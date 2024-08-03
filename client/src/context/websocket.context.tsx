@@ -83,9 +83,18 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getSelfPlayerData = () => {
+    const jwt = localStorage.getItem("fuseball:jwt");
+
+    if (!jwt) {
+      return;
+    }
+
     setPlayerData(null);
 
-    callAPI("/self", { method: "GET" })
+    callAPI("/self", {
+      method: "GET",
+      headers: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+    })
       .then((data: any) => {
         setPlayerData(data?.data as PlayerData);
         emitter.emit("ws:connected");
@@ -95,13 +104,8 @@ const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onHandshakeReceived = ({ data }: { data: Handshake }) => {
-    // todo: move this into a http call
     localStorage.setItem("fuseball:jwt", data.jwt);
-    // setPlayerData(data.playerData);
     getSelfPlayerData();
-
-    // emitter.emit("ws:connected");
-    // setStatus("connected");
   };
 
   const sendHandshake = (overwriteJwt?: string) => {

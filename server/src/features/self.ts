@@ -2,12 +2,14 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma";
 import { PlayerData } from "../types/player";
+import getCountryCodeFromTimezone from "../lib/helpers/get-country-code-from-timezone";
 
 const selfFeature = Router();
 
 selfFeature.get("/", async (req, res) => {
   try {
-    const token = req.headers["authorization"];
+    const token = req.headers["authorization"]?.toString() ?? "";
+    const timezone = req.headers["timezone"]?.toString() ?? "";
 
     if (!token) {
       res.status(401).json({
@@ -18,7 +20,7 @@ selfFeature.get("/", async (req, res) => {
     }
 
     const playerData = jwt.verify(
-      token.toString(),
+      token,
       process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET"
     ) as PlayerData;
 
@@ -43,6 +45,21 @@ selfFeature.get("/", async (req, res) => {
         error: "Player not found",
       });
       return;
+    }
+
+    // save timezone to db
+    // gipsy as heck but watdo at the moment
+    if (playerDataDb.country_code === "") {
+      const countryCode = getCountryCodeFromTimezone(timezone);
+
+      await prisma.users.update({
+        where: {
+          id: playerDataDb.id,
+        },
+        data: {
+          country_code: countryCode,
+        },
+      });
     }
 
     res.json({

@@ -3,6 +3,7 @@ import config from "@/config";
 export type Props = {
   method?: string;
   data?: any;
+  headers?: Record<string, string>;
 };
 
 const callAPI = async (url: string, props: Props = {}) => {
@@ -14,6 +15,7 @@ const callAPI = async (url: string, props: Props = {}) => {
       headers: new Headers({
         "Content-Type": "application/json",
         Authorization: localStorage.getItem("fuseball:jwt") ?? "",
+        ...(props.headers ?? {}),
       }),
       body:
         method !== "GET" && props.data ? JSON.stringify(props.data) : undefined,

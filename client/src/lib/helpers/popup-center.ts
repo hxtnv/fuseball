@@ -12,10 +12,10 @@ const popupCenter = () => {
   const systemZoom = width / window.screen.availWidth;
 
   const left = (width - 500) / 2 / systemZoom + dualScreenLeft;
-  const top = (height - 550) / 2 / systemZoom + dualScreenTop;
+  const top = (height - 800) / 2 / systemZoom + dualScreenTop;
 
   return `width=${500 / systemZoom},height=${
-    550 / systemZoom
+    800 / systemZoom
   },top=${top},left=${left}`;
 };
 

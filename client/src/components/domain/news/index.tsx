@@ -30,7 +30,7 @@ const NewsDisplay: React.FC<NewsDisplayProps> = ({ news, divider }) => {
 
       {news.image && (
         <a href={news.image} target="_blank" rel="noopener noreferrer">
-          <img src={news.image} alt={news.title} />
+          <img src={news.image} alt={news.title} loading="lazy" />
         </a>
       )}
 

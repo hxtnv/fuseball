@@ -7,11 +7,11 @@ import "./index.css";
 import "./reset.css";
 
 const router = createBrowserRouter([
+  { path: "/auth/callback/:token", element: <AuthCallback /> },
   {
-    path: "/",
+    path: "/*",
     element: <App />,
   },
-  { path: "/auth/callback/:token", element: <AuthCallback /> },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

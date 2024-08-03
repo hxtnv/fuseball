@@ -44,22 +44,24 @@ const NewsDisplay: React.FC<NewsDisplayProps> = ({ news, divider }) => {
 const News: React.FC = () => {
   const { open, Modal } = useModal();
 
-  const { data, loading } = useCallAPI("/news", { method: "GET" });
-
-  console.log(data, loading);
+  const { data: newsData, loading } = useCallAPI("/news", { method: "GET" });
 
   if (!loading) {
-    if (!data?.data?.length) return null;
+    if (!newsData) {
+      return null;
+    }
+
+    if (!newsData.data.length) return null;
   }
 
   return (
     <Fragment>
       <Modal title="Updates">
-        {data?.data?.map((news: NewsObject, index: number) => (
+        {newsData?.data?.map((news: NewsObject, index: number) => (
           <NewsDisplay
             news={news}
             key={index}
-            divider={index < data?.data.length - 1}
+            divider={index < newsData.data.length - 1}
           />
         ))}
       </Modal>
@@ -75,9 +77,9 @@ const News: React.FC = () => {
           </Fragment>
         ) : (
           <Fragment>
-            <NewsDisplay news={data?.data[0]} />
+            <NewsDisplay news={newsData.data[0]} />
 
-            {data?.data.length > 1 && (
+            {newsData.data.length > 1 && (
               <Button
                 variant="secondary"
                 size="small"

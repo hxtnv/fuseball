@@ -10,7 +10,7 @@ selfFeature.get("/", async (req, res) => {
     const token = req.headers["authorization"];
 
     if (!token) {
-      res.json({
+      res.status(401).json({
         success: false,
         error: "No token provided",
       });
@@ -22,10 +22,13 @@ selfFeature.get("/", async (req, res) => {
       process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET"
     ) as PlayerData;
 
-    if (!playerData) {
+    if (!playerData.authenticated) {
       res.json({
-        success: false,
-        error: "Not signed in",
+        success: true,
+        data: {
+          ...playerData,
+          authenticated: false,
+        },
       });
       return;
     }
@@ -35,7 +38,7 @@ selfFeature.get("/", async (req, res) => {
     });
 
     if (!playerDataDb) {
-      res.json({
+      res.status(404).json({
         success: false,
         error: "Player not found",
       });
@@ -44,10 +47,13 @@ selfFeature.get("/", async (req, res) => {
 
     res.json({
       success: true,
-      data: playerDataDb,
+      data: {
+        ...playerDataDb,
+        authenticated: true,
+      },
     });
   } catch (e) {
-    res.json({
+    res.status(500).json({
       success: false,
       error: "Failed",
     });

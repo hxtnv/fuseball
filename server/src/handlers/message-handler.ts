@@ -131,9 +131,7 @@ const handleHandshake = async (
 
     ws.playerData = playerData;
 
-    ws.send(
-      JSON.stringify({ event: "handshake", data: { jwt: token, playerData } })
-    );
+    ws.send(JSON.stringify({ event: "handshake", data: { jwt: token } }));
 
     addClient(playerData);
 
@@ -151,64 +149,20 @@ const handleHandshake = async (
       process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET"
     ) as PlayerData;
 
-    if (playerData.authenticated) {
-      const playerDataDb = await prisma.users.findFirst({
-        where: { id: playerData.id },
-      });
+    ws.playerData = playerData;
 
-      if (!playerDataDb) {
-        ws.send(
-          JSON.stringify({
-            event: "handshake-failed",
-            data: { error: "JWT decoded but no user found in database" },
-          })
-        );
-        return;
-      }
+    ws.send(
+      JSON.stringify({
+        event: "handshake",
+        data: { jwt: data.jwt },
+      })
+    );
 
-      ws.playerData = {
-        ...playerDataDb,
-        id: parseInt(playerDataDb.id.toString()) ?? 0,
-        name: playerDataDb.name ?? "",
-        country_code: playerDataDb.country_code ?? "",
-        total_wins: parseInt(playerDataDb.total_wins?.toString() ?? "0") ?? 0,
-        total_goals: parseInt(playerDataDb.total_goals?.toString() ?? "0") ?? 0,
-        total_games: parseInt(playerDataDb.total_games?.toString() ?? "0") ?? 0,
-        xp: parseInt(playerDataDb.xp?.toString() ?? "0") ?? 0,
-        timezone: playerDataDb.timezone ?? "",
-        email: playerDataDb.email ?? "",
-        emoji: 0,
-        authenticated: true,
-      };
+    addClient(playerData);
 
-      ws.send(
-        JSON.stringify({
-          event: "handshake",
-          data: { jwt: data.jwt, playerData: ws.playerData },
-        })
-      );
-
-      addClient(playerData);
-
-      log(
-        `New player "${playerData.name}" from "${data.timezone}" has connected (signed in)`
-      );
-    } else {
-      ws.playerData = playerData;
-
-      ws.send(
-        JSON.stringify({
-          event: "handshake",
-          data: { jwt: data.jwt, playerData },
-        })
-      );
-
-      addClient(playerData);
-
-      log(
-        `New player "${playerData.name}" from "${data.timezone}" has connected (valid jwt)`
-      );
-    }
+    log(
+      `New player "${playerData.name}" from "${data.timezone}" has connected (signed in)`
+    );
   } catch (e: any) {
     ws.send(
       JSON.stringify({

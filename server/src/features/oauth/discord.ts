@@ -11,7 +11,7 @@ const authFeature = Router();
 const oauth = new DiscordOauth2({
   clientId: process.env.OAUTH_DISCORD_CLIENT_ID,
   clientSecret: process.env.OAUTH_DISCORD_CLIENT_SECRET,
-  redirectUri: "http://localhost:8080/auth/discord/callback",
+  redirectUri: `${process.env.BACKEND_URL}/auth/discord/callback`,
 });
 
 authFeature.get("/", (req, res) => {

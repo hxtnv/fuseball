@@ -27,7 +27,7 @@ type GooglePayload = {
 const oauth2Client = new OAuth2Client(
   process.env.OAUTH_GOOGLE_CLIENT_ID,
   process.env.OAUTH_GOOGLE_CLIENT_SECRET,
-  "http://localhost:8080/auth/google/callback"
+  `${process.env.BACKEND_URL}/auth/google/callback`
 );
 
 authFeature.get("/", (req, res) => {

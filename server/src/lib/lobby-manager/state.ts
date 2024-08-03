@@ -41,7 +41,7 @@ export const removeClient = (client: PlayerData) => {
 
   let isActiveInOtherTab = false;
   for (const wsClient of state._wss?.clients ?? new Set()) {
-    if ((wsClient as WebSocketClient).playerData.id === client.id) {
+    if ((wsClient as WebSocketClient).playerData?.id === client.id) {
       isActiveInOtherTab = true;
       break;
     }

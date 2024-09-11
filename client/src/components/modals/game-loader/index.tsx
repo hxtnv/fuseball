@@ -9,13 +9,13 @@ type Props = {
 
 const GameLoaderModal: React.FC<Props> = ({ displayGameSketch }) => {
   const { currentLobby } = useGameContext();
-  const { open, close, Modal } = useModal();
+  const { open, close: closeModal, Modal } = useModal();
 
   useEffect(() => {
     if (currentLobby && !displayGameSketch) {
       open();
     } else {
-      close();
+      closeModal();
     }
   }, [currentLobby, displayGameSketch]);
 

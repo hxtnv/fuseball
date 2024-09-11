@@ -46,7 +46,7 @@ const AppInner = () => {
   useEffect(() => {
     const timeout = setTimeout(
       () => {
-        if (currentLobby) close();
+        //if (currentLobby) close();
 
         setDisplayGameSketch(!!currentLobby);
       },

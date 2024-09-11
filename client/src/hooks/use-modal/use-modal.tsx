@@ -27,7 +27,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
     setVisibility("visible");
     // onOpen?.();
   };
-  const close = () => {
+  const closeModal = () => {
     setVisibility("hidden");
     // onClose?.();
   };
@@ -53,7 +53,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
             return;
           }
 
-          close();
+          closeModal();
         } else if (event.key === "Enter") {
           if (visibility !== "visible") {
             return;
@@ -129,7 +129,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
   return {
     Modal: memoizedModal,
     open,
-    close,
+    close: closeModal,
     isOpen: visibility === "visible",
   };
 };

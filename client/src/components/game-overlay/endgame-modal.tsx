@@ -22,11 +22,11 @@ const EndGameModal: React.FC = () => {
   });
 
   const onConfirm = () => {
-    close();
+    closeModal();
     setCurrentLobby(null);
   };
 
-  const { open, close, Modal } = useModal();
+  const { open, close: closeModal, Modal } = useModal();
   const { setCurrentLobby } = useGameContext();
   const { playerData } = useWebSocket();
 

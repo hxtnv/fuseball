@@ -12,7 +12,7 @@ type Props = {
   close: () => void;
 };
 
-const SignInModal: React.FC<Props> = ({ close }) => {
+const SignInModal: React.FC<Props> = ({ close: closeModal }) => {
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const windowRef = useRef<Window | null>(null);
 
@@ -37,7 +37,7 @@ const SignInModal: React.FC<Props> = ({ close }) => {
 
   useEffect(() => {
     if (playerData?.authenticated) {
-      close();
+      closeModal();
     }
   }, [playerData]);
 

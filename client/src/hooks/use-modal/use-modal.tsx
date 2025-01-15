@@ -76,7 +76,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
       <div
         className={styles.modal}
         data-visibility={visibility}
-        onClick={hideCloseButton ? undefined : close}
+        onClick={hideCloseButton ? undefined : closeModal}
       >
         <div
           className={`${styles.modal__content} generic-box`}
@@ -91,7 +91,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
               <button
                 className={styles.modal__content__header__close}
                 style={title ? undefined : { marginLeft: "auto" }}
-                onClick={close}
+                onClick={closeModal}
               >
                 <X />
               </button>

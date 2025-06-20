@@ -11,11 +11,11 @@ type Props = {
 
 const LeaveButton: React.FC<Props> = ({ inputFocus }) => {
   const { leaveLobby } = useGameContext();
-  const { Modal, open, close, isOpen } = useModal({ noEscapeClose: true });
+  const { Modal, open, close: closeModal, isOpen } = useModal({ noEscapeClose: true });
 
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape" && !inputFocus) {
-      if (isOpen) close();
+      if (isOpen) closeModal();
       else open();
     }
   };

@@ -27,7 +27,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
     setVisibility("visible");
     // onOpen?.();
   };
-  const close = () => {
+  const closeModal = () => {
     setVisibility("hidden");
     // onClose?.();
   };
@@ -53,7 +53,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
             return;
           }
 
-          close();
+          closeModal();
         } else if (event.key === "Enter") {
           if (visibility !== "visible") {
             return;
@@ -76,7 +76,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
       <div
         className={styles.modal}
         data-visibility={visibility}
-        onClick={hideCloseButton ? undefined : close}
+        onClick={hideCloseButton ? undefined : closeModal}
       >
         <div
           className={`${styles.modal__content} generic-box`}
@@ -91,7 +91,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
               <button
                 className={styles.modal__content__header__close}
                 style={title ? undefined : { marginLeft: "auto" }}
-                onClick={close}
+                onClick={closeModal}
               >
                 <X />
               </button>
@@ -129,7 +129,7 @@ const useModal = ({ noEscapeClose }: UseModalArgs = {}) => {
   return {
     Modal: memoizedModal,
     open,
-    close,
+    close: closeModal,
     isOpen: visibility === "visible",
   };
 };

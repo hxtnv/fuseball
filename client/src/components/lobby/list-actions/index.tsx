@@ -129,7 +129,7 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
   const {
     Modal,
     open: openModal,
-    close,
+    close: closeModal,
   } = useModal({ onClose: () => setError("") });
   const { createLobby } = useGameContext();
 
@@ -149,7 +149,7 @@ const CreateLobbyModal: React.FC<Props> = ({ disabled }) => {
 
   const onSuccess = () => {
     setLoading(false);
-    close();
+    closeModal();
   };
 
   useEffect(() => {

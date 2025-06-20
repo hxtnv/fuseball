@@ -26,7 +26,16 @@ const GameOverlay: React.FC = () => {
     emitter.on("game:chat-input-focus-end", onInputFocusEnd);
 
     if (isMobile) {
-      document.documentElement.requestFullscreen();
+      var requestFullScreen =
+        document.documentElement.requestFullscreen ||
+        // @ts-ignore
+        document.documentElement.webkitRequestFullscreen ||
+        // @ts-ignore
+        document.documentElement.mozRequestFullScreen ||
+        // @ts-ignore
+        document.documentElement.msRequestFullscreen;
+
+      requestFullScreen.call(document.documentElement);
     }
 
     return () => {

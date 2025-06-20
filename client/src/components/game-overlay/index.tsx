@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import screenfull from "screenfull";
 import LeaveButton from "./leave-button";
 import MessageBox from "./message-box";
 import GoalAnnouncement from "./goal-announcement";
@@ -26,16 +27,9 @@ const GameOverlay: React.FC = () => {
     emitter.on("game:chat-input-focus-end", onInputFocusEnd);
 
     if (isMobile) {
-      var requestFullScreen =
-        document.documentElement.requestFullscreen ||
-        // @ts-ignore
-        document.documentElement.webkitRequestFullscreen ||
-        // @ts-ignore
-        document.documentElement.mozRequestFullScreen ||
-        // @ts-ignore
-        document.documentElement.msRequestFullscreen;
-
-      requestFullScreen.call(document.documentElement);
+      if (screenfull.isEnabled) {
+        screenfull.request();
+      }
     }
 
     return () => {

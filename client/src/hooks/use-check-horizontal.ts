@@ -1,19 +1,25 @@
 import { useEffect, useState } from "react";
 
 const useCheckHorizontal = () => {
-  const [isHorizontal, setIsHorizontal] = useState<boolean>(
-    screen.availWidth > screen.availHeight
-  );
-
-  const handleOrientationChange = () => {
-    setIsHorizontal(screen.availWidth > screen.availHeight);
+  const getIsHorizontal = () => {
+    return window.matchMedia("(orientation: landscape)").matches;
   };
 
+  const [isHorizontal, setIsHorizontal] = useState<boolean>(getIsHorizontal());
+
   useEffect(() => {
-    window.addEventListener("orientationchange", handleOrientationChange);
+    const updateOrientation = () => {
+      setIsHorizontal(getIsHorizontal());
+    };
+
+    updateOrientation();
+
+    window.addEventListener("orientationchange", updateOrientation);
+    window.addEventListener("resize", updateOrientation);
 
     return () => {
-      window.removeEventListener("orientationchange", handleOrientationChange);
+      window.removeEventListener("orientationchange", updateOrientation);
+      window.removeEventListener("resize", updateOrientation);
     };
   }, []);
 

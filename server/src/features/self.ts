@@ -7,7 +7,28 @@ import timezoneToCountryMap from "../lib/const/timezone-country-map";
 
 const selfFeature = Router();
 
+const DEBUG = false;
+
 selfFeature.get("/", async (req, res) => {
+  if (DEBUG) {
+    return res.json({
+      success: true,
+      data: {
+        authenticated: true,
+        emoji: 0,
+        id: 1,
+        name: "Test User",
+        timezone: "UTC",
+        country_code: "US",
+        total_wins: 0,
+        total_goals: 0,
+        total_games: 0,
+        xp: 0,
+        email: "test@example.com",
+      },
+    });
+  }
+
   try {
     const token = req.headers["authorization"]?.toString() ?? "";
     const timezone = req.headers["timezone"]?.toString() ?? "";
@@ -22,7 +43,7 @@ selfFeature.get("/", async (req, res) => {
 
     const playerData = jwt.verify(
       token,
-      process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET"
+      process.env.JWT_SECRET ?? "FUSEBALL_VERY_SECRET",
     ) as PlayerData;
 
     if (!playerData.authenticated) {

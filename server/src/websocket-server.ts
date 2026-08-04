@@ -29,9 +29,12 @@ BigInt.prototype.toJSON = function () {
 };
 
 export const createServer = (port: number): WebSocket.Server => {
-  const isProd = process.env.NODE_ENV === "production";
+  // When ENABLE_SSL=true the process terminates TLS itself (bare-metal/PM2).
+  // On Coolify the reverse proxy (Traefik) terminates TLS, so we serve plain
+  // HTTP inside the container and let the proxy handle certificates.
+  const enableSsl = process.env.ENABLE_SSL === "true";
 
-  const serverOptions = isProd
+  const serverOptions = enableSsl
     ? {
         key: fs.readFileSync("./.ssl/privkey.pem"),
         cert: fs.readFileSync("./.ssl/fullchain.pem"),
@@ -40,13 +43,16 @@ export const createServer = (port: number): WebSocket.Server => {
 
   const app = express();
 
+  // Trust the reverse proxy so req.protocol / secure cookies work correctly.
+  app.set("trust proxy", 1);
+
   app.use(cors());
   app.use(
     session({
       secret: process.env.SESSION_SECRET ?? "FUSEBALL_VERY_SECRET",
       resave: false,
       saveUninitialized: false,
-    })
+    }),
   );
 
   app.get("/", (req, res) => {
@@ -57,7 +63,7 @@ export const createServer = (port: number): WebSocket.Server => {
   app.use("/auth", oauthFeature);
   app.use("/self", selfFeature);
 
-  const server = isProd
+  const server = enableSsl
     ? https.createServer(serverOptions, app)
     : http.createServer(app);
 

@@ -16,5 +16,5 @@
   "theme_color": "#128258",
   "background_color": "#128258",
   "start_url": "https://fuseball.io",
-  "display": "standalone"
+  "display": "fullscreen"
 }

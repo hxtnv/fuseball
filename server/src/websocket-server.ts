@@ -59,6 +59,10 @@ export const createServer = (port: number): WebSocket.Server => {
     res.send("Fuseball API");
   });
 
+  app.get("/health", (req, res) => {
+    res.status(200).json({ status: "ok" });
+  });
+
   app.use("/news", newsFeature);
   app.use("/auth", oauthFeature);
   app.use("/self", selfFeature);

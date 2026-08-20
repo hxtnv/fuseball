@@ -1,0 +1,120 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  // backdrop-filter: blur(4px);
+  // -webkit-backdrop-filter: blur(4px);
+  z-index: 999999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  max-height: 100vh;
+  padding: 40px 0;
+  overflow: auto;
+  opacity: 0;
+  transition: all var(--animation-length);
+
+  .modal {
+    width: 30%;
+    max-width: calc(100% - 40px);
+    will-change: transform;
+    margin-top: auto;
+    margin-bottom: auto;
+    background-color: #272727;
+
+    // we set this by default to not screw up the animation
+    opacity: 0;
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 15px;
+
+      h4 {
+        font-weight: 500;
+        font-size: 16px;
+      }
+
+      svg {
+        width: 24px;
+        height: 24px;
+        color: rgba(255, 255, 255, 0.5);
+
+        &:hover {
+          cursor: pointer;
+          color: #fff;
+        }
+      }
+    }
+
+    &__content {
+      padding: 0 15px 15px;
+    }
+  }
+
+  &[data-visibility="visible"] {
+    opacity: 1;
+
+    :global {
+      animation: fadeIn var(--animation-length);
+    }
+
+    .modal {
+      opacity: 1;
+      animation: fadeInScale var(--animation-length);
+    }
+  }
+
+  &[data-visibility="halfway-out"],
+  &[data-visibility="hidden"] {
+    animation: fadeOut var(--animation-length);
+
+    .modal {
+      animation: fadeOutScale var(--animation-length);
+    }
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeOutScale {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+}
+
+@media (max-width: 1200px) {
+  .backdrop {
+    .modal {
+      width: 100%;
+    }
+  }
+}

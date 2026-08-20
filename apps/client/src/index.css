@@ -1,0 +1,28 @@
+:root {
+  color-scheme: dark;
+  font-family: "Itim", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: #0b0f14;
+  color: #e6edf3;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.game-canvas {
+  display: block;
+  width: 100vw;
+  height: 100dvh;
+}

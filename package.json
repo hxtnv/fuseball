@@ -1,0 +1,21 @@
+{
+  "name": "fuseball",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:client": "bun --filter @fuseball/client dev",
+    "dev:server": "bun --filter @fuseball/server dev",
+    "dev:game": "bun --filter @fuseball/server-game dev",
+    "dev:all": "bun --filter '*' dev",
+    "build": "bun --filter @fuseball/client build",
+    "typecheck": "bun --filter '*' typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

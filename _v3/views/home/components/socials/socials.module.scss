@@ -1,0 +1,16 @@
+.socials {
+  display: flex;
+  gap: 10px;
+
+  a {
+    width: 100%;
+
+    button {
+      width: 100%;
+
+      svg {
+        fill: #fff;
+      }
+    }
+  }
+}

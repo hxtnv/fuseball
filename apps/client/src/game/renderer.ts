@@ -1,5 +1,5 @@
 import { BALL, FIELD, PLAYER } from "@fuseball/shared";
-import type { GameState } from "@fuseball/shared";
+import type { Snapshot } from "@fuseball/shared";
 import {
   CAMERA,
   COLORS,
@@ -17,7 +17,7 @@ import {
   drawStripes,
   type WorldBounds,
 } from "./field";
-import { clamp, lerp } from "./util";
+import { clamp } from "./util";
 
 interface Viewport {
   w: number;
@@ -77,37 +77,40 @@ const drawTag = (
 
 const drawPlayers = (
   ctx: CanvasRenderingContext2D,
-  prev: GameState,
-  curr: GameState,
-  alpha: number,
+  state: Snapshot,
+  localId: number,
 ): void => {
-  curr.players.forEach((cp, i) => {
-    const pp = prev.players[i] ?? cp;
-    const x = lerp(pp.x, cp.x, alpha);
-    const y = lerp(pp.y, cp.y, alpha);
-    drawEntityShadow(ctx, x, y, PLAYER.SIZE);
-    drawDisc(ctx, x, y, PLAYER.SIZE, COLORS.playerBody);
-    drawTag(ctx, x, y - TAG.offset, `P${cp.id}`, TAG_COLORS[cp.team]);
-  });
+  for (const p of state.players) {
+    drawEntityShadow(ctx, p.x, p.y, PLAYER.SIZE);
+    drawDisc(ctx, p.x, p.y, PLAYER.SIZE, COLORS.playerBody);
+    if (p.id === localId) {
+      // highlight ring so you can spot yourself at a glance
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, PLAYER.SIZE / 2 + 4, 0, TWO_PI);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+      ctx.stroke();
+    }
+    drawTag(
+      ctx,
+      p.x,
+      p.y - TAG.offset,
+      p.name ?? `P${p.id}`,
+      TAG_COLORS[p.team],
+    );
+  }
 };
 
-const drawBall = (
-  ctx: CanvasRenderingContext2D,
-  prev: GameState,
-  curr: GameState,
-  alpha: number,
-): void => {
-  const bx = lerp(prev.ball.x, curr.ball.x, alpha);
-  const by = lerp(prev.ball.y, curr.ball.y, alpha);
-  const bz = lerp(prev.ball.z, curr.ball.z, alpha);
-  const heightScale = 1 + bz * 0.004; // grows a little when lofted
-  drawEntityShadow(ctx, bx, by, BALL.SIZE / heightScale);
-  drawDisc(ctx, bx, by - bz, BALL.SIZE * heightScale, "rgb(255, 255, 255)");
+const drawBall = (ctx: CanvasRenderingContext2D, state: Snapshot): void => {
+  const { x, y, z } = state.ball;
+  const heightScale = 1 + z * 0.004; // grows a little when lofted
+  drawEntityShadow(ctx, x, y, BALL.SIZE / heightScale);
+  drawDisc(ctx, x, y - z, BALL.SIZE * heightScale, "rgb(255, 255, 255)");
 };
 
 const drawHud = (
   ctx: CanvasRenderingContext2D,
-  state: GameState,
+  state: Snapshot,
   w: number,
   h: number,
   fps: number,
@@ -165,11 +168,24 @@ const drawHud = (
     ctx.fillText(`Pos: ${Math.round(me.x)}, ${Math.round(me.y)}`, w - 12, 28);
 };
 
+export const renderConnecting = (
+  ctx: CanvasRenderingContext2D,
+  viewport: Viewport,
+): void => {
+  const { w, h, dpr } = viewport;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = COLORS.grass;
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = COLORS.hud;
+  ctx.font = `700 28px ${FONT_FAMILY}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("Connecting…", w / 2, h / 2);
+};
+
 export const render = (
   ctx: CanvasRenderingContext2D,
-  prev: GameState,
-  curr: GameState,
-  alpha: number,
+  state: Snapshot,
   viewport: Viewport,
   quality: QualitySettings,
   localId: number,
@@ -182,14 +198,9 @@ export const render = (
   ctx.fillStyle = COLORS.grass;
   ctx.fillRect(0, 0, w, h);
 
-  const localCurr = curr.players.find((p) => p.id === localId);
-  const localPrev = prev.players.find((p) => p.id === localId);
-  const camX = localCurr
-    ? lerp(localPrev?.x ?? localCurr.x, localCurr.x, alpha)
-    : FIELD.WIDTH / 2;
-  const camY = localCurr
-    ? lerp(localPrev?.y ?? localCurr.y, localCurr.y, alpha)
-    : FIELD.HEIGHT / 2;
+  const me = state.players.find((p) => p.id === localId);
+  const camX = me ? me.x : FIELD.WIDTH / 2;
+  const camY = me ? me.y : FIELD.HEIGHT / 2;
   const scale = clamp(
     h / CAMERA.viewWorldHeight,
     CAMERA.minScale,
@@ -212,12 +223,12 @@ export const render = (
 
   drawStripes(ctx, bounds);
   drawFieldLines(ctx);
-  drawPlayers(ctx, prev, curr, alpha);
-  drawBall(ctx, prev, curr, alpha);
+  drawPlayers(ctx, state, localId);
+  drawBall(ctx, state);
   drawGoalShadow(ctx); // darkens the goal recess (stripes + any player/ball inside)
   drawGoalNets(ctx); // white net on top, so the mesh stays bright
 
   ctx.restore();
 
-  drawHud(ctx, curr, w, h, fps, quality, localId);
+  drawHud(ctx, state, w, h, fps, quality, localId);
 };

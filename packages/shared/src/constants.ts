@@ -31,3 +31,7 @@ export const ROUND = {
 } as const;
 
 export const TEAM_COLORS = ["#ff4b4b", "#4395f9"] as const;
+
+export const ROOM = {
+  MAX_PLAYERS: 6, // per room (3v3); later filled with bots that real players replace
+} as const;

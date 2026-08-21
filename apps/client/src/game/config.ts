@@ -57,9 +57,31 @@ export const TAG = {
 } as const;
 
 export const GAME = {
-  localId: 0,
-  teamSize: 2,
   maxFrame: 0.1, // frames longer than this (e.g. tab switch) are ignored in the fps stat
+} as const;
+
+// The authoritative game server (server-game). Multi-region selection comes later.
+export const SERVER = {
+  wsUrl: "ws://localhost:3002/ws",
+} as const;
+
+// The central server (auth, profiles, server picker, room list).
+export const API = {
+  baseUrl: import.meta.env.VITE_API_URL ?? "http://localhost:3001",
+} as const;
+
+export const NET = {
+  interpTicks: 3, // sim ticks in the past to render remotes (jitter buffer, ~100ms)
+  maxBuffer: 30, // snapshots retained for interpolation
+  smoothTau: 0.01, // s — local player/camera smoothing (lower = snappier, higher = smoother)
+  ballTau: 0.015, // s — ball smoothing
+  // Ball timeline blend: the ball is drawn on the delayed remote-player timeline
+  // (buffer-interpolated) so remote kicks line up with the kicker, but blends to the
+  // predicted present-time ball as the LOCAL player gets close, keeping own touches instant.
+  ballControlNear: 55, // px — at/under this local-player→ball distance the ball is fully predicted
+  ballControlFar: 130, // px — at/over this distance the ball is fully interpolated (remote timeline)
+  ballReleaseTau: 0.35, // s — how slowly possession fades after the local player leaves the ball
+  reconnectMs: 1000, // delay before auto-reconnecting a dropped socket
 } as const;
 
 export interface QualitySettings {

@@ -1,0 +1,26 @@
+// Prisma schema for Fuseball accounts + stats.
+// Supabase gives you TWO connection strings:
+//   DATABASE_URL -> the pooled connection (port 6543, ?pgbouncer=true) used at runtime
+//   DIRECT_URL   -> the direct connection (port 5432) used for migrations
+// Put both in packages/db/.env (see .env.example).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  isAnonymous Boolean  @default(true)
+  gamesPlayed Int      @default(0)
+  wins        Int      @default(0)
+  goals       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

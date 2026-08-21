@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "start": "bun src/index.ts",
+    "dev": "bun --env-file=../../.env --watch src/index.ts",
+    "start": "bun --env-file=../../.env src/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fuseball/auth": "workspace:*",
     "@fuseball/shared": "workspace:*"
   },
   "devDependencies": {

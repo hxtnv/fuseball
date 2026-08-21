@@ -1,0 +1,23 @@
+{
+  "name": "@fuseball/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "db:generate": "bun --env-file=../../.env x prisma generate",
+    "db:push": "bun --env-file=../../.env x prisma db push",
+    "db:migrate": "bun --env-file=../../.env x prisma migrate dev",
+    "db:studio": "bun --env-file=../../.env x prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "prisma": "^5.22.0"
+  }
+}

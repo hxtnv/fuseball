@@ -29,7 +29,6 @@ export interface BallState {
 export interface GameState {
   tick: number;
   status: RoundStatus;
-  teamSize: number;
   startingTeam: Team;
   players: PlayerState[];
   ball: BallState;

@@ -13,7 +13,11 @@
     "dev:game": "bun --filter @fuseball/server-game dev",
     "dev:all": "bun --filter '*' dev",
     "build": "bun --filter @fuseball/client build",
-    "typecheck": "bun --filter '*' typecheck"
+    "typecheck": "bun --filter '*' typecheck",
+    "db:generate": "bun --filter @fuseball/db db:generate",
+    "db:push": "bun --filter @fuseball/db db:push",
+    "db:migrate": "bun --filter @fuseball/db db:migrate",
+    "db:studio": "bun --filter @fuseball/db db:studio"
   },
   "devDependencies": {
     "typescript": "^7.0.2"

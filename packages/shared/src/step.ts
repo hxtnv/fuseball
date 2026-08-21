@@ -1,90 +1,32 @@
 import { BALL, DT, FIELD, PLAYER, ROUND } from "./constants";
+import {
+  GOAL_BOTTOM_Y,
+  GOAL_TOP_Y,
+  PLAYER_HALF,
+  applyMovement,
+  constrainToArena,
+} from "./movement";
 import { resetPositions } from "./state";
 import { EMPTY_INPUT } from "./types";
 import type {
   BallState,
   GameState,
   InputMap,
-  PlayerInput,
   PlayerState,
   Team,
 } from "./types";
 
-const PLAYER_HALF = PLAYER.SIZE / 2;
 const BALL_HALF = BALL.SIZE / 2;
 
-const GOAL_ZONE_HEIGHT = FIELD.HEIGHT * FIELD.GOAL_ZONE_HEIGHT_RATIO;
-const GOAL_DEPTH = FIELD.WIDTH * FIELD.GOAL_ZONE_WIDTH_RATIO;
-const CENTER_Y = FIELD.HEIGHT / 2;
-const GOAL_TOP_Y = CENTER_Y - GOAL_ZONE_HEIGHT / 2;
-const GOAL_BOTTOM_Y = CENTER_Y + GOAL_ZONE_HEIGHT / 2;
+// reused across step() calls to avoid per-tick allocation (single-threaded, not re-entrant)
+const scratchPrevX: number[] = [];
+const scratchPrevY: number[] = [];
 
-interface WallHit {
-  x: number; // -1 = left wall, 1 = right wall, 0 = none
-  y: number; // -1 = top wall, 1 = bottom wall, 0 = none
-}
-
-// Clamps a point to the play area (field + the two goal boxes) and reports which
-// walls it hit — the ball uses this to bounce, players to stay contained.
-const constrainToArena = (
-  obj: { x: number; y: number },
-  half: number,
-): WallHit => {
-  const hit: WallHit = { x: 0, y: 0 };
-  const inGoalBand = obj.y > GOAL_TOP_Y && obj.y < GOAL_BOTTOM_Y;
-
-  if (inGoalBand) {
-    const backLeft = -GOAL_DEPTH + half;
-    const backRight = FIELD.WIDTH + GOAL_DEPTH - half;
-    if (obj.x < backLeft) {
-      obj.x = backLeft;
-      hit.x = -1;
-    } else if (obj.x > backRight) {
-      obj.x = backRight;
-      hit.x = 1;
-    }
-  } else if (obj.x < half) {
-    obj.x = half;
-    hit.x = -1;
-  } else if (obj.x > FIELD.WIDTH - half) {
-    obj.x = FIELD.WIDTH - half;
-    hit.x = 1;
-  }
-
-  const inGoalBox = obj.x < 0 || obj.x > FIELD.WIDTH;
-  if (inGoalBox) {
-    if (obj.y < GOAL_TOP_Y + half) {
-      obj.y = GOAL_TOP_Y + half;
-      hit.y = -1;
-    } else if (obj.y > GOAL_BOTTOM_Y - half) {
-      obj.y = GOAL_BOTTOM_Y - half;
-      hit.y = 1;
-    }
-  } else if (obj.y < half) {
-    obj.y = half;
-    hit.y = -1;
-  } else if (obj.y > FIELD.HEIGHT - half) {
-    obj.y = FIELD.HEIGHT - half;
-    hit.y = 1;
-  }
-
-  return hit;
-};
-
-const applyInput = (player: PlayerState, input: PlayerInput): void => {
-  let dx = 0;
-  let dy = 0;
-  if (input.up) dy -= 1;
-  if (input.down) dy += 1;
-  if (input.left) dx -= 1;
-  if (input.right) dx += 1;
-  if (dx === 0 && dy === 0) return;
-
-  // normalize so diagonal movement isn't faster than orthogonal
-  const len = Math.hypot(dx, dy);
-  player.x += (dx / len) * PLAYER.SPEED;
-  player.y += (dy / len) * PLAYER.SPEED;
-};
+const MID_X = FIELD.WIDTH / 2;
+const MID_Y = FIELD.HEIGHT / 2;
+// distance the defending team must keep from the centre spot during kickoff
+const KICKOFF_CIRCLE =
+  (FIELD.WIDTH * FIELD.MIDDLE_CIRCLE_RATIO) / 2 + PLAYER_HALF;
 
 const resolvePlayerCollisions = (players: PlayerState[]): void => {
   const minDist = PLAYER.SIZE; // half + half
@@ -139,11 +81,23 @@ const kickBall = (ball: BallState, player: PlayerState): boolean => {
 const constrainPlayer = (state: GameState, player: PlayerState): void => {
   constrainToArena(player, PLAYER_HALF); // players may enter the goal boxes
 
-  // during the kickoff window, keep the defending team on their own half
+  // during the kickoff window, keep the defending team on their own half AND out
+  // of the centre circle, so they can't reach the ball before it's kicked off
   if (state.status === "protected" && player.team !== state.startingTeam) {
-    if (player.team === 0)
-      player.x = Math.min(player.x, FIELD.WIDTH / 2 - PLAYER_HALF);
-    else player.x = Math.max(player.x, FIELD.WIDTH / 2 + PLAYER_HALF);
+    if (player.team === 0) player.x = Math.min(player.x, MID_X - PLAYER_HALF);
+    else player.x = Math.max(player.x, MID_X + PLAYER_HALF);
+
+    const dx = player.x - MID_X;
+    const dy = player.y - MID_Y;
+    const dist = Math.hypot(dx, dy);
+    if (dist < KICKOFF_CIRCLE) {
+      if (dist === 0) {
+        player.x = MID_X - KICKOFF_CIRCLE; // deterministic push
+      } else {
+        player.x = MID_X + (dx / dist) * KICKOFF_CIRCLE;
+        player.y = MID_Y + (dy / dist) * KICKOFF_CIRCLE;
+      }
+    }
   }
 };
 
@@ -190,19 +144,24 @@ export const step = (state: GameState, inputs: InputMap): GameState => {
 
   state.tick++;
 
-  const prev = state.players.map((p) => ({ x: p.x, y: p.y }));
+  const n = state.players.length;
+  for (let i = 0; i < n; i++) {
+    const p = state.players[i]!;
+    scratchPrevX[i] = p.x;
+    scratchPrevY[i] = p.y;
+  }
 
   for (const player of state.players) {
-    applyInput(player, inputs[player.id] ?? EMPTY_INPUT);
+    applyMovement(player, inputs[player.id] ?? EMPTY_INPUT);
   }
 
   resolvePlayerCollisions(state.players);
 
-  state.players.forEach((player, i) => {
-    const before = prev[i]!;
-    player.vx = player.x - before.x;
-    player.vy = player.y - before.y;
-  });
+  for (let i = 0; i < n; i++) {
+    const p = state.players[i]!;
+    p.vx = p.x - scratchPrevX[i]!;
+    p.vy = p.y - scratchPrevY[i]!;
+  }
 
   let kickoffTouched = false;
   for (const player of state.players) {
@@ -226,7 +185,7 @@ export const step = (state: GameState, inputs: InputMap): GameState => {
       resetPositions(state);
       state.status = "protected";
     }
-  } else if (scoringTeam !== null) {
+  } else if (scoringTeam !== null && state.status !== "warmup") {
     state.score[scoringTeam] += 1;
     state.lastScoringTeam = scoringTeam;
     state.startingTeam = (scoringTeam === 0 ? 1 : 0) as Team; // conceding team kicks off next

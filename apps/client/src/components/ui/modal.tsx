@@ -1,11 +1,12 @@
 import type { ComponentChildren } from "preact";
 import { useEffect } from "preact/hooks";
+import { X } from "lucide-react";
 import styles from "./modal.module.css";
 
 interface ModalProps {
   open: boolean;
   onClose: () => void;
-  title?: string;
+  title?: ComponentChildren;
   width?: string | number;
   children?: ComponentChildren;
 }
@@ -30,7 +31,7 @@ export function Modal({ open, onClose, title, width, children }: ModalProps) {
         <div class={styles.header}>
           <h4>{title}</h4>
           <button class={styles.close} onClick={onClose} title="Close">
-            ✕
+            <X size={18} />
           </button>
         </div>
         <div class={styles.content}>{children}</div>

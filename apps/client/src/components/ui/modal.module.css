@@ -6,7 +6,8 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   animation: ui-modal-fade 180ms ease;
 }
 
@@ -15,6 +16,10 @@
   max-width: 100%;
   background-color: var(--ui-panel-solid);
   animation: ui-modal-pop 180ms ease;
+}
+/* solid, non-transparent panel (higher specificity than .ui-box) */
+.backdrop .modal {
+  background-color: #2a2d33;
 }
 
 .header {
@@ -27,6 +32,9 @@
 }
 .header h4 {
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--ui-font);
   font-weight: 600;
   font-size: 17px;

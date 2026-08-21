@@ -42,19 +42,8 @@
   pointer-events: none;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#app {
-  margin: 0;
-  height: 100%;
-}
-
 body {
-  background: #0b0f14;
+  background: #10230f url("/bg.png") center center / cover no-repeat;
   color: #e6edf3;
   overflow: hidden;
   touch-action: none;
@@ -92,161 +81,9 @@ body {
   background: rgba(11, 15, 20, 0.9);
 }
 
-/* --- main menu --- */
-.menu {
-  height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: radial-gradient(circle at 50% 30%, #16324a 0%, #0b0f14 70%);
-}
-
-.menu-card {
-  width: min(420px, 100%);
-  background: #121821;
-  border: 1px solid #223047;
-  border-radius: 18px;
-  padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.menu-title {
-  margin: 0 0 18px;
-  text-align: center;
-  font-size: 44px;
-  letter-spacing: 2px;
-  color: #6fad4e;
-  text-shadow: 0 2px 0 #2c5a20;
-}
-
-.menu-error {
-  color: #ff6b6b;
-  text-align: center;
-}
-.menu-dim {
-  color: #8aa0b6;
-  text-align: center;
-  margin: 8px 0;
-}
-
-.menu-profile {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 12px;
-  background: #0e141d;
-  border-radius: 12px;
-  margin-bottom: 16px;
-}
-.menu-name-row,
-.menu-name-edit {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.menu-name {
-  flex: 1;
-  font-size: 22px;
-  font-weight: 700;
-}
-.menu-stats {
-  display: flex;
-  gap: 14px;
-  color: #8aa0b6;
-  font-size: 14px;
-}
-
-.menu-field {
-  display: block;
-  margin-bottom: 16px;
-}
-.menu-label {
-  display: block;
-  color: #8aa0b6;
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-.menu-input,
-.menu-select {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #2a3b54;
-  background: #0e141d;
-  color: #e6edf3;
-  font:
-    600 16px "Itim",
-    system-ui,
-    sans-serif;
-}
-.menu-name-edit .menu-input {
-  flex: 1;
-}
-
-.menu-btn {
-  border: none;
-  border-radius: 10px;
-  background: #3a7bd5;
-  color: #fff;
-  font:
-    700 16px "Itim",
-    system-ui,
-    sans-serif;
-  padding: 10px 16px;
-  cursor: pointer;
-}
-.menu-btn:hover {
-  filter: brightness(1.1);
-}
-.menu-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-.menu-btn.sm {
-  padding: 6px 10px;
-  font-size: 14px;
-}
-.menu-btn.ghost {
-  background: #223047;
-}
-.menu-btn.play {
-  width: 100%;
-  padding: 14px;
-  font-size: 20px;
-  background: #6fad4e;
-  margin-bottom: 18px;
-}
-
-.menu-rooms-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.menu-room-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 220px;
-  overflow-y: auto;
-}
-.menu-room {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  background: #0e141d;
-  border-radius: 10px;
-}
-.menu-room-id {
-  font-weight: 700;
-}
-.menu-room-meta {
-  flex: 1;
-  color: #8aa0b6;
-  font-size: 14px;
+/* --- menu backdrop (Option A HUD) --- */
+.menu-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }

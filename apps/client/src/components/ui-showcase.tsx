@@ -167,16 +167,10 @@ export function UiShowcase() {
         <div
           style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}
         >
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => setModalOpen(false)}
-          >
+          <Button variant="secondary" onClick={() => setModalOpen(false)}>
             Cancel
           </Button>
-          <Button size="small" onClick={() => setModalOpen(false)}>
-            Confirm
-          </Button>
+          <Button onClick={() => setModalOpen(false)}>Confirm</Button>
         </div>
       </Modal>
     </div>

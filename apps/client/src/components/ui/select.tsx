@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
+import { ChevronDown } from "lucide-react";
 import styles from "./select.module.css";
 
 export interface SelectOption {
@@ -60,7 +61,9 @@ export function Select({
             <span class={styles.placeholder}>{placeholder}</span>
           )}
         </span>
-        <span class={styles.chevron}>▾</span>
+        <span class={styles.chevron}>
+          <ChevronDown size={18} />
+        </span>
       </button>
 
       {open && (

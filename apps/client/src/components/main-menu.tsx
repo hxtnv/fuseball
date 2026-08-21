@@ -1,14 +1,30 @@
-import { useCallback, useEffect, useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import {
   ensureAuth,
-  fetchRooms,
   fetchServers,
   renameUser,
   shuffleName,
   type GameServerInfo,
-  type RoomInfo,
   type User,
 } from "../auth";
+import { Box, Modal } from "./ui";
+import {
+  Footer,
+  FriendsRail,
+  NewsFloat,
+  PlayButtons,
+  PlayerCard,
+  TopBar,
+} from "./menu/panels";
+import {
+  LeaderboardModal,
+  RewardsModal,
+  ServerModal,
+  SettingsModal,
+  EditProfileModal,
+} from "./menu/modals";
+import { MOCK_NEWS } from "./menu/mock";
+import styles from "./menu/menu.module.css";
 
 export interface PlaySession {
   serverName: string;
@@ -21,29 +37,24 @@ interface Props {
   onPlay: (session: PlaySession) => void;
 }
 
+type ModalKind =
+  | "leaderboard"
+  | "rewards"
+  | "settings"
+  | "party"
+  | "servers"
+  | "news"
+  | "profile"
+  | null;
+
 export function MainMenu({ onPlay }: Props) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState("");
   const [servers, setServers] = useState<GameServerInfo[]>([]);
-  const [serverId, setServerId] = useState<string>("");
-  const [rooms, setRooms] = useState<RoomInfo[]>([]);
-  const [roomsLoading, setRoomsLoading] = useState(false);
+  const [serverId, setServerId] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [nameDraft, setNameDraft] = useState("");
   const [busy, setBusy] = useState(false);
-
-  const loadRooms = useCallback(async (id: string) => {
-    if (!id) return;
-    setRoomsLoading(true);
-    try {
-      setRooms(await fetchRooms(id));
-    } catch {
-      setRooms([]);
-    } finally {
-      setRoomsLoading(false);
-    }
-  }, []);
+  const [modal, setModal] = useState<ModalKind>(null);
 
   useEffect(() => {
     let alive = true;
@@ -56,9 +67,7 @@ export function MainMenu({ onPlay }: Props) {
         const list = await fetchServers();
         if (!alive) return;
         setServers(list);
-        const first = list[0]?.id ?? "";
-        setServerId(first);
-        void loadRooms(first);
+        setServerId(list[0]?.id ?? "");
       } catch {
         if (alive) setError("Can't reach the server. Is it running?");
       }
@@ -66,21 +75,20 @@ export function MainMenu({ onPlay }: Props) {
     return () => {
       alive = false;
     };
-  }, [loadRooms]);
+  }, []);
 
-  const selected = servers.find((s) => s.id === serverId);
-
-  // keep the room list (and player counts) fresh while sitting in the menu
+  // keep the server player counts fresh while sitting in the menu
   useEffect(() => {
-    if (!serverId) return;
     const t = setInterval(() => {
-      void loadRooms(serverId);
       fetchServers()
         .then(setServers)
         .catch(() => {});
-    }, 3000);
+    }, 5000);
     return () => clearInterval(t);
-  }, [serverId, loadRooms]);
+  }, []);
+
+  const selected = servers.find((s) => s.id === serverId);
+  const ready = !!selected && !!token;
 
   const play = (roomId?: string) => {
     if (!selected || !token) return;
@@ -92,16 +100,16 @@ export function MainMenu({ onPlay }: Props) {
     });
   };
 
-  const saveName = async () => {
+  const saveName = async (name: string) => {
     if (!token) return;
     setBusy(true);
     try {
-      const { token: t, user: u } = await renameUser(token, nameDraft);
+      const { token: t, user: u } = await renameUser(token, name);
       setToken(t);
       setUser(u);
-      setEditing(false);
+      setModal(null);
     } catch {
-      /* keep editing on failure */
+      /* keep the modal open on failure */
     } finally {
       setBusy(false);
     }
@@ -120,141 +128,123 @@ export function MainMenu({ onPlay }: Props) {
   };
 
   return (
-    <div class="menu">
-      <div class="menu-card">
-        <h1 class="menu-title">FUSEBALL</h1>
+    <div class={styles.screen}>
+      <div class="menu-scrim" />
 
-        {error && <p class="menu-error">{error}</p>}
+      {error ? (
+        <div class={styles.center}>
+          <Box class={styles.notice}>{error}</Box>
+        </div>
+      ) : !user ? (
+        <div class={styles.center}>
+          <span class={styles.connecting}>Connecting…</span>
+        </div>
+      ) : (
+        <div class={styles.hud}>
+          <div class={styles.aTop}>
+            <TopBar
+              coins={1250}
+              onLeaderboard={() => setModal("leaderboard")}
+              onRewards={() => setModal("rewards")}
+              onSettings={() => setModal("settings")}
+            />
+          </div>
 
-        {!user && !error && <p class="menu-dim">Connecting…</p>}
-
-        {user && (
-          <>
-            <div class="menu-profile">
-              {editing ? (
-                <div class="menu-name-edit">
-                  <input
-                    class="menu-input"
-                    value={nameDraft}
-                    maxLength={16}
-                    onInput={(e) =>
-                      setNameDraft((e.target as HTMLInputElement).value)
-                    }
-                    onKeyDown={(e) => e.key === "Enter" && void saveName()}
-                    autoFocus
-                  />
-                  <button
-                    class="menu-btn sm"
-                    disabled={busy}
-                    onClick={saveName}
-                  >
-                    Save
-                  </button>
-                  <button
-                    class="menu-btn sm ghost"
-                    onClick={() => setEditing(false)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ) : (
-                <div class="menu-name-row">
-                  <span class="menu-name">{user.name}</span>
-                  <button
-                    class="menu-btn sm ghost"
-                    title="Edit name"
-                    onClick={() => {
-                      setNameDraft(user.name);
-                      setEditing(true);
-                    }}
-                  >
-                    ✎
-                  </button>
-                  <button
-                    class="menu-btn sm ghost"
-                    title="Random name"
-                    disabled={busy}
-                    onClick={shuffle}
-                  >
-                    🎲
-                  </button>
-                </div>
-              )}
-              <div class="menu-stats">
-                <span>{user.gamesPlayed} played</span>
-                <span>{user.wins} wins</span>
-                <span>{user.goals} goals</span>
+          <div class={styles.aContent}>
+            <div class={styles.mainBlock}>
+              <NewsFloat onViewAll={() => setModal("news")} />
+              <PlayButtons
+                onQuickPlay={() => play()}
+                onWarmup={() => play()}
+                onParty={() => setModal("party")}
+                ready={ready}
+              />
+              <div class={styles.sideCol}>
+                <PlayerCard
+                  user={user}
+                  onEditProfile={() => setModal("profile")}
+                />
+                <FriendsRail onInvite={() => setModal("party")} />
               </div>
             </div>
+          </div>
 
-            <label class="menu-field">
-              <span class="menu-label">Server</span>
-              <select
-                class="menu-select"
-                value={serverId}
-                onChange={(e) => {
-                  const id = (e.target as HTMLSelectElement).value;
-                  setServerId(id);
-                  void loadRooms(id);
+          <div class={styles.aBottom}>
+            <Footer
+              server={selected}
+              onOpenServers={() => setModal("servers")}
+            />
+          </div>
+        </div>
+      )}
+
+      <LeaderboardModal
+        open={modal === "leaderboard"}
+        onClose={() => setModal(null)}
+      />
+      <RewardsModal open={modal === "rewards"} onClose={() => setModal(null)} />
+      <SettingsModal
+        open={modal === "settings"}
+        onClose={() => setModal(null)}
+      />
+      {user && (
+        <EditProfileModal
+          open={modal === "profile"}
+          user={user}
+          busy={busy}
+          onClose={() => setModal(null)}
+          onSave={saveName}
+          onShuffle={shuffle}
+        />
+      )}
+      <ServerModal
+        open={modal === "servers"}
+        onClose={() => setModal(null)}
+        servers={servers}
+        currentId={serverId}
+        onSelect={setServerId}
+      />
+      <Modal
+        open={modal === "party"}
+        onClose={() => setModal(null)}
+        title="Party"
+        width={420}
+      >
+        <p style={{ margin: 0, color: "var(--ui-text-dim)" }}>
+          Private lobbies &amp; friend invites are coming soon. For now, jump
+          into a match with Quick Play!
+        </p>
+      </Modal>
+      <Modal
+        open={modal === "news"}
+        onClose={() => setModal(null)}
+        title="News"
+        width={480}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {MOCK_NEWS.map((n) => (
+            <div key={n.title}>
+              <div style={{ fontFamily: "var(--ui-font)", fontWeight: 600 }}>
+                {n.title}
+              </div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "var(--ui-text-dim)",
+                  margin: "2px 0 4px",
                 }}
               >
-                {servers.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name} · {s.region} ·{" "}
-                    {s.online === false
-                      ? "offline"
-                      : `${s.players ?? 0} playing`}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <button class="menu-btn play" onClick={() => play()}>
-              ▶ Quick Play
-            </button>
-
-            <div class="menu-rooms">
-              <div class="menu-rooms-head">
-                <span class="menu-label">Rooms</span>
-                <button
-                  class="menu-btn sm ghost"
-                  onClick={() => void loadRooms(serverId)}
-                >
-                  ⟳
-                </button>
+                {n.date}
               </div>
-              {roomsLoading ? (
-                <p class="menu-dim">Loading…</p>
-              ) : rooms.length === 0 ? (
-                <p class="menu-dim">
-                  No rooms yet — start one with Quick Play.
-                </p>
-              ) : (
-                <ul class="menu-room-list">
-                  {rooms.map((r) => {
-                    const full = r.players >= r.max;
-                    return (
-                      <li key={r.id} class="menu-room">
-                        <span class="menu-room-id">{r.id}</span>
-                        <span class="menu-room-meta">
-                          {r.players}/{r.max} · {r.status}
-                        </span>
-                        <button
-                          class="menu-btn sm"
-                          disabled={full}
-                          onClick={() => play(r.id)}
-                        >
-                          {full ? "Full" : "Join"}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+              <div
+                style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)" }}
+              >
+                {n.body}
+              </div>
             </div>
-          </>
-        )}
-      </div>
+          ))}
+        </div>
+      </Modal>
     </div>
   );
 }

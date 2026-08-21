@@ -47,6 +47,7 @@
 }
 
 .chevron {
+  display: inline-flex;
   color: var(--ui-text-dim);
   transition: transform 150ms ease;
 }
@@ -65,8 +66,16 @@
   flex-direction: column;
   gap: 2px;
   background-color: var(--ui-panel-solid);
-  max-height: 260px;
+  max-height: 240px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.menu::-webkit-scrollbar {
+  width: 8px;
+}
+.menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
 }
 
 .option {
@@ -75,18 +84,29 @@
   justify-content: space-between;
   gap: 8px;
   width: 100%;
-  padding: 10px 10px;
-  border-radius: 4px;
+  padding: 11px 12px;
+  border: none;
+  border-radius: 5px;
   background: transparent;
   color: #fff;
   font-family: var(--ui-font);
   font-size: 15px;
   text-align: left;
   cursor: pointer;
+  transition: background-color 100ms ease;
 }
 .option:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.option:active {
+  background-color: rgba(255, 255, 255, 0.16);
 }
 .option[data-active="true"] {
   background-color: var(--ui-theme);
+}
+.option[data-active="true"]:hover {
+  background-color: var(--ui-theme-hi);
+}
+.option[data-active="true"] .hint {
+  color: rgba(255, 255, 255, 0.8);
 }

@@ -1,0 +1,620 @@
+/* ===== Option A: HUD-shell main menu ===== */
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+}
+.connecting {
+  font-family: var(--ui-font);
+  font-size: 22px;
+  color: var(--ui-text-dim);
+}
+.notice {
+  padding: 18px 22px;
+  font-family: var(--ui-font);
+  color: #ff8080;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "topbar"
+    "content"
+    "bottom";
+  padding: 16px 16px 0;
+}
+
+.aTop {
+  grid-area: topbar;
+}
+.aContent {
+  grid-area: content;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+.aBottom {
+  grid-area: bottom;
+  margin: 0 -16px;
+}
+
+/* latest-news card (left wing of the 3-column block) */
+.newsFloat {
+  overflow: hidden;
+}
+.newsImg {
+  width: 100%;
+  height: 132px;
+  object-fit: cover;
+  display: block;
+  border-bottom: 2px solid #111;
+}
+.newsPad {
+  padding: 12px 14px 14px;
+}
+.newsTag {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 2px 8px 3px;
+  border-radius: 5px;
+  background: var(--ui-theme);
+  color: #fff;
+  font-family: var(--ui-font);
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* centred 3-column block: news wing | play | profile wing (wings share width) */
+.mainBlock {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr) 288px;
+  gap: 20px;
+  width: min(1040px, 96%);
+  align-items: start;
+  justify-content: center;
+}
+.playCol {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sideCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* play buttons reuse the shared <Button>; these only tweak size + colour */
+.quickBtn {
+  height: 112px;
+  gap: 16px;
+  font-size: 26px;
+}
+.modeRow2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.modeBtn {
+  flex-direction: column;
+  justify-content: center;
+  height: 112px;
+  gap: 8px;
+  font-size: 15px;
+}
+.playCol .modeBtn.warmBtn {
+  background-color: #f0932b;
+}
+.playCol .modeBtn.partyBtn {
+  background-color: #7d5fff;
+}
+
+.playArrow {
+  display: inline-flex;
+  margin-left: auto;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  height: 46px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+}
+.topRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.coins {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  font-family: var(--ui-font);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ui-gold);
+}
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+}
+.iconBtn:hover {
+  filter: brightness(1.15);
+}
+
+/* ---------- generic card ---------- */
+.card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 14px 14px 18px;
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-family: var(--ui-font);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ui-text-dim);
+}
+
+/* ---------- player card ---------- */
+.player {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+.ribbon {
+  position: absolute;
+  top: -6px;
+  right: 18px;
+  width: 34px;
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+  background: #ff4b8b;
+  color: #fff;
+  font-family: var(--ui-font);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35));
+}
+.ribbonLvl {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+  line-height: 1;
+}
+.ribbonNum {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.playerTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 3px solid #12321f;
+  box-shadow: 0 0 0 3px var(--ui-theme);
+  background: rgb(253, 200, 118);
+  flex-shrink: 0;
+}
+.nameCol {
+  min-width: 0;
+  flex: 1;
+}
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pName {
+  font-family: var(--ui-font);
+  font-weight: 600;
+  font-size: 19px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- edit-profile modal ---------- */
+.editProfile {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.editProfileActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.level {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.levelText {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--ui-font);
+  font-size: 12px;
+  color: var(--ui-text-dim);
+}
+.levelBar {
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+.levelFill {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--ui-theme);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+}
+.statVal {
+  font-family: var(--ui-font);
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+}
+.statLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ui-text-dim);
+}
+
+/* ---------- news ---------- */
+.news {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+.newsItem {
+  padding: 11px 12px 13px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+}
+.newsTitle {
+  font-family: var(--ui-font);
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+}
+.newsDate {
+  font-size: 11px;
+  color: var(--ui-text-dim);
+  margin: 1px 0 6px;
+}
+.newsBody {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.35;
+}
+
+/* ---------- center play panel ---------- */
+.playHint {
+  text-align: center;
+  font-family: var(--ui-font);
+  color: var(--ui-text-dim);
+  font-size: 13px;
+  margin-top: -2px;
+}
+
+/* ---------- friends ---------- */
+.friends {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 210px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+.friends::-webkit-scrollbar {
+  width: 6px;
+}
+.friends::-webkit-scrollbar-track {
+  background: transparent;
+}
+.friends::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 3px;
+}
+.friends::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+.friend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 6px;
+}
+.friend:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dotOnline {
+  background: var(--ui-theme);
+}
+.dotGame {
+  background: var(--ui-gold);
+}
+.dotOffline {
+  background: rgba(255, 255, 255, 0.25);
+}
+.friendName {
+  flex: 1;
+  font-family: var(--ui-font);
+  font-size: 14px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.friendStatus {
+  font-size: 11px;
+  color: var(--ui-text-dim);
+}
+.friendsFoot {
+  margin-top: 10px;
+}
+
+/* ---------- bottom bar (flush full-width footer) ---------- */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 2px solid #111;
+}
+.footerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.social {
+  display: flex;
+  gap: 8px;
+}
+.socialBtn {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+}
+.socialBtn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+.credit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--ui-font);
+  font-size: 12px;
+  color: var(--ui-text-dim);
+}
+.serverPick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.serverInfo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  text-align: right;
+}
+.serverName {
+  font-family: var(--ui-font);
+  font-size: 14px;
+  color: #fff;
+}
+.serverMeta {
+  font-size: 11px;
+  color: var(--ui-text-dim);
+}
+.serverDot {
+  color: var(--ui-theme);
+}
+
+/* server list (in modal) */
+.serverList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.serverItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  font-family: var(--ui-font);
+  color: #fff;
+  text-align: left;
+}
+.serverItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.serverItem[data-active="true"] {
+  background: var(--ui-theme);
+}
+.serverItemMeta {
+  font-size: 12px;
+  color: var(--ui-text-dim);
+}
+.serverItem[data-active="true"] .serverItemMeta {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- modal content ---------- */
+.lbTable {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lbRow {
+  display: grid;
+  grid-template-columns: 34px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  font-family: var(--ui-font);
+}
+.lbRow[data-top="true"] {
+  background: rgba(44, 181, 128, 0.18);
+}
+.lbRank {
+  font-weight: 700;
+  color: var(--ui-gold);
+}
+.lbName {
+  color: #fff;
+}
+.lbStat {
+  font-size: 13px;
+  color: var(--ui-text-dim);
+  min-width: 74px;
+  text-align: right;
+}
+
+.rewardGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.reward {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 2px solid transparent;
+}
+.reward[data-today="true"] {
+  border-color: var(--ui-theme);
+}
+.reward[data-claimed="true"] {
+  opacity: 0.5;
+}
+.rewardDay {
+  font-size: 11px;
+  color: var(--ui-text-dim);
+}
+.rewardLabel {
+  font-family: var(--ui-font);
+  font-weight: 600;
+  font-size: 13px;
+  color: #fff;
+  text-align: center;
+}
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ui-line);
+}
+.settingRow:last-child {
+  border-bottom: none;
+}
+.settingLabel {
+  font-family: var(--ui-font);
+  color: #fff;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1180px) {
+  .newsFloat {
+    display: none;
+  }
+}
+@media (max-width: 820px) {
+  .mainBlock {
+    grid-template-columns: 1fr;
+    width: min(460px, 92%);
+  }
+}

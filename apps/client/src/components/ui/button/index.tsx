@@ -21,7 +21,7 @@ interface ButtonProps {
   iconAfter?: ComponentChildren;
   /** pixel size of the leading icon; default 16 */
   iconSize?: number;
-  /** stack the icon above the label (default) or beside it */
+  /** place the icon beside the label (default) or stacked above it */
   iconOrientation?: IconOrientation;
   class?: string;
   type?: "button" | "submit";
@@ -39,27 +39,29 @@ export const Button = ({
   icon,
   iconAfter,
   iconSize = 16,
-  iconOrientation = "vertical",
+  iconOrientation = "horizontal",
   class: cls,
   type = "button",
   title,
 }: ButtonProps) => {
-  // vertical stacks the icon above a label+trailing-icon row; horizontal keeps
-  // the label inline with a trailing icon that floats to the far right.
+  const after = iconAfter && (
+    <span class={styles["button__content-after"]}>{iconAfter}</span>
+  );
+
+  // no label -> just the icon (skip the empty content wrapper). vertical stacks
+  // the icon above the label; horizontal keeps them inline.
   const body =
-    iconOrientation === "vertical" ? (
+    children == null ? (
+      after
+    ) : iconOrientation === "vertical" ? (
       <span class={styles.button__content}>
         {children}
-        {iconAfter && (
-          <span class={styles["button__content-after"]}>{iconAfter}</span>
-        )}
+        {after}
       </span>
     ) : (
       <>
         {children}
-        {iconAfter && (
-          <span class={styles["button__content-after"]}>{iconAfter}</span>
-        )}
+        {after}
       </>
     );
 

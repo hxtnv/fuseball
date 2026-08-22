@@ -36,9 +36,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 4px;
-    border-radius: 0 0 var(--ui-radius) var(--ui-radius);
-    background-color: rgba(0, 0, 0, 0.5);
+    height: 6px;
+    border-radius: 0 0 inherit inherit;
+    background-color: rgba(0, 0, 0, 0.35);
     pointer-events: none;
   }
 }

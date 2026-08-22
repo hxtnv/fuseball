@@ -1,3 +1,0 @@
-# Fuseball Client
-
-TODO

@@ -1,13 +1,35 @@
-import { Box, Button } from "@/components/ui";
+import { Avatar, Box, Button, Skeleton } from "@/components/ui";
 import type { User } from "@/lib/auth";
 import styles from "./player-card.module.scss";
 
 interface PlayerCardProps {
-  user: User;
+  user: User | null;
   onEditProfile: () => void;
 }
 
 export const PlayerCard = ({ user, onEditProfile }: PlayerCardProps) => {
+  if (!user) {
+    return (
+      <Box class={styles.playerCard}>
+        <div class={styles.playerCard__top}>
+          <Skeleton width={58} height={58} radius="50%" />
+          <div class={styles.playerCard__top__name}>
+            <Skeleton width="65%" height={18} />
+            <Skeleton width="100%" height={8} radius={6} />
+          </div>
+        </div>
+        <div class={styles.playerCard__stats}>
+          <Skeleton height={52} radius={6} />
+          <Skeleton height={52} radius={6} />
+          <Skeleton height={52} radius={6} />
+        </div>
+        <Button block variant="secondary" size="small" disabled>
+          Edit profile
+        </Button>
+      </Box>
+    );
+  }
+
   const level = 1 + Math.floor(user.gamesPlayed / 5);
   const xp = (user.gamesPlayed % 5) / 5;
   const winrate =
@@ -23,7 +45,7 @@ export const PlayerCard = ({ user, onEditProfile }: PlayerCardProps) => {
       </div>
 
       <div class={styles.playerCard__top}>
-        <div class={styles.playerCard__top__avatar} />
+        <Avatar name={user.name} size={58} onlineStatus="online" />
         <div class={styles.playerCard__top__name}>
           <span class={styles.playerCard__top__name__text}>{user.name}</span>
           <div class={styles.playerCard__level}>

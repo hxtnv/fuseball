@@ -20,7 +20,6 @@ export const PlayButtons = ({
     <Button
       block
       size="large"
-      iconOrientation="horizontal"
       iconSize={48}
       icon={<img src="/icons/other/trade.png" alt="" />}
       iconAfter={<PlayIcon />}
@@ -34,6 +33,7 @@ export const PlayButtons = ({
     <div class={styles.playButtons__modes}>
       <Button
         block
+        iconOrientation="vertical"
         iconSize={52}
         icon={<img src="/icons/other/target.png" alt="" />}
         iconAfter={<PlayIcon />}
@@ -48,11 +48,13 @@ export const PlayButtons = ({
       </Button>
       <Button
         block
+        iconOrientation="vertical"
         iconSize={52}
         icon={<img src="/icons/other/friend.png" alt="" />}
         iconAfter={<PlayIcon />}
         class={cn(styles.playButtons__mode, styles["playButtons__mode--party"])}
         onClick={onParty}
+        disabled={!ready}
       >
         Party
       </Button>

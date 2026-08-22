@@ -7,7 +7,7 @@ import {
   type GameServerInfo,
   type User,
 } from "@/lib/auth";
-import { Box } from "@/components/ui";
+import { AlertTriangle } from "lucide-react";
 import { TopBar } from "./parts/top-bar";
 import { ServerBox } from "./parts/server-box";
 import { NewsCard } from "./parts/news-card";
@@ -15,6 +15,8 @@ import { PlayButtons } from "./parts/play-buttons";
 import { PlayerCard } from "./parts/player-card";
 import { FriendsRail } from "./parts/friends-rail";
 import { Footer } from "./parts/footer";
+import { LeaderboardCard } from "./parts/leaderboard-card";
+import { WalletStrip } from "./parts/wallet-strip";
 import { LeaderboardModal } from "./parts/leaderboard-modal";
 import { RewardsModal } from "./parts/rewards-modal";
 import { SettingsModal } from "./parts/settings-modal";
@@ -22,7 +24,7 @@ import { EditProfileModal } from "./parts/edit-profile-modal";
 import { ServerModal } from "./parts/server-modal";
 import { PartyModal } from "./parts/party-modal";
 import { NewsModal } from "./parts/news-modal";
-import { QuestsModal } from "./parts/quests-modal";
+import { SignInModal } from "./parts/sign-in-modal";
 import styles from "./menu.module.scss";
 
 export interface PlaySession {
@@ -44,7 +46,7 @@ type ModalKind =
   | "servers"
   | "news"
   | "profile"
-  | "quests"
+  | "signin"
   | null;
 
 export const MainMenu = ({ onPlay }: Props) => {
@@ -136,60 +138,53 @@ export const MainMenu = ({ onPlay }: Props) => {
         <div class={styles.menu__bg__noise} />
       </div>
 
-      {error ? (
-        <div class={styles.menu__center}>
-          <Box class={styles.menu__notice}>{error}</Box>
+      <div class={styles.menu__hud}>
+        <div class={styles.menu__hud__top}>
+          <TopBar
+            onSignIn={() => setModal("signin")}
+            onSettings={() => setModal("settings")}
+          />
         </div>
-      ) : !user ? (
-        <div class={styles.menu__center}>
-          <span class={styles.menu__connecting}>Connecting…</span>
-        </div>
-      ) : (
-        <div class={styles.menu__hud}>
-          <div class={styles.menu__hud__top}>
-            <TopBar
-              coins={1250}
-              onQuests={() => setModal("quests")}
-              onLeaderboard={() => setModal("leaderboard")}
-              onRewards={() => setModal("rewards")}
-              onSettings={() => setModal("settings")}
-            />
-          </div>
 
-          <div class={styles.menu__hud__content}>
-            <div class={styles.menu__block}>
-              <div class={styles.menu__block__left}>
-                <ServerBox
-                  server={selected}
-                  onOpen={() => setModal("servers")}
-                />
-                <NewsCard onViewAll={() => setModal("news")} />
+        <div class={styles.menu__hud__content}>
+          <div class={styles.menu__block}>
+            {error && (
+              <div class={styles.menu__alert}>
+                <AlertTriangle size={18} />
+                <span>{error}</span>
               </div>
+            )}
 
-              <div class={styles.menu__block__center}>
-                <PlayButtons
-                  onQuickPlay={() => play()}
-                  onWarmup={() => play()}
-                  onParty={() => setModal("party")}
-                  ready={ready}
-                />
-              </div>
+            <div class={styles.menu__block__left}>
+              <ServerBox server={selected} onOpen={() => setModal("servers")} />
+              <LeaderboardCard onOpen={() => setModal("leaderboard")} />
+              <NewsCard onViewAll={() => setModal("news")} />
+            </div>
 
-              <div class={styles.menu__block__side}>
-                <PlayerCard
-                  user={user}
-                  onEditProfile={() => setModal("profile")}
-                />
-                <FriendsRail onInvite={() => setModal("party")} />
-              </div>
+            <div class={styles.menu__block__center}>
+              <PlayButtons
+                onQuickPlay={() => play()}
+                onWarmup={() => play()}
+                onParty={() => setModal("party")}
+                ready={ready}
+              />
+            </div>
+
+            <div class={styles.menu__block__side}>
+              <PlayerCard
+                user={user}
+                onEditProfile={() => setModal("profile")}
+              />
+              <WalletStrip coins={1250} onRewards={() => setModal("rewards")} />
+              <FriendsRail onInvite={() => setModal("party")} />
             </div>
           </div>
-
-          <div class={styles.menu__hud__bottom}>
-            <Footer />
-          </div>
         </div>
-      )}
+
+        <div class={styles.menu__hud__bottom}>
+          <Footer />
+        </div>
+      </div>
 
       <LeaderboardModal open={modal === "leaderboard"} onClose={closeModal} />
       <RewardsModal open={modal === "rewards"} onClose={closeModal} />
@@ -213,7 +208,7 @@ export const MainMenu = ({ onPlay }: Props) => {
       />
       <PartyModal open={modal === "party"} onClose={closeModal} />
       <NewsModal open={modal === "news"} onClose={closeModal} />
-      <QuestsModal open={modal === "quests"} onClose={closeModal} />
+      <SignInModal open={modal === "signin"} onClose={closeModal} />
     </div>
   );
 };

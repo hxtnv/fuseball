@@ -50,24 +50,19 @@
     }
   }
 
-  &__center {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-  }
-
-  &__connecting {
+  &__alert {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: rgba(217, 58, 58, 0.16);
+    border: 2px solid rgba(217, 58, 58, 0.5);
+    color: #ffb4b4;
     font-family: var(--ui-font);
-    font-size: 22px;
-    color: var(--ui-text-dim);
-  }
-
-  &__notice {
-    padding: 18px 22px;
-    font-family: var(--ui-font);
-    color: #ff8080;
+    font-size: 14px;
   }
 
   &__hud {
@@ -76,14 +71,14 @@
     z-index: 1;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    padding: 16px 16px 0;
+    // padding: 16px 16px 0;
 
     &__top {
       position: relative;
       z-index: 3;
-      margin: -16px -16px 0;
+      //   margin: -16px -16px 0;
       animation: menu-enter-down 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
-      animation-delay: 460ms;
+      animation-delay: 150ms;
     }
 
     &__content {
@@ -95,9 +90,9 @@
     }
 
     &__bottom {
-      margin: 0 -16px;
+      //   margin: 0 -16px;
       animation: menu-enter-up 560ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
-      animation-delay: 780ms;
+      animation-delay: 450ms;
     }
   }
 
@@ -118,16 +113,14 @@
     }
     &__left {
       animation: menu-enter-left 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
-      animation-delay: 560ms;
+      animation-delay: 250ms;
     }
     &__center {
       min-width: 0;
-      animation: menu-enter-pop 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
-      animation-delay: 660ms;
     }
     &__side {
       animation: menu-enter-right 520ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
-      animation-delay: 560ms;
+      animation-delay: 250ms;
     }
   }
 }

@@ -1,0 +1,12 @@
+.signIn {
+  &__text {
+    margin: 0 0 16px;
+    color: var(--ui-text-dim);
+    line-height: 1.4;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+  }
+}

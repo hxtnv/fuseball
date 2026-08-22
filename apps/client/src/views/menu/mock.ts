@@ -67,16 +67,3 @@ export const MOCK_REWARDS: Reward[] = [
   { day: 6, label: "400 coins", claimed: false, today: false },
   { day: 7, label: "Skin", claimed: false, today: false },
 ];
-
-export interface Quest {
-  title: string;
-  progress: number;
-  goal: number;
-  reward: string;
-}
-
-export const MOCK_QUESTS: Quest[] = [
-  { title: "Score 3 goals", progress: 1, goal: 3, reward: "150 coins" },
-  { title: "Win a match", progress: 0, goal: 1, reward: "Emote" },
-  { title: "Play 5 games", progress: 2, goal: 5, reward: "300 coins" },
-];

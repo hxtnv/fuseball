@@ -1,0 +1,53 @@
+.wallet {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+
+  &__label {
+    font-family: var(--ui-font);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ui-text-dim);
+  }
+
+  &__coins {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &__icon {
+      width: 26px;
+      height: 26px;
+    }
+
+    &__value {
+      font-family: var(--ui-font);
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--ui-gold);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  // reuse <Button>; only recolour it and pulse the gift icon
+  &__rewards {
+    background: linear-gradient(180deg, #ff9a3d, #f0682b) !important;
+
+    img {
+      animation: gift-pulse 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes gift-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
+}

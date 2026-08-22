@@ -8,6 +8,8 @@
     font-size: 20px !important;
     padding: 22px 22px 24px !important;
     letter-spacing: 2px;
+    animation: play-pop 460ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+    animation-delay: 300ms;
   }
 
   &__modes {
@@ -20,13 +22,16 @@
     gap: 16px;
     font-size: 14px;
     padding: 22px 22px 24px !important;
+    animation: play-pop 460ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
 
     &--warmup {
       background-color: #488ef3 !important;
+      animation-delay: 440ms;
     }
 
     &--party {
       background-color: #c22631 !important;
+      animation-delay: 580ms;
     }
   }
 
@@ -60,6 +65,8 @@
     font-family: var(--ui-font);
     font-size: 13px;
     color: var(--ui-text-dim);
+    animation: play-pop 460ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+    animation-delay: 720ms;
 
     strong {
       color: #fff;
@@ -86,5 +93,27 @@
   }
   100% {
     box-shadow: 0 0 0 0 rgba(44, 181, 128, 0);
+  }
+}
+
+@keyframes play-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1.03);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playButtons__quick,
+  .playButtons__mode,
+  .playButtons__online {
+    animation: none;
   }
 }

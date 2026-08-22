@@ -1,3 +1,4 @@
+export { Avatar } from "./avatar";
 export { Box } from "./box";
 export { Button } from "./button";
 export { Input } from "./input";

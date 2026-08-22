@@ -14,6 +14,7 @@ import {
   NewsFloat,
   PlayButtons,
   PlayerCard,
+  ServerBox,
   TopBar,
 } from "./menu/panels";
 import {
@@ -152,7 +153,13 @@ export function MainMenu({ onPlay }: Props) {
 
           <div class={styles.aContent}>
             <div class={styles.mainBlock}>
-              <NewsFloat onViewAll={() => setModal("news")} />
+              <div class={styles.leftCol}>
+                <ServerBox
+                  server={selected}
+                  onOpen={() => setModal("servers")}
+                />
+                <NewsFloat onViewAll={() => setModal("news")} />
+              </div>
               <PlayButtons
                 onQuickPlay={() => play()}
                 onWarmup={() => play()}
@@ -170,10 +177,7 @@ export function MainMenu({ onPlay }: Props) {
           </div>
 
           <div class={styles.aBottom}>
-            <Footer
-              server={selected}
-              onOpenServers={() => setModal("servers")}
-            />
+            <Footer />
           </div>
         </div>
       )}

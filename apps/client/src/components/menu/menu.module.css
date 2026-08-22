@@ -100,12 +100,19 @@
   flex-direction: column;
   gap: 16px;
 }
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 /* play buttons reuse the shared <Button>; these only tweak size + colour */
 .quickBtn {
-  height: 112px;
+  /* height: 112px; */
   gap: 16px;
-  font-size: 26px;
+  font-size: 20px !important;
+  padding: 22px 22px 24px !important;
+  letter-spacing: 2px;
 }
 .modeRow2 {
   display: grid;
@@ -115,20 +122,45 @@
 .modeBtn {
   flex-direction: column;
   justify-content: center;
-  height: 112px;
-  gap: 8px;
-  font-size: 15px;
+  /* height: 112px; */
+  gap: 16px;
+  font-size: 14px;
+  padding: 22px 22px 24px !important;
+
+  div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 }
 .playCol .modeBtn.warmBtn {
-  background-color: #f0932b;
+  background-color: #488ef3;
 }
 .playCol .modeBtn.partyBtn {
-  background-color: #7d5fff;
+  background-color: #c22631;
 }
 
-.playArrow {
+.playArrow,
+.playArrow2 {
   display: inline-flex;
+  align-items: center;
   margin-left: auto;
+
+  svg {
+    height: 28px;
+    width: 28px;
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 3.5px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+  }
+}
+
+.playArrow2 svg {
+  height: 16px;
+  width: 16px;
 }
 
 /* ---------- top bar ---------- */
@@ -224,7 +256,7 @@
   line-height: 1;
 }
 .ribbonNum {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.15;
 }
@@ -427,68 +459,61 @@
   margin-top: 10px;
 }
 
-/* ---------- bottom bar (flush full-width footer) ---------- */
+/* ---------- bottom bar (social links) ---------- */
 .footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
-  padding: 9px 16px;
-  background: rgba(0, 0, 0, 0.5);
-  border-top: 2px solid #111;
-}
-.footerLeft {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  padding: 24px;
 }
 .social {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+
+  button {
+    padding: 12px;
+  }
+
+  button img {
+    height: 28px;
+    width: 28px;
+  }
 }
-.socialBtn {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
-}
-.socialBtn:hover {
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-}
-.credit {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--ui-font);
-  font-size: 12px;
-  color: var(--ui-text-dim);
-}
-.serverPick {
+
+/* ---------- server picker (left wing box) ---------- */
+.serverBox {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: filter 120ms ease;
 }
-.serverInfo {
+.serverBox:hover {
+  filter: brightness(1.12);
+}
+.serverBoxInfo {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
   line-height: 1.25;
-  text-align: right;
 }
-.serverName {
+.serverBoxName {
   font-family: var(--ui-font);
+  font-weight: 600;
   font-size: 14px;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.serverMeta {
+.serverBoxMeta {
   font-size: 11px;
   color: var(--ui-text-dim);
-}
-.serverDot {
-  color: var(--ui-theme);
 }
 
 /* server list (in modal) */

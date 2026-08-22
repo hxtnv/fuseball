@@ -17,6 +17,11 @@
   transition:
     filter 120ms ease,
     transform 60ms ease;
+
+  svg,
+  img {
+    flex-shrink: 0;
+  }
 }
 
 .btn:hover:not(:disabled) {

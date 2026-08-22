@@ -1,34 +1,17 @@
 import {
+  ChevronRight,
   Coins,
   Gift,
-  Heart,
   Server as ServerIcon,
   Settings,
   Trophy,
   UserPlus,
+  PlayIcon,
 } from "lucide-react";
 import { Box, Button } from "../ui";
 import type { GameServerInfo, User } from "../../auth";
 import { MOCK_FRIENDS, MOCK_NEWS } from "./mock";
-import { ArrowIcon, BallIcon, FlameIcon, PartyIcon } from "./play-icons";
 import styles from "./menu.module.css";
-
-/* brand logos (lucide dropped brand icons, so these are inline) */
-const XIcon = ({ size = 16 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-  </svg>
-);
-const DiscordIcon = ({ size = 16 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3.2a.07.07 0 0 0-.073.035c-.211.375-.444.864-.608 1.249a18.27 18.27 0 0 0-5.487 0 12.6 12.6 0 0 0-.617-1.249.07.07 0 0 0-.073-.035A19.74 19.74 0 0 0 5.677 4.37a.06.06 0 0 0-.03.024C3.044 8.279 2.488 12.06 2.36 15.799a.08.08 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.07.07 0 0 0 .078-.027c.462-.63.874-1.295 1.226-1.994a.07.07 0 0 0-.041-.1 13.1 13.1 0 0 1-1.872-.892.07.07 0 0 1-.007-.117c.126-.094.252-.192.372-.291a.07.07 0 0 1 .07-.01c3.927 1.793 8.18 1.793 12.061 0a.07.07 0 0 1 .072.009c.12.099.245.198.372.292a.07.07 0 0 1-.006.117c-.598.35-1.22.645-1.873.892a.07.07 0 0 0-.04.1c.36.698.772 1.362 1.225 1.993a.07.07 0 0 0 .078.028 19.84 19.84 0 0 0 6.002-3.03.08.08 0 0 0 .031-.055c.5-4.317-.838-8.067-3.549-11.407a.06.06 0 0 0-.03-.024zM8.02 13.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.211 0 2.176 1.096 2.157 2.42 0 1.333-.955 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.211 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
-  </svg>
-);
-const GithubIcon = ({ size = 16 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z" />
-  </svg>
-);
 
 /* ------------------------------- top bar ------------------------------- */
 interface TopBarProps {
@@ -177,11 +160,11 @@ export function PlayButtons(p: PlayButtonsProps) {
         onClick={p.onQuickPlay}
         disabled={!p.ready}
       >
-        <img src="/icons/other/trade.png" alt="" width={52} height={52} />
+        <img src="/icons/other/trade.png" alt="" width={48} height={48} />
 
         <span>Quick Play</span>
         <span class={styles.playArrow}>
-          <ArrowIcon size={30} />
+          <PlayIcon size={30} />
         </span>
       </Button>
 
@@ -193,7 +176,12 @@ export function PlayButtons(p: PlayButtonsProps) {
           disabled={!p.ready}
         >
           <img src="/icons/other/target.png" alt="" width={52} height={52} />
-          <span>Warmup</span>
+          <div>
+            <span>Warmup</span>
+            <span class={styles.playArrow2}>
+              <PlayIcon size={30} />
+            </span>
+          </div>
         </Button>
         <Button
           block
@@ -201,7 +189,13 @@ export function PlayButtons(p: PlayButtonsProps) {
           onClick={p.onParty}
         >
           <img src="/icons/other/friend.png" alt="" width={52} height={52} />
-          <span>Party</span>
+
+          <div>
+            <span>Party</span>
+            <span class={styles.playArrow2}>
+              <PlayIcon size={30} />
+            </span>
+          </div>
         </Button>
       </div>
     </div>
@@ -245,13 +239,14 @@ export function FriendsRail({ onInvite }: { onInvite: () => void }) {
   );
 }
 
-/* ------------------------- bottom bar (footer) ------------------------- */
-interface FooterProps {
+/* --------------------- server picker (left wing) ---------------------- */
+export function ServerBox({
+  server,
+  onOpen,
+}: {
   server: GameServerInfo | undefined;
-  onOpenServers: () => void;
-}
-
-export function Footer({ server, onOpenServers }: FooterProps) {
+  onOpen: () => void;
+}) {
   const meta = server
     ? server.online === false
       ? "offline"
@@ -259,47 +254,53 @@ export function Footer({ server, onOpenServers }: FooterProps) {
     : "no server";
 
   return (
-    <div class={styles.footer}>
-      <div class={styles.footerLeft}>
-        <div class={styles.social}>
-          <a
-            class={styles.socialBtn}
-            href="#"
-            title="Twitter"
-            onClick={(e) => e.preventDefault()}
-          >
-            <XIcon size={15} />
-          </a>
-          <a
-            class={styles.socialBtn}
-            href="#"
-            title="Discord"
-            onClick={(e) => e.preventDefault()}
-          >
-            <DiscordIcon size={16} />
-          </a>
-          <a
-            class={styles.socialBtn}
-            href="#"
-            title="GitHub"
-            onClick={(e) => e.preventDefault()}
-          >
-            <GithubIcon size={16} />
-          </a>
-        </div>
-        <span class={styles.credit}>
-          made with <Heart size={12} fill="currentColor" /> by hxtnv
-        </span>
+    <button class={`ui-box ${styles.serverBox}`} onClick={onOpen}>
+      <ServerIcon size={18} />
+      <div class={styles.serverBoxInfo}>
+        <span class={styles.serverBoxName}>{server?.name ?? "—"}</span>
+        <span class={styles.serverBoxMeta}>{meta}</span>
       </div>
+      <ChevronRight size={16} />
+    </button>
+  );
+}
 
-      <div class={styles.serverPick}>
-        <div class={styles.serverInfo}>
-          <span class={styles.serverName}>{server?.name ?? "—"}</span>
-          <span class={styles.serverMeta}>{meta}</span>
-        </div>
-        <Button variant="secondary" size="small" onClick={onOpenServers}>
-          <ServerIcon size={15} /> Change
-        </Button>
+/* ------------------------- bottom bar (footer) ------------------------- */
+export function Footer() {
+  return (
+    <div class={styles.footer}>
+      <div class={styles.social}>
+        <a
+          href="https://twitter.com/fuseball_game"
+          target="_blank"
+          rel="noreferrer"
+          title="Twitter"
+        >
+          <Button block variant="secondary">
+            <img
+              src="/icons/social/twitter.png"
+              alt="Twitter"
+              width={36}
+              height={36}
+            />
+          </Button>
+        </a>
+
+        <a
+          href="https://discord.gg/B8Pp9nrpdD"
+          target="_blank"
+          rel="noreferrer"
+          title="Discord"
+        >
+          <Button block variant="secondary">
+            <img
+              src="/icons/social/discord.png"
+              alt="Discord"
+              width={36}
+              height={36}
+            />
+          </Button>
+        </a>
       </div>
     </div>
   );

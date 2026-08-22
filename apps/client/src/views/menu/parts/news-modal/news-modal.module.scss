@@ -1,0 +1,23 @@
+.newsModal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__item {
+    &__title {
+      font-family: var(--ui-font);
+      font-weight: 600;
+    }
+
+    &__date {
+      font-size: 11px;
+      color: var(--ui-text-dim);
+      margin: 2px 0 4px;
+    }
+
+    &__body {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+  }
+}

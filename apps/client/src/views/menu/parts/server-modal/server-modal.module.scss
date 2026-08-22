@@ -1,0 +1,37 @@
+.serverList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    font-family: var(--ui-font);
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &[data-active="true"] {
+      background: var(--ui-theme);
+    }
+
+    &__meta {
+      font-size: 12px;
+      color: var(--ui-text-dim);
+    }
+
+    &[data-active="true"] &__meta {
+      color: rgba(255, 255, 255, 0.85);
+    }
+  }
+}

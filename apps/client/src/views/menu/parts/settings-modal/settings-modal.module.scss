@@ -1,0 +1,19 @@
+.settings {
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--ui-line);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &__label {
+      font-family: var(--ui-font);
+      color: #fff;
+    }
+  }
+}

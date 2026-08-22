@@ -1,0 +1,58 @@
+.quests {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__item {
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+
+    &[data-done="true"] {
+      background: rgba(44, 181, 128, 0.15);
+    }
+
+    &__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+
+      &__title {
+        font-family: var(--ui-font);
+        font-weight: 600;
+        color: #fff;
+      }
+
+      &__reward {
+        font-family: var(--ui-font);
+        font-size: 12px;
+        color: var(--ui-gold);
+      }
+    }
+
+    &__bar {
+      height: 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+
+      &__fill {
+        height: 100%;
+        border-radius: 6px;
+        background: var(--ui-theme);
+        transition: width 300ms ease;
+      }
+    }
+
+    &__count {
+      display: block;
+      margin-top: 4px;
+      text-align: right;
+      font-size: 11px;
+      color: var(--ui-text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}

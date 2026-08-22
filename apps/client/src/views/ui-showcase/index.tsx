@@ -1,6 +1,7 @@
 import { useState } from "preact/hooks";
-import { Box, Button, Input, Modal, Select, Skeleton } from "./ui";
-import styles from "./ui-showcase.module.css";
+import { Box, Button, Input, Modal, Select, Skeleton } from "@/components/ui";
+import { cn } from "@/lib/cn";
+import styles from "./ui-showcase.module.scss";
 
 const SERVER_OPTIONS = [
   { label: "Europe West", value: "euw", hint: "312 playing" },
@@ -18,7 +19,7 @@ const SWATCHES: { name: string; varName: string }[] = [
   { name: "field", varName: "--ui-field" },
 ];
 
-export function UiShowcase() {
+export const UiShowcase = () => {
   const [name, setName] = useState("SwiftStriker42");
   const [server, setServer] = useState("local");
   const [modalOpen, setModalOpen] = useState(false);
@@ -30,19 +31,21 @@ export function UiShowcase() {
   };
 
   return (
-    <div class={styles.page}>
-      <div class={styles.wrap}>
-        <h1 class={styles.title}>UI Components</h1>
-        <p class={styles.subtitle}>Fuseball component library preview</p>
+    <div class={styles.showcase}>
+      <div class={styles.showcase__wrap}>
+        <h1 class={styles.showcase__title}>UI Components</h1>
+        <p class={styles.showcase__subtitle}>
+          Fuseball component library preview
+        </p>
 
         {/* Colors */}
-        <Box class={styles.section}>
-          <h3>Palette</h3>
-          <div class={styles.swatches}>
+        <Box>
+          <h3 class={styles.showcase__heading}>Palette</h3>
+          <div class={styles.showcase__swatches}>
             {SWATCHES.map((s) => (
               <div
                 key={s.varName}
-                class={`ui-box ${styles.swatch}`}
+                class={cn("ui-box", styles.showcase__swatch)}
                 style={{ backgroundColor: `var(${s.varName})` }}
               >
                 {s.name}
@@ -52,20 +55,20 @@ export function UiShowcase() {
         </Box>
 
         {/* Buttons */}
-        <Box class={styles.section}>
-          <h3>Buttons</h3>
-          <div class={styles.stack}>
-            <div class={styles.row}>
+        <Box>
+          <h3 class={styles.showcase__heading}>Buttons</h3>
+          <div class={styles.showcase__stack}>
+            <div class={styles.showcase__row}>
               <Button variant="primary">Primary</Button>
               <Button variant="secondary">Secondary</Button>
               <Button variant="danger">Danger</Button>
             </div>
-            <div class={styles.row}>
+            <div class={styles.showcase__row}>
               <Button size="small">Small</Button>
               <Button size="medium">Medium</Button>
               <Button size="large">Large</Button>
             </div>
-            <div class={styles.row}>
+            <div class={styles.showcase__row}>
               <Button loading={loading} onClick={fakeLoad}>
                 {loading ? "Loading" : "Click to load"}
               </Button>
@@ -81,10 +84,10 @@ export function UiShowcase() {
         </Box>
 
         {/* Inputs + Select */}
-        <div class={styles.grid}>
-          <Box class={styles.section}>
-            <h3>Inputs</h3>
-            <div class={styles.stack}>
+        <div class={styles.showcase__grid}>
+          <Box>
+            <h3 class={styles.showcase__heading}>Inputs</h3>
+            <div class={styles.showcase__stack}>
               <Input
                 label="Display name"
                 value={name}
@@ -104,8 +107,8 @@ export function UiShowcase() {
             </div>
           </Box>
 
-          <Box class={styles.section}>
-            <h3>Select</h3>
+          <Box>
+            <h3 class={styles.showcase__heading}>Select</h3>
             <Select
               label="Server"
               options={SERVER_OPTIONS}
@@ -116,15 +119,15 @@ export function UiShowcase() {
         </div>
 
         {/* Modal + Skeleton */}
-        <div class={styles.grid}>
-          <Box class={styles.section}>
-            <h3>Modal</h3>
+        <div class={styles.showcase__grid}>
+          <Box>
+            <h3 class={styles.showcase__heading}>Modal</h3>
             <Button onClick={() => setModalOpen(true)}>Open modal</Button>
           </Box>
 
-          <Box class={styles.section}>
-            <h3>Skeleton</h3>
-            <div class={styles.stack}>
+          <Box>
+            <h3 class={styles.showcase__heading}>Skeleton</h3>
+            <div class={styles.showcase__stack}>
               <Skeleton width="60%" height={16} />
               <Skeleton width="90%" height={16} />
               <Skeleton width={48} height={48} radius={8} />
@@ -133,20 +136,16 @@ export function UiShowcase() {
         </div>
 
         {/* Box variants */}
-        <div class={styles.grid}>
-          <Box class={styles.section}>
-            <h3>Box (default padding)</h3>
+        <div class={styles.showcase__grid}>
+          <Box>
+            <h3 class={styles.showcase__heading}>Box (default padding)</h3>
             <p style={{ margin: 0, color: "var(--ui-text-dim)" }}>
               Chunky panel with border, offset shadow and bottom lip.
             </p>
           </Box>
-          <Box
-            flush
-            class={styles.section}
-            style={{ padding: "0", overflow: "hidden" }}
-          >
+          <Box flush style={{ padding: "0", overflow: "hidden" }}>
             <div style={{ padding: "16px" }}>
-              <h3>Box (flush)</h3>
+              <h3 class={styles.showcase__heading}>Box (flush)</h3>
               <p style={{ margin: 0, color: "var(--ui-text-dim)" }}>
                 No default padding — you control the inside.
               </p>
@@ -175,4 +174,4 @@ export function UiShowcase() {
       </Modal>
     </div>
   );
-}
+};

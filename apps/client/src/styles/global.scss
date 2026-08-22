@@ -1,0 +1,51 @@
+:root {
+  color-scheme: dark;
+  font-family: "Itim", system-ui, sans-serif;
+
+  /* --- UI design tokens (menu / component library) --- */
+  --ui-font: "Fredoka", system-ui, sans-serif;
+  --ui-theme: #2cb580; /* primary green */
+  --ui-theme-hi: #34cf93;
+  --ui-accent: #6fad4e; /* pitch green (brand) */
+  --ui-danger: #d93a3a;
+  --ui-gold: #ffd166;
+
+  --ui-text: #ffffff;
+  --ui-text-dim: rgba(255, 255, 255, 0.55);
+
+  --ui-panel: rgba(0, 0, 0, 0.5);
+  --ui-panel-solid: #1b2129;
+  --ui-field: rgba(0, 0, 0, 0.5);
+  --ui-border: #111111;
+  --ui-line: rgba(255, 255, 255, 0.12);
+  --ui-radius: 6px;
+  --ui-shadow: 5px 5px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Chunky, game-style panel (ported from the v3 "generic-box"). */
+.ui-box {
+  position: relative;
+  background-color: var(--ui-panel);
+  border: 2px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-shadow);
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    border-radius: 0 0 var(--ui-radius) var(--ui-radius);
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  }
+}
+
+body {
+  background-color: #10230f;
+  color: #e6edf3;
+  overflow: hidden;
+  touch-action: none;
+}

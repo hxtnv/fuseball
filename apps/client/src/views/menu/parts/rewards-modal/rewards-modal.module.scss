@@ -1,0 +1,41 @@
+.rewards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 6px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 2px solid transparent;
+
+    &[data-today="true"] {
+      border-color: var(--ui-theme);
+    }
+
+    &[data-claimed="true"] {
+      opacity: 0.5;
+    }
+
+    &__day {
+      font-size: 11px;
+      color: var(--ui-text-dim);
+    }
+
+    &__label {
+      font-family: var(--ui-font);
+      font-weight: 600;
+      font-size: 13px;
+      color: #fff;
+      text-align: center;
+    }
+  }
+
+  &__claim {
+    margin-top: 16px;
+  }
+}

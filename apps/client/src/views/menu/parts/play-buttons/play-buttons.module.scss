@@ -1,0 +1,90 @@
+.playButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &__quick {
+    gap: 16px;
+    font-size: 20px !important;
+    padding: 22px 22px 24px !important;
+    letter-spacing: 2px;
+  }
+
+  &__modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  &__mode {
+    gap: 16px;
+    font-size: 14px;
+    padding: 22px 22px 24px !important;
+
+    &--warmup {
+      background-color: #488ef3 !important;
+    }
+
+    &--party {
+      background-color: #c22631 !important;
+    }
+  }
+
+  // the trailing play arrow (Button iconAfter) — leading icons are <img>, so a
+  // bare `svg` selector only ever matches the arrow.
+  &__quick svg,
+  &__mode svg {
+    fill: currentColor;
+    stroke: currentColor;
+    stroke-width: 3.5px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+  }
+
+  &__quick svg {
+    height: 28px;
+    width: 28px;
+  }
+
+  &__mode svg {
+    height: 16px;
+    width: 16px;
+  }
+
+  &__online {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 2px;
+    font-family: var(--ui-font);
+    font-size: 13px;
+    color: var(--ui-text-dim);
+
+    strong {
+      color: #fff;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    &__dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--ui-theme);
+      animation: online-pulse 2s ease-out infinite;
+    }
+  }
+}
+
+@keyframes online-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(44, 181, 128, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(44, 181, 128, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(44, 181, 128, 0);
+  }
+}

@@ -1,0 +1,44 @@
+.footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px;
+
+  &__social {
+    display: flex;
+    gap: 10px;
+
+    button {
+      padding: 12px;
+    }
+
+    img {
+      height: 28px;
+      width: 28px;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--ui-font);
+    font-size: 12px;
+
+    &__link {
+      color: var(--ui-text-dim);
+      text-decoration: none;
+      transition: color 120ms ease;
+
+      &:hover {
+        color: #fff;
+      }
+    }
+
+    &__version {
+      color: rgba(255, 255, 255, 0.3);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}

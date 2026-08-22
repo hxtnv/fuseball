@@ -1,0 +1,36 @@
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__row {
+    display: grid;
+    grid-template-columns: 34px 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    font-family: var(--ui-font);
+
+    &[data-top="true"] {
+      background: rgba(44, 181, 128, 0.18);
+    }
+
+    &__rank {
+      font-weight: 700;
+      color: var(--ui-gold);
+    }
+
+    &__name {
+      color: #fff;
+    }
+
+    &__stat {
+      font-size: 13px;
+      color: var(--ui-text-dim);
+      min-width: 74px;
+      text-align: right;
+    }
+  }
+}

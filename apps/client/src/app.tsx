@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
-import { GameCanvas } from "./components/game-canvas";
-import { MainMenu, type PlaySession } from "./components/main-menu";
-import { UiShowcase } from "./components/ui-showcase";
+import { GameCanvas } from "@/views/game";
+import { MainMenu, type PlaySession } from "@/views/menu";
+import { UiShowcase } from "@/views/ui-showcase";
 
 export function App() {
   const [session, setSession] = useState<PlaySession | null>(null);

@@ -1,0 +1,127 @@
+.playerCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+
+  &__ribbon {
+    position: absolute;
+    top: -6px;
+    right: 18px;
+    width: 34px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+    background: #ff4b8b;
+    color: #fff;
+    font-family: var(--ui-font);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35));
+
+    &__label {
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      opacity: 0.85;
+      line-height: 1;
+    }
+
+    &__value {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &__avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 3px solid #12321f;
+      box-shadow: 0 0 0 3px var(--ui-theme);
+      background: rgb(253, 200, 118);
+      flex-shrink: 0;
+    }
+
+    &__name {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      flex: 1;
+
+      &__text {
+        font-family: var(--ui-font);
+        font-weight: 600;
+        font-size: 19px;
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: calc(100% - 38px);
+      }
+    }
+  }
+
+  &__level {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    &__text {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--ui-font);
+      font-size: 12px;
+      color: var(--ui-text-dim);
+    }
+
+    &__bar {
+      height: 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+    }
+
+    &__fill {
+      height: 100%;
+      border-radius: 6px;
+      background: var(--ui-theme);
+    }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+
+    &__item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+
+      &__value {
+        font-family: var(--ui-font);
+        font-weight: 700;
+        font-size: 18px;
+        color: #fff;
+      }
+
+      &__label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--ui-text-dim);
+      }
+    }
+  }
+}

@@ -1,37 +1,47 @@
-.serverList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.serverGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 
   &__item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.3);
-    font-family: var(--ui-font);
-    color: #fff;
-    text-align: left;
-    cursor: pointer;
+    padding: 16px 10px !important;
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.08);
+    &--active {
+      box-shadow:
+        inset 0 0 0 2px var(--ui-theme),
+        var(--ui-shadow);
     }
 
-    &[data-active="true"] {
-      background: var(--ui-theme);
+    // reset the button's uppercase label styling for the card text
+    &__body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      width: 100%;
+      text-transform: none;
+      letter-spacing: 0;
     }
 
-    &__meta {
+    &__name {
+      font-family: var(--ui-font);
+      font-weight: 600;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    &__region {
+      font-family: var(--ui-font);
       font-size: 12px;
       color: var(--ui-text-dim);
     }
 
-    &[data-active="true"] &__meta {
-      color: rgba(255, 255, 255, 0.85);
+    &__ping {
+      margin-top: 2px;
+      font-family: var(--ui-font);
+      font-weight: 700;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
     }
   }
 }

@@ -113,6 +113,7 @@ const server = Bun.serve({
             id: s.id,
             name: s.name,
             region: s.region,
+            flag: s.flag,
             wsUrl: s.wsUrl,
             players,
             online,

@@ -35,4 +35,11 @@
       color: var(--ui-text-dim);
     }
   }
+
+  &__ping {
+    font-family: var(--ui-font);
+    font-weight: 700;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
 }

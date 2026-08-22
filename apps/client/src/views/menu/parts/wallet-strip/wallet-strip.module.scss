@@ -34,7 +34,7 @@
 
   // reuse <Button>; only recolour it and pulse the gift icon
   &__rewards {
-    background: linear-gradient(180deg, #ff9a3d, #f0682b) !important;
+    background: #f0682b !important;
 
     img {
       animation: gift-pulse 1.5s ease-in-out infinite;

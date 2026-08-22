@@ -84,9 +84,26 @@
     &__content {
       position: relative;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
       min-height: 0;
+      overflow: hidden auto;
+      padding: 80px 16px 56px;
+      scrollbar-width: none;
+      // fade the scroll content into the bottom so overflow reads as scrollable
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        #000 calc(100% - 48px),
+        transparent
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        #000 calc(100% - 48px),
+        transparent
+      );
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
 
     &__bottom {
@@ -101,7 +118,8 @@
     display: grid;
     grid-template-columns: 288px minmax(0, 1fr) 288px;
     gap: 20px;
-    width: min(1110px, 96%);
+    width: min(1180px, 96%);
+    margin: auto;
     align-items: start;
     justify-content: center;
 

@@ -14,6 +14,7 @@ export interface GameServerInfo {
   id: string;
   name: string;
   region: string;
+  flag?: string;
   wsUrl: string;
   players?: number;
   online?: boolean;

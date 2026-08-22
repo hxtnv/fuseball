@@ -25,6 +25,7 @@ import { ServerModal } from "./parts/server-modal";
 import { PartyModal } from "./parts/party-modal";
 import { NewsModal } from "./parts/news-modal";
 import { SignInModal } from "./parts/sign-in-modal";
+import { useServersPing } from "./hooks/use-servers-ping";
 import styles from "./menu.module.scss";
 
 export interface PlaySession {
@@ -92,6 +93,7 @@ export const MainMenu = ({ onPlay }: Props) => {
   const selected = servers.find((s) => s.id === serverId);
   const ready = !!selected && !!token;
   const closeModal = () => setModal(null);
+  const pings = useServersPing(servers);
 
   const play = (roomId?: string) => {
     if (!selected || !token) return;
@@ -156,8 +158,13 @@ export const MainMenu = ({ onPlay }: Props) => {
             )}
 
             <div class={styles.menu__block__left}>
-              <ServerBox server={selected} onOpen={() => setModal("servers")} />
+              <ServerBox
+                server={selected}
+                ping={selected ? pings[selected.id] : undefined}
+                onOpen={() => setModal("servers")}
+              />
               <LeaderboardCard onOpen={() => setModal("leaderboard")} />
+
               <NewsCard onViewAll={() => setModal("news")} />
             </div>
 
@@ -203,6 +210,7 @@ export const MainMenu = ({ onPlay }: Props) => {
         open={modal === "servers"}
         onClose={closeModal}
         servers={servers}
+        pings={pings}
         currentId={serverId}
         onSelect={setServerId}
       />

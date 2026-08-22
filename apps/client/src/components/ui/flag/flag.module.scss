@@ -1,0 +1,13 @@
+.flag {
+  display: inline-block;
+  height: auto;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+
+  &--fallback {
+    display: grid;
+    place-items: center;
+    color: var(--ui-text-dim);
+    box-shadow: none;
+  }
+}

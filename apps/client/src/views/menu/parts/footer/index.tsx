@@ -2,7 +2,11 @@ import { GAME_VERSION } from "@fuseball/shared";
 import { Button } from "@/components/ui";
 import styles from "./footer.module.scss";
 
-export const Footer = () => (
+interface FooterProps {
+  isAdmin?: boolean;
+}
+
+export const Footer = ({ isAdmin }: FooterProps) => (
   <div class={styles.footer}>
     <div class={styles.footer__social}>
       <a
@@ -29,6 +33,16 @@ export const Footer = () => (
     </div>
 
     <div class={styles.footer__meta}>
+      {isAdmin && (
+        <a
+          class={styles.footer__meta__link}
+          style={{ color: "var(--ui-theme-hi)" }}
+          href="/admin"
+        >
+          Admin Panel
+        </a>
+      )}
+
       <a
         class={styles.footer__meta__link}
         href="#"
@@ -43,6 +57,7 @@ export const Footer = () => (
       >
         Terms of Service
       </a>
+
       <span class={styles.footer__meta__version}>v{GAME_VERSION}</span>
     </div>
   </div>

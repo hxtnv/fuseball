@@ -101,6 +101,7 @@ const server = Bun.serve<PresenceData>({
     if (pathname === "/auth/me" && req.method === "GET") {
       const user = await authUser(req);
       if (!user) return json({ error: "unauthorized" }, 401);
+      void store.touch(user.id); // activity signal for analytics
       return json({ user });
     }
 
@@ -182,6 +183,36 @@ const server = Bun.serve<PresenceData>({
         };
       }
       return json({ news: newsCache.data });
+    }
+
+    // --- admin: aggregate analytics (admin accounts only) ---
+    if (pathname === "/admin/stats" && req.method === "GET") {
+      const user = await authUser(req);
+      if (!user?.isAdmin) return json({ error: "forbidden" }, 403);
+      const base = await store.stats();
+      let serversOnline = 0;
+      await Promise.all(
+        gameServers.map(async (s) => {
+          try {
+            await fetch(`${s.httpUrl}/health`, {
+              signal: AbortSignal.timeout(1500),
+            });
+            serversOnline++;
+          } catch {
+            /* offline */
+          }
+        }),
+      );
+      const top = await store.topPlayers(10);
+      return json({
+        stats: {
+          ...base,
+          onlineNow: onlineCount(),
+          serversOnline,
+          serversTotal: gameServers.length,
+        },
+        top,
+      });
     }
 
     // --- server picker: list game-server regions with live player counts ---

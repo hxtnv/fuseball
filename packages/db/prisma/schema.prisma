@@ -18,6 +18,7 @@ model User {
   id          String   @id @default(cuid())
   name        String
   isAnonymous Boolean  @default(true)
+  isAdmin     Boolean  @default(false)
   email       String?  @unique
   googleId    String?  @unique
   friendCode  String?  @unique
@@ -25,6 +26,7 @@ model User {
   gamesPlayed Int      @default(0)
   wins        Int      @default(0)
   goals       Int      @default(0)
+  lastSeenAt  DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

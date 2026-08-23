@@ -14,11 +14,24 @@ export interface PublicUser {
   id: string;
   name: string;
   isAnonymous: boolean;
+  isAdmin: boolean;
   friendCode: string | null;
   balance: number;
   gamesPlayed: number;
   wins: number;
   goals: number;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  signedInUsers: number;
+  newToday: number;
+  new7d: number;
+  activeToday: number;
+  active7d: number;
+  totalGames: number;
+  totalWins: number;
+  totalGoals: number;
 }
 
 export interface NewsItem {
@@ -38,6 +51,8 @@ export interface UserStore {
   recordMatch(id: string, won: boolean, goals: number): Promise<void>;
   topPlayers(limit: number): Promise<PublicUser[]>;
   listNews(limit: number): Promise<NewsItem[]>;
+  stats(): Promise<AdminStats>;
+  touch(id: string): Promise<void>; // bump lastSeen for activity metrics
   // link a Google identity: migrate the anon account, or return the existing one
   linkGoogle(
     anonUserId: string | null,
@@ -51,20 +66,29 @@ export interface UserStore {
 const createMemoryStore = (): UserStore => {
   const users = new Map<
     string,
-    PublicUser & { googleId?: string; email?: string }
+    PublicUser & {
+      googleId?: string;
+      email?: string;
+      createdMs: number;
+      lastSeenMs: number;
+    }
   >();
   return {
     kind: "memory",
     async createAnon() {
-      const user: PublicUser = {
+      const now = Date.now();
+      const user = {
         id: crypto.randomUUID(),
         name: generateName(),
         isAnonymous: true,
+        isAdmin: false,
         friendCode: makeFriendCode(),
         balance: 0,
         gamesPlayed: 0,
         wins: 0,
         goals: 0,
+        createdMs: now,
+        lastSeenMs: now,
       };
       users.set(user.id, user);
       return user;
@@ -84,6 +108,7 @@ const createMemoryStore = (): UserStore => {
       u.gamesPlayed += 1;
       if (won) u.wins += 1;
       u.goals += goals;
+      u.lastSeenMs = Date.now();
     },
     async topPlayers(limit) {
       return [...users.values()]
@@ -92,6 +117,26 @@ const createMemoryStore = (): UserStore => {
     },
     async listNews() {
       return []; // no news without a database
+    },
+    async stats() {
+      const now = Date.now();
+      const day = 86_400_000;
+      const arr = [...users.values()];
+      return {
+        totalUsers: arr.length,
+        signedInUsers: arr.filter((u) => !u.isAnonymous).length,
+        newToday: arr.filter((u) => u.createdMs >= now - day).length,
+        new7d: arr.filter((u) => u.createdMs >= now - 7 * day).length,
+        activeToday: arr.filter((u) => u.lastSeenMs >= now - day).length,
+        active7d: arr.filter((u) => u.lastSeenMs >= now - 7 * day).length,
+        totalGames: arr.reduce((n, u) => n + u.gamesPlayed, 0),
+        totalWins: arr.reduce((n, u) => n + u.wins, 0),
+        totalGoals: arr.reduce((n, u) => n + u.goals, 0),
+      };
+    },
+    async touch(id) {
+      const u = users.get(id);
+      if (u) u.lastSeenMs = Date.now();
     },
     async linkGoogle(anonUserId, { googleId, email, name }) {
       for (const u of users.values())
@@ -103,10 +148,12 @@ const createMemoryStore = (): UserStore => {
         anon.email = email;
         return anon;
       }
+      const now = Date.now();
       const user = {
         id: crypto.randomUUID(),
         name: name || generateName(),
         isAnonymous: false,
+        isAdmin: false,
         friendCode: makeFriendCode(),
         balance: 0,
         gamesPlayed: 0,
@@ -114,6 +161,8 @@ const createMemoryStore = (): UserStore => {
         goals: 0,
         googleId,
         email,
+        createdMs: now,
+        lastSeenMs: now,
       };
       users.set(user.id, user);
       return user;
@@ -134,6 +183,7 @@ const createPrismaStore = async (): Promise<UserStore> => {
     id: string;
     name: string;
     isAnonymous: boolean;
+    isAdmin: boolean;
     friendCode: string | null;
     balance: number;
     gamesPlayed: number;
@@ -143,6 +193,7 @@ const createPrismaStore = async (): Promise<UserStore> => {
     id: u.id,
     name: u.name,
     isAnonymous: u.isAnonymous,
+    isAdmin: u.isAdmin,
     friendCode: u.friendCode,
     balance: u.balance,
     gamesPlayed: u.gamesPlayed,
@@ -204,6 +255,7 @@ const createPrismaStore = async (): Promise<UserStore> => {
             gamesPlayed: { increment: 1 },
             wins: { increment: won ? 1 : 0 },
             goals: { increment: goals },
+            lastSeenAt: new Date(),
           },
         })
         .catch(() => undefined);
@@ -228,6 +280,46 @@ const createPrismaStore = async (): Promise<UserStore> => {
         image: n.image,
         createdAt: n.createdAt.toISOString(),
       }));
+    },
+    async stats() {
+      const day = 86_400_000;
+      const today = new Date(Date.now() - day);
+      const week = new Date(Date.now() - 7 * day);
+      const [
+        totalUsers,
+        signedInUsers,
+        newToday,
+        new7d,
+        activeToday,
+        active7d,
+        agg,
+      ] = await Promise.all([
+        prisma.user.count(),
+        prisma.user.count({ where: { isAnonymous: false } }),
+        prisma.user.count({ where: { createdAt: { gte: today } } }),
+        prisma.user.count({ where: { createdAt: { gte: week } } }),
+        prisma.user.count({ where: { lastSeenAt: { gte: today } } }),
+        prisma.user.count({ where: { lastSeenAt: { gte: week } } }),
+        prisma.user.aggregate({
+          _sum: { gamesPlayed: true, wins: true, goals: true },
+        }),
+      ]);
+      return {
+        totalUsers,
+        signedInUsers,
+        newToday,
+        new7d,
+        activeToday,
+        active7d,
+        totalGames: agg._sum.gamesPlayed ?? 0,
+        totalWins: agg._sum.wins ?? 0,
+        totalGoals: agg._sum.goals ?? 0,
+      };
+    },
+    async touch(id) {
+      await prisma.user
+        .update({ where: { id }, data: { lastSeenAt: new Date() } })
+        .catch(() => undefined);
     },
     async linkGoogle(anonUserId, { googleId, email, name }) {
       // returning user? (matched by google id, or an account already on that email)

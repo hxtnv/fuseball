@@ -6,6 +6,7 @@ export interface User {
   id: string;
   name: string;
   isAnonymous: boolean;
+  isAdmin: boolean;
   friendCode: string | null;
   balance: number;
   gamesPlayed: number;
@@ -143,6 +144,35 @@ export const fetchNews = async (limit = 10): Promise<NewsItem[]> => {
   if (!res.ok) throw new Error("news_unavailable");
   const { news } = (await res.json()) as { news: NewsItem[] };
   return news;
+};
+
+export interface AdminStats {
+  totalUsers: number;
+  signedInUsers: number;
+  newToday: number;
+  new7d: number;
+  activeToday: number;
+  active7d: number;
+  totalGames: number;
+  totalWins: number;
+  totalGoals: number;
+  onlineNow: number;
+  serversOnline: number;
+  serversTotal: number;
+}
+
+export interface AdminData {
+  stats: AdminStats;
+  top: LeaderboardEntry[];
+}
+
+export const fetchAdminStats = async (): Promise<AdminData> => {
+  const token = getToken();
+  const res = await fetch(`${API.baseUrl}/admin/stats`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(String(res.status));
+  return (await res.json()) as AdminData;
 };
 
 export const fetchServers = async (): Promise<GameServerInfo[]> => {

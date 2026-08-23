@@ -102,6 +102,7 @@ export const MainMenu = ({ onPlay, online }: Props) => {
 
   const selected = servers.find((s) => s.id === serverId);
   const ready = !!selected && !!token;
+  const serversUp = servers.filter((s) => s.online).length;
   const closeModal = () => setModal(null);
   const pings = useServersPing(servers);
 
@@ -200,6 +201,7 @@ export const MainMenu = ({ onPlay, online }: Props) => {
                 onParty={() => setModal("party")}
                 ready={ready}
                 online={online}
+                servers={serversUp}
               />
             </div>
 
@@ -218,7 +220,7 @@ export const MainMenu = ({ onPlay, online }: Props) => {
         </div>
 
         <div class={styles.menu__hud__bottom}>
-          <Footer />
+          <Footer isAdmin={user?.isAdmin} />
         </div>
       </div>
 

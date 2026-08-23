@@ -61,6 +61,7 @@
   &__online {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
     padding-left: 2px;
     font-family: var(--ui-font);
@@ -73,6 +74,12 @@
       color: #fff;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
+    }
+
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     &__dot {

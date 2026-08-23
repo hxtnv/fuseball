@@ -1,10 +1,12 @@
 import {
   DT,
   MSG,
+  decodePingId,
   decodeRoster,
   decodeSnapshot,
   decodeWelcome,
   encodeInput,
+  encodePing,
   messageType,
   step,
   type GameState,
@@ -35,6 +37,7 @@ export interface NetClient {
   connect(): void;
   disconnect(): void;
   localId(): number | null;
+  ping(): number | null; // smoothed round-trip latency in ms
   tick(input: PlayerInput): void; // fixed rate: send input + advance full-state prediction
   frame(dt: number, now: number): Snapshot | null; // per frame: smooth + build render snapshot
   debug(): NetDebug;
@@ -119,6 +122,13 @@ export const createNetClient = (url: string): NetClient => {
   const roster = new Map<number, string>(); // playerId -> display name
   let predicted: GameState | null = null;
 
+  let smoothPing = 0;
+  let pingReady = false;
+  let pingSeq = 0;
+  let pingSentAt = 0;
+  let pingPending = -1;
+  let lastPingAt = 0;
+
   // diagnostics (reset each debug() call)
   let diagSnapshots = 0;
   let diagMaxGap = 0;
@@ -182,6 +192,13 @@ export const createNetClient = (url: string): NetClient => {
         const r0 = performance.now();
         reconcile(snapshot);
         diagMaxReconcile = Math.max(diagMaxReconcile, performance.now() - r0);
+      } else if (type === MSG.PONG) {
+        if (decodePingId(data) === pingPending) {
+          const rtt = performance.now() - pingSentAt;
+          smoothPing = pingReady ? smoothPing + (rtt - smoothPing) * 0.4 : rtt;
+          pingReady = true;
+          pingPending = -1;
+        }
       } else if (type === MSG.ROSTER) {
         roster.clear();
         for (const e of decodeRoster(data)) roster.set(e.id, e.name);
@@ -196,6 +213,8 @@ export const createNetClient = (url: string): NetClient => {
       pending.length = 0;
       buffer.length = 0;
       roster.clear();
+      pingReady = false;
+      pingPending = -1;
       if (!closedByUser) reconnectTimer = setTimeout(connect, NET.reconnectMs);
     };
   };
@@ -220,6 +239,15 @@ export const createNetClient = (url: string): NetClient => {
   };
 
   const frame = (dt: number, now: number): Snapshot | null => {
+    // latency probe: server echoes immediately, so this is pure network RTT
+    if (ws && ws.readyState === WebSocket.OPEN && now - lastPingAt > 1000) {
+      lastPingAt = now;
+      pingSeq = (pingSeq + 1) >>> 0;
+      pingPending = pingSeq;
+      pingSentAt = now;
+      ws.send(encodePing(pingSeq));
+    }
+
     if (buffer.length === 0) return null;
     const latest = buffer[buffer.length - 1]!.snapshot;
 
@@ -286,6 +314,7 @@ export const createNetClient = (url: string): NetClient => {
     out.score[1] = latest.score[1];
     out.timeRemaining = latest.timeRemaining;
     out.celebrationRemaining = latest.celebrationRemaining;
+    out.protectedRemaining = latest.protectedRemaining;
     out.lastScoringTeam = latest.lastScoringTeam;
     out.startingTeam = latest.startingTeam;
     out.ackSeq = latest.ackSeq;
@@ -355,6 +384,7 @@ export const createNetClient = (url: string): NetClient => {
     connect,
     disconnect,
     localId: () => myId,
+    ping: () => (pingReady ? Math.round(smoothPing) : null),
     tick,
     frame,
     debug: () => {

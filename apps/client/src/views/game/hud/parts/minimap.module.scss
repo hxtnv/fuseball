@@ -1,0 +1,29 @@
+.minimap {
+  position: relative;
+  background: var(--ui-panel);
+  border: 2px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-shadow);
+  overflow: hidden;
+
+  &__line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &__dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.55);
+    will-change: transform;
+    transition: transform 0.1s linear;
+  }
+}

@@ -34,10 +34,19 @@ export const useServersPing = (servers: GameServerInfo[]): PingMap => {
     let alive = true;
 
     const measure = async () => {
-      const entries = await Promise.all(
-        servers.map(async (s) => [s.id, await pingOnce(s.wsUrl)] as const),
-      );
-      if (alive) setPings(Object.fromEntries(entries));
+      // many servers can share one origin (esp. the dev demo regions); probing
+      // them all at once creates self-inflicted contention that inflates the
+      // numbers, so ping each unique origin once, sequentially, then fan out.
+      const origins = [...new Set(servers.map((s) => originOf(s.wsUrl)))];
+      const byOrigin = new Map<string, number | null>();
+      for (const origin of origins)
+        byOrigin.set(origin, await pingOnce(origin));
+      if (alive)
+        setPings(
+          Object.fromEntries(
+            servers.map((s) => [s.id, byOrigin.get(originOf(s.wsUrl)) ?? null]),
+          ),
+        );
     };
 
     measure();

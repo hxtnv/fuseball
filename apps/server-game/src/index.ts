@@ -7,6 +7,8 @@ import {
   addPlayer,
   createGameState,
   decodeInput,
+  decodePingId,
+  encodePong,
   encodeRoster,
   encodeSnapshot,
   encodeWelcome,
@@ -154,7 +156,13 @@ const server = Bun.serve<ClientData>({
     },
     message(ws, message) {
       if (typeof message === "string") return;
-      if (messageType(message) !== MSG.INPUT) return;
+      const type = messageType(message);
+      // latency probe: reply at once (not on the tick) so it measures pure RTT
+      if (type === MSG.PING) {
+        ws.send(encodePong(decodePingId(message)));
+        return;
+      }
+      if (type !== MSG.INPUT) return;
       const room = rooms.get(ws.data.roomId);
       const client = room?.clients.get(ws);
       if (!room || !client) return;

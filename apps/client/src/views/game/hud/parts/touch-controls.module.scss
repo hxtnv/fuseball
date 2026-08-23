@@ -1,0 +1,54 @@
+.touch {
+  display: none;
+
+  // only surfaces on touch devices; desktop keeps keyboard controls
+  @media (pointer: coarse) {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: block;
+    pointer-events: none;
+  }
+
+  &__stick {
+    position: absolute;
+    left: max(24px, env(safe-area-inset-left));
+    bottom: max(24px, env(safe-area-inset-bottom));
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--ui-border);
+    box-shadow: var(--ui-shadow);
+    pointer-events: auto;
+    touch-action: none; // stop the browser scrolling/zooming while steering
+
+    &__thumb {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 56px;
+      height: 56px;
+      margin: -28px 0 0 -28px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.3);
+      will-change: transform;
+    }
+  }
+
+  &__kick {
+    position: absolute !important;
+    right: max(24px, env(safe-area-inset-right));
+    bottom: max(24px, env(safe-area-inset-bottom));
+    width: 96px !important;
+    height: 96px !important;
+    border-radius: 50% !important;
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.3);
+
+    &::after {
+      display: none;
+    }
+  }
+}

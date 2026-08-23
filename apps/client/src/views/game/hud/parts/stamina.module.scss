@@ -1,0 +1,18 @@
+.stamina {
+  width: 240px;
+  padding: 2px;
+  background: var(--ui-panel);
+  border-radius: 4px;
+  //   border: 2px solid var(--ui-border);
+  //   border-radius: var(--ui-radius);
+  //   box-shadow: var(--ui-shadow);
+
+  &__fill {
+    display: block;
+    height: 24px;
+    border-radius: inherit;
+    background: #7cd0ff;
+    // box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+    transition: width 0.15s ease-out;
+  }
+}

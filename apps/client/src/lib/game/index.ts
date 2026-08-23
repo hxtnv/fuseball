@@ -1,4 +1,4 @@
-import { DT } from "@fuseball/shared";
+import { DT, type RoundStatus, type Team } from "@fuseball/shared";
 import {
   GAME,
   FULL,
@@ -13,12 +13,58 @@ import { render, renderConnecting } from "./renderer";
 export interface Game {
   start(): void;
   stop(): void;
+  setMoveVector(x: number, y: number): void;
 }
 
-export const createGame = (canvas: HTMLCanvasElement, wsUrl: string): Game => {
+// screen-space state the Preact HUD reads (written each frame from the loop)
+export interface HudPlayer {
+  id: number;
+  team: Team;
+  x: number;
+  y: number;
+  name: string;
+}
+
+export interface HudData {
+  connected: boolean;
+  status: RoundStatus;
+  score0: number;
+  score1: number;
+  timeRemaining: number;
+  protectedRemaining: number;
+  celebrationRemaining: number;
+  lastScoringTeam: Team | null;
+  localTeam: Team | null;
+  fps: number;
+  ping: number | null;
+  players: HudPlayer[];
+  stamina: number; // 0..1, placeholder until stamina mechanics land
+}
+
+export const createGame = (
+  canvas: HTMLCanvasElement,
+  wsUrl: string,
+  onHud?: (hud: HudData) => void,
+): Game => {
   const ctx = canvas.getContext("2d", { alpha: false })!;
   const input = createInput();
   const net = createNetClient(wsUrl);
+
+  const hud: HudData = {
+    connected: false,
+    status: "warmup",
+    score0: 0,
+    score1: 0,
+    timeRemaining: 0,
+    protectedRemaining: 0,
+    celebrationRemaining: 0,
+    lastScoringTeam: null,
+    localTeam: null,
+    fps: 60,
+    ping: null,
+    players: [],
+    stamina: 1,
+  };
 
   let quality: QualitySettings = detectInitialQuality();
   let viewport = { w: 1, h: 1, dpr: 1 };
@@ -29,6 +75,8 @@ export const createGame = (canvas: HTMLCanvasElement, wsUrl: string): Game => {
   let worstFrameMs = 0;
   let frameCount = 0;
   let reportAt = 0;
+  let pingAt = 0;
+  let playersAt = 0;
 
   const resize = (): void => {
     const rect = canvas.getBoundingClientRect();
@@ -88,6 +136,44 @@ export const createGame = (canvas: HTMLCanvasElement, wsUrl: string): Game => {
       render(ctx, snapshot, viewport, quality, net.localId() ?? -1, fps);
     else renderConnecting(ctx, viewport);
 
+    if (onHud) {
+      const me = net.localId();
+      hud.connected = !!snapshot;
+      if (snapshot) {
+        hud.status = snapshot.status;
+        hud.score0 = snapshot.score[0];
+        hud.score1 = snapshot.score[1];
+        hud.timeRemaining = Math.max(0, Math.ceil(snapshot.timeRemaining));
+        hud.protectedRemaining = Math.max(
+          0,
+          Math.ceil(snapshot.protectedRemaining),
+        );
+        hud.celebrationRemaining = snapshot.celebrationRemaining;
+        hud.lastScoringTeam = snapshot.lastScoringTeam;
+        hud.localTeam =
+          me != null
+            ? (snapshot.players.find((p) => p.id === me)?.team ?? null)
+            : null;
+        // ~12Hz is plenty for the minimap/roster and keeps signal churn low
+        if (now >= playersAt) {
+          hud.players = snapshot.players.map((p) => ({
+            id: p.id,
+            team: p.team,
+            x: p.x,
+            y: p.y,
+            name: p.name ?? `P${p.id}`,
+          }));
+          playersAt = now + 80;
+        }
+      }
+      hud.fps = Math.round(fps);
+      if (now >= pingAt) {
+        hud.ping = net.ping();
+        pingAt = now + 1000;
+      }
+      onHud(hud);
+    }
+
     raf = requestAnimationFrame(frame);
   };
 
@@ -107,6 +193,9 @@ export const createGame = (canvas: HTMLCanvasElement, wsUrl: string): Game => {
       window.removeEventListener("keydown", onKey);
       input.dispose();
       net.disconnect();
+    },
+    setMoveVector(x, y) {
+      input.setVector(x, y);
     },
   };
 };

@@ -1,14 +1,14 @@
-import type { ComponentChildren, JSX } from "preact";
+import type { ComponentChildren, MouseEventHandler } from "preact";
 import { cn } from "@/lib/cn";
 import styles from "./button.module.scss";
 
-type Variant = "primary" | "secondary" | "danger";
+type Variant = "primary" | "secondary" | "danger" | "tertiary";
 type Size = "small" | "medium" | "large";
 type IconOrientation = "vertical" | "horizontal";
 
 interface ButtonProps {
   children?: ComponentChildren;
-  onClick?: JSX.MouseEventHandler<HTMLButtonElement>;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   variant?: Variant;
   size?: Size;
   loading?: boolean;

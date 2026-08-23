@@ -6,6 +6,8 @@ export const MSG = {
   INPUT: 2,
   SNAPSHOT: 3,
   ROSTER: 4,
+  PING: 5,
+  PONG: 6,
 } as const;
 
 const IN_UP = 1;
@@ -64,6 +66,26 @@ export const decodeInput = (data: ArrayBuffer | Uint8Array): DecodedInput => {
   const v = toView(data);
   return { input: decodeInputBits(v.getUint8(1)), seq: v.getUint32(2) };
 };
+
+// --- latency probe: client sends PING, server echoes the same id back at once ---
+export const encodePing = (id: number): ArrayBuffer => {
+  const buf = new ArrayBuffer(5);
+  const v = new DataView(buf);
+  v.setUint8(0, MSG.PING);
+  v.setUint32(1, id >>> 0);
+  return buf;
+};
+
+export const encodePong = (id: number): ArrayBuffer => {
+  const buf = new ArrayBuffer(5);
+  const v = new DataView(buf);
+  v.setUint8(0, MSG.PONG);
+  v.setUint32(1, id >>> 0);
+  return buf;
+};
+
+export const decodePingId = (data: ArrayBuffer | Uint8Array): number =>
+  toView(data).getUint32(1);
 
 // --- server -> client: welcome ---
 export const encodeWelcome = (playerId: number): ArrayBuffer => {

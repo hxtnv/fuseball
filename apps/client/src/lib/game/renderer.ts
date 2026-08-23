@@ -7,7 +7,6 @@ import {
   FONT_FAMILY,
   TAG,
   TAG_COLORS,
-  TEAM_NAMES,
   type QualitySettings,
 } from "./config";
 import {
@@ -83,14 +82,22 @@ const drawPlayers = (
   for (const p of state.players) {
     drawEntityShadow(ctx, p.x, p.y, PLAYER.SIZE);
     drawDisc(ctx, p.x, p.y, PLAYER.SIZE, COLORS.playerBody);
-    if (p.id === localId) {
-      // highlight ring so you can spot yourself at a glance
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, PLAYER.SIZE / 2 + 4, 0, TWO_PI);
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-      ctx.stroke();
-    }
+
+    // if (p.id === localId) {
+    //   // highlight ring so you can spot yourself at a glance
+    //   ctx.beginPath();
+    //   ctx.arc(p.x, p.y, PLAYER.SIZE / 2 + 4, 0, TWO_PI);
+    //   ctx.lineWidth = 3;
+    //   ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    //   ctx.stroke();
+    // }
+  }
+};
+
+// separate pass, drawn after every entity so a tag is never hidden behind the
+// ball, a goal net, or another player's body
+const drawNames = (ctx: CanvasRenderingContext2D, state: Snapshot): void => {
+  for (const p of state.players)
     drawTag(
       ctx,
       p.x,
@@ -98,7 +105,6 @@ const drawPlayers = (
       p.name ?? `P${p.id}`,
       TAG_COLORS[p.team],
     );
-  }
 };
 
 const drawBall = (ctx: CanvasRenderingContext2D, state: Snapshot): void => {
@@ -106,66 +112,6 @@ const drawBall = (ctx: CanvasRenderingContext2D, state: Snapshot): void => {
   const heightScale = 1 + z * 0.004; // grows a little when lofted
   drawEntityShadow(ctx, x, y, BALL.SIZE / heightScale);
   drawDisc(ctx, x, y - z, BALL.SIZE * heightScale, "rgb(255, 255, 255)");
-};
-
-const drawHud = (
-  ctx: CanvasRenderingContext2D,
-  state: Snapshot,
-  w: number,
-  h: number,
-  fps: number,
-  quality: QualitySettings,
-  localId: number,
-): void => {
-  const cx = w / 2;
-
-  ctx.textBaseline = "top";
-  ctx.font = `800 34px ${FONT_FAMILY}`;
-  ctx.textAlign = "right";
-  ctx.fillStyle = TAG_COLORS[0];
-  ctx.fillText(String(state.score[0]), cx - 70, 16);
-  ctx.textAlign = "left";
-  ctx.fillStyle = TAG_COLORS[1];
-  ctx.fillText(String(state.score[1]), cx + 70, 16);
-
-  let status: string;
-  if (state.status === "live" || state.status === "celebrating") {
-    const t = Math.max(0, state.timeRemaining);
-    status = `${Math.floor(t / 60)}:${Math.floor(t % 60)
-      .toString()
-      .padStart(2, "0")}`;
-  } else if (state.status === "protected") status = "Kickoff";
-  else if (state.status === "finished") status = "Full time";
-  else status = "Warmup";
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = COLORS.hud;
-  ctx.font = `700 20px ${FONT_FAMILY}`;
-  ctx.fillText(status, cx, 22);
-
-  if (state.status === "celebrating") {
-    const team = state.lastScoringTeam ?? 0;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#ffffff";
-    ctx.font = `900 72px ${FONT_FAMILY}`;
-    ctx.fillText("GOAL!", cx, h / 2 - 44);
-    ctx.font = `800 28px ${FONT_FAMILY}`;
-    ctx.fillStyle = TAG_COLORS[team];
-    ctx.fillText(`${TEAM_NAMES[team]} team scores`, cx, h / 2 + 6);
-    ctx.font = `800 44px ${FONT_FAMILY}`;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(`${state.score[0]} - ${state.score[1]}`, cx, h / 2 + 52);
-  }
-
-  const me = state.players.find((p) => p.id === localId);
-  ctx.font = "500 12px ui-monospace, monospace";
-  ctx.textAlign = "right";
-  ctx.textBaseline = "top";
-  ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-  ctx.fillText(`FPS: ${Math.round(fps)} · ${quality.name} (Q)`, w - 12, 12);
-  if (me)
-    ctx.fillText(`Pos: ${Math.round(me.x)}, ${Math.round(me.y)}`, w - 12, 28);
 };
 
 export const renderConnecting = (
@@ -227,8 +173,7 @@ export const render = (
   drawBall(ctx, state);
   drawGoalShadow(ctx); // darkens the goal recess (stripes + any player/ball inside)
   drawGoalNets(ctx); // white net on top, so the mesh stays bright
+  drawNames(ctx, state); // last, so name tags sit above every entity
 
   ctx.restore();
-
-  drawHud(ctx, state, w, h, fps, quality, localId);
 };

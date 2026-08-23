@@ -1,0 +1,63 @@
+.roster {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  padding: 0 16px;
+  pointer-events: none;
+
+  // touch layout uses the joystick/kick controls instead
+  @media (pointer: coarse) {
+    display: none;
+  }
+
+  &--left {
+    left: 0;
+  }
+
+  &--right {
+    right: 0;
+
+    > h5 {
+      text-align: right;
+    }
+
+    .roster__members {
+      p {
+        flex-direction: row-reverse;
+      }
+    }
+  }
+
+  > h5 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--team);
+    -webkit-text-stroke: 3px rgba(0, 0, 0, 0.5);
+    paint-order: stroke fill;
+  }
+
+  &__members {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    p {
+      color: #fff;
+      -webkit-text-stroke: 3px rgba(0, 0, 0, 0.5);
+      paint-order: stroke fill;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      &::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--team);
+        border: 1px solid rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+}

@@ -72,7 +72,10 @@ export const MainMenu = ({ onPlay }: Props) => {
         setServers(list);
         setServerId(list[0]?.id ?? "");
       } catch {
-        if (alive) setError("Can't reach the server. Is it running?");
+        if (alive)
+          setError(
+            "Failed to connect to the server. Please check your internet connection and try again.",
+          );
       }
     })();
     return () => {

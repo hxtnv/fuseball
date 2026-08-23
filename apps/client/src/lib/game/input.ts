@@ -9,6 +9,8 @@ export interface InputController {
   attach(): void;
   dispose(): void;
   get(): InputState;
+  /** analog steering from a touch joystick, components -1..1 */
+  setVector(x: number, y: number): void;
 }
 
 export const createInput = (): InputController => {
@@ -18,6 +20,10 @@ export const createInput = (): InputController => {
     left: false,
     right: false,
   };
+
+  // touch joystick vector, merged into the boolean state on read
+  const touch = { x: 0, y: 0 };
+  const DEAD = 0.3;
 
   const apply = (e: KeyboardEvent, value: boolean): void => {
     switch (e.key) {
@@ -60,7 +66,18 @@ export const createInput = (): InputController => {
       window.removeEventListener("keyup", onUp);
     },
     get() {
-      return state;
+      const active = Math.abs(touch.x) > DEAD || Math.abs(touch.y) > DEAD;
+      if (!active) return state;
+      return {
+        up: state.up || touch.y < -DEAD,
+        down: state.down || touch.y > DEAD,
+        left: state.left || touch.x < -DEAD,
+        right: state.right || touch.x > DEAD,
+      };
+    },
+    setVector(x, y) {
+      touch.x = x;
+      touch.y = y;
     },
   };
 };

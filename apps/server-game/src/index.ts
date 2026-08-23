@@ -23,6 +23,12 @@ import {
 } from "@fuseball/shared";
 import { verifyToken } from "@fuseball/auth";
 import type { ServerWebSocket } from "bun";
+import {
+  botName,
+  computeBotInput,
+  createBotMemory,
+  type BotMemory,
+} from "./bots";
 
 const port = Number(process.env.PORT ?? 3002);
 const TICK_MS = DT * 1000;
@@ -51,11 +57,18 @@ interface Client {
   ackSeq: number; // seq of the last input actually applied
 }
 
+interface Bot {
+  mem: BotMemory;
+  name: string;
+}
+
 interface Room {
   id: string;
   state: GameState;
   clients: Map<ServerWebSocket<ClientData>, Client>;
+  bots: Map<number, Bot>; // playerId -> bot; filled to keep games full
   nextPlayerId: number;
+  nextBotName: number;
 }
 
 const rooms = new Map<string, Room>();
@@ -67,16 +80,63 @@ const createRoom = (): Room => {
     id,
     state: createGameState(),
     clients: new Map(),
+    bots: new Map(),
     nextPlayerId: 0,
+    nextBotName: 0,
   };
   rooms.set(id, room);
   return room;
 };
 
-// quick-play matchmaking: first room with a free slot, else a new room
+const teamCount = (room: Room, team: number): number =>
+  room.state.players.reduce((n, p) => n + (p.team === team ? 1 : 0), 0);
+
+// add one bot, assigning a defender only if its team doesn't have one yet
+const addBot = (room: Room): void => {
+  const id = room.nextPlayerId++;
+  const p = addPlayer(room.state, id); // auto-balanced onto the smaller team
+  let hasDefender = false;
+  for (const [bid, b] of room.bots) {
+    const bp = room.state.players.find((pl) => pl.id === bid);
+    if (bp && bp.team === p.team && b.mem.role === "defender") {
+      hasDefender = true;
+      break;
+    }
+  }
+  room.bots.set(id, {
+    mem: createBotMemory(hasDefender ? "attacker" : "defender"),
+    name: botName(room.nextBotName++),
+  });
+};
+
+// drop one bot, preferring the larger team so removing it keeps sides even
+const evictBot = (room: Room): void => {
+  if (room.bots.size === 0) return;
+  const bigger = teamCount(room, 0) >= teamCount(room, 1) ? 0 : 1;
+  let target: number | null = null;
+  for (const bid of room.bots.keys()) {
+    const bp = room.state.players.find((pl) => pl.id === bid);
+    if (bp && bp.team === bigger) {
+      target = bid;
+      break;
+    }
+  }
+  if (target === null) target = room.bots.keys().next().value ?? null;
+  if (target === null) return;
+  removePlayer(room.state, target);
+  room.bots.delete(target);
+};
+
+// top the room up with bots so a lone human still gets a full game
+const fillBots = (room: Room): void => {
+  while (room.state.players.length < ROOM.MAX_PLAYERS) addBot(room);
+};
+
+// quick-play matchmaking: first room with a free HUMAN slot, else a new room
+// (bots don't count toward capacity — they're evicted to seat arriving players)
 const findRoomWithSpace = (): Room => {
   for (const room of rooms.values()) {
-    if (room.state.players.length < ROOM.MAX_PLAYERS) return room;
+    if (room.clients.size < ROOM.MAX_PLAYERS) return room;
   }
   return createRoom();
 };
@@ -85,7 +145,7 @@ const findRoomWithSpace = (): Room => {
 const pickRoom = (roomId: string | null): Room => {
   if (roomId) {
     const room = rooms.get(roomId);
-    if (room && room.state.players.length < ROOM.MAX_PLAYERS) return room;
+    if (room && room.clients.size < ROOM.MAX_PLAYERS) return room;
   }
   return findRoomWithSpace();
 };
@@ -138,6 +198,8 @@ const server = Bun.serve<ClientData>({
         ws.close();
         return;
       }
+      // seat the human, evicting a bot first if the room is already full
+      if (room.state.players.length >= ROOM.MAX_PLAYERS) evictBot(room);
       const playerId = room.nextPlayerId++;
       addPlayer(room.state, playerId);
       room.clients.set(ws, {
@@ -148,6 +210,7 @@ const server = Bun.serve<ClientData>({
         lastRecvSeq: 0,
         ackSeq: 0,
       });
+      fillBots(room); // instant play: keep the match full with bots
       if (room.state.status === "warmup" && room.state.players.length >= 2) {
         startMatch(room.state);
       }
@@ -160,6 +223,11 @@ const server = Bun.serve<ClientData>({
       // latency probe: reply at once (not on the tick) so it measures pure RTT
       if (type === MSG.PING) {
         ws.send(encodePong(decodePingId(message)));
+        return;
+      }
+      if (type === MSG.RESTART) {
+        const room = rooms.get(ws.data.roomId);
+        if (room && room.state.status === "finished") startMatch(room.state);
         return;
       }
       if (type !== MSG.INPUT) return;
@@ -182,7 +250,10 @@ const server = Bun.serve<ClientData>({
         room.clients.delete(ws);
       }
       if (room.clients.size === 0) rooms.delete(room.id);
-      else broadcastRoster(room);
+      else {
+        fillBots(room); // backfill the vacated slot with a bot
+        broadcastRoster(room);
+      }
     },
   },
 });
@@ -202,11 +273,17 @@ const stepRoom = (room: Room): void => {
     }
   }
 
+  // bots produce their own input each tick
+  for (const [botId, bot] of room.bots) {
+    const bp = room.state.players.find((p) => p.id === botId);
+    if (bp) inputs[botId] = computeBotInput(room.state, bp, bot.mem);
+  }
+
+  const before = room.state.status;
   step(room.state, inputs);
-  if (room.state.status === "finished") {
+  // report once, on the tick the match ends; it then waits for a rematch request
+  if (room.state.status === "finished" && before !== "finished") {
     reportMatch(room);
-    if (room.state.players.length >= 2) startMatch(room.state);
-    else room.state.status = "warmup";
   }
 };
 
@@ -248,6 +325,10 @@ const broadcastRoster = (room: Room): void => {
       team: p?.team ?? 0,
       name: client.name,
     });
+  }
+  for (const [botId, bot] of room.bots) {
+    const p = room.state.players.find((pl) => pl.id === botId);
+    entries.push({ id: botId, team: p?.team ?? 0, name: bot.name });
   }
   const msg = encodeRoster(entries);
   for (const ws of room.clients.keys()) ws.send(msg);

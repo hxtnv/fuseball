@@ -14,6 +14,7 @@ export interface PlayerState {
   y: number;
   vx: number; // net movement over the last tick (render + kick strength)
   vy: number;
+  stamina: number; // 0..1, drained by sprinting, regenerates when released
 }
 
 export interface BallState {
@@ -44,6 +45,8 @@ export interface PlayerInput {
   down: boolean;
   left: boolean;
   right: boolean;
+  kick?: boolean;
+  sprint?: boolean;
 }
 
 export type InputMap = Record<number, PlayerInput | undefined>;
@@ -53,4 +56,6 @@ export const EMPTY_INPUT: PlayerInput = {
   down: false,
   left: false,
   right: false,
+  kick: false,
+  sprint: false,
 };

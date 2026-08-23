@@ -38,6 +38,9 @@ export const GameCanvas = ({ session, onLeave }: Props) => {
         hud={hud}
         onLeave={onLeave}
         onMove={(x, y) => gameRef.current?.setMoveVector(x, y)}
+        onKick={() => gameRef.current?.kick()}
+        onSprint={(down) => gameRef.current?.setSprint(down)}
+        onRestart={() => gameRef.current?.restart()}
       />
     </div>
   );

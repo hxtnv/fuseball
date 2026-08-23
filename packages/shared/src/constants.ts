@@ -24,6 +24,17 @@ export const BALL = {
   WALL_BOUNCE: 1, // horizontal/vertical wall restitution
 } as const;
 
+export const KICK = {
+  FORCE: 22, // ball speed imparted by an active kick (px per tick)
+  RANGE: 46, // max centre-to-centre distance to connect with the ball
+} as const;
+
+export const SPRINT = {
+  SPEED_MULT: 1.6, // top speed while sprinting, relative to PLAYER.SPEED
+  DRAIN: 1 / (TICK_RATE * 2.5), // full stamina empties in ~2.5s of sprinting
+  REGEN: 1 / (TICK_RATE * 6), // refills in ~6s once released
+} as const;
+
 export const ROUND = {
   TIME: 120, // round length in seconds
   PROTECTED_TIME: 6, // kickoff protection in seconds

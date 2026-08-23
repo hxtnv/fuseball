@@ -8,12 +8,15 @@ export const MSG = {
   ROSTER: 4,
   PING: 5,
   PONG: 6,
+  RESTART: 7,
 } as const;
 
 const IN_UP = 1;
 const IN_DOWN = 2;
 const IN_LEFT = 4;
 const IN_RIGHT = 8;
+const IN_KICK = 16;
+const IN_SPRINT = 32;
 
 const STATUS_CODES: RoundStatus[] = [
   "warmup",
@@ -38,13 +41,17 @@ export const encodeInputBits = (input: PlayerInput): number =>
   (input.up ? IN_UP : 0) |
   (input.down ? IN_DOWN : 0) |
   (input.left ? IN_LEFT : 0) |
-  (input.right ? IN_RIGHT : 0);
+  (input.right ? IN_RIGHT : 0) |
+  (input.kick ? IN_KICK : 0) |
+  (input.sprint ? IN_SPRINT : 0);
 
 export const decodeInputBits = (bits: number): PlayerInput => ({
   up: (bits & IN_UP) !== 0,
   down: (bits & IN_DOWN) !== 0,
   left: (bits & IN_LEFT) !== 0,
   right: (bits & IN_RIGHT) !== 0,
+  kick: (bits & IN_KICK) !== 0,
+  sprint: (bits & IN_SPRINT) !== 0,
 });
 
 // --- client -> server: input ---
@@ -87,6 +94,13 @@ export const encodePong = (id: number): ArrayBuffer => {
 export const decodePingId = (data: ArrayBuffer | Uint8Array): number =>
   toView(data).getUint32(1);
 
+// --- client -> server: request a rematch once the game is finished ---
+export const encodeRestart = (): ArrayBuffer => {
+  const buf = new ArrayBuffer(1);
+  new DataView(buf).setUint8(0, MSG.RESTART);
+  return buf;
+};
+
 // --- server -> client: welcome ---
 export const encodeWelcome = (playerId: number): ArrayBuffer => {
   const buf = new ArrayBuffer(2);
@@ -108,6 +122,7 @@ export interface SnapshotPlayer {
   team: Team;
   x: number;
   y: number;
+  stamina?: number; // 0..1
   name?: string; // filled in client-side from the roster (not sent in every snapshot)
 }
 
@@ -130,7 +145,7 @@ export const encodeSnapshot = (
   ackSeq: number,
 ): ArrayBuffer => {
   const count = state.players.length;
-  const size = 21 + count * 6 + 10;
+  const size = 21 + count * 7 + 10;
   const buf = new ArrayBuffer(size);
   const v = new DataView(buf);
   let o = 0;
@@ -167,6 +182,8 @@ export const encodeSnapshot = (
     o += 2;
     v.setInt16(o, Math.round(p.y * POS_SCALE));
     o += 2;
+    v.setUint8(o, Math.max(0, Math.min(255, Math.round(p.stamina * 255))));
+    o += 1;
   }
   v.setInt16(o, Math.round(state.ball.x * POS_SCALE));
   o += 2;
@@ -215,7 +232,9 @@ export const decodeSnapshot = (data: ArrayBuffer | Uint8Array): Snapshot => {
     o += 2;
     const y = v.getInt16(o) / POS_SCALE;
     o += 2;
-    players.push({ id, team, x, y });
+    const stamina = v.getUint8(o) / 255;
+    o += 1;
+    players.push({ id, team, x, y, stamina });
   }
   const ball = {
     x: v.getInt16(o) / POS_SCALE,

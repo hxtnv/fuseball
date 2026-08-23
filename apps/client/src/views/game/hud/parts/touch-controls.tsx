@@ -1,15 +1,20 @@
 import { useRef, useState } from "preact/hooks";
-import { Zap } from "lucide-react";
+import { Wind, Zap } from "lucide-react";
 import { Button } from "@/components/ui";
 import styles from "./touch-controls.module.scss";
 
 interface TouchControlsProps {
   onMove: (x: number, y: number) => void;
   onKick?: () => void;
+  onSprint?: (down: boolean) => void;
 }
 
-// on-screen joystick (left) + kick button (right); shown only on coarse pointers
-export const TouchControls = ({ onMove, onKick }: TouchControlsProps) => {
+// on-screen joystick (left) + kick/sprint buttons (right); coarse pointers only
+export const TouchControls = ({
+  onMove,
+  onKick,
+  onSprint,
+}: TouchControlsProps) => {
   const baseRef = useRef<HTMLDivElement>(null);
   const active = useRef(false);
   const [thumb, setThumb] = useState({ x: 0, y: 0 });
@@ -60,6 +65,23 @@ export const TouchControls = ({ onMove, onKick }: TouchControlsProps) => {
           style={{ transform: `translate(${thumb.x}px, ${thumb.y}px)` }}
         />
       </div>
+
+      <span
+        class={styles.touch__sprint}
+        onPointerDown={(e) => {
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+          onSprint?.(true);
+        }}
+        onPointerUp={() => onSprint?.(false)}
+        onPointerCancel={() => onSprint?.(false)}
+      >
+        <Button
+          variant="secondary"
+          iconSize={26}
+          icon={<Wind />}
+          title="Sprint"
+        />
+      </span>
 
       <Button
         class={styles.touch__kick}

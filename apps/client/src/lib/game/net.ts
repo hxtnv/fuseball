@@ -7,6 +7,7 @@ import {
   decodeWelcome,
   encodeInput,
   encodePing,
+  encodeRestart,
   messageType,
   step,
   type GameState,
@@ -37,9 +38,11 @@ export interface NetClient {
   connect(): void;
   disconnect(): void;
   localId(): number | null;
+  localStamina(): number; // 0..1 for the local player (predicted)
   ping(): number | null; // smoothed round-trip latency in ms
   tick(input: PlayerInput): void; // fixed rate: send input + advance full-state prediction
   frame(dt: number, now: number): Snapshot | null; // per frame: smooth + build render snapshot
+  requestRestart(): void; // ask the server for a rematch after a finished game
   debug(): NetDebug;
 }
 
@@ -57,6 +60,7 @@ const stateFromSnapshot = (s: Snapshot): GameState => ({
     y: p.y,
     vx: 0,
     vy: 0,
+    stamina: p.stamina ?? 1,
   })),
   ball: {
     x: s.ball.x,
@@ -91,7 +95,7 @@ const applySnapshotTo = (state: GameState, s: Snapshot): void => {
     const sp = s.players[i]!;
     let p = state.players[i];
     if (!p) {
-      p = { id: 0, team: 0, x: 0, y: 0, vx: 0, vy: 0 };
+      p = { id: 0, team: 0, x: 0, y: 0, vx: 0, vy: 0, stamina: 1 };
       state.players[i] = p;
     }
     p.id = sp.id;
@@ -100,6 +104,7 @@ const applySnapshotTo = (state: GameState, s: Snapshot): void => {
     p.y = sp.y;
     p.vx = 0;
     p.vy = 0;
+    p.stamina = sp.stamina ?? 1;
   }
 
   const b = state.ball;
@@ -384,9 +389,16 @@ export const createNetClient = (url: string): NetClient => {
     connect,
     disconnect,
     localId: () => myId,
+    localStamina: () => {
+      if (myId === null || !predicted) return 1;
+      return predicted.players.find((p) => p.id === myId)?.stamina ?? 1;
+    },
     ping: () => (pingReady ? Math.round(smoothPing) : null),
     tick,
     frame,
+    requestRestart: () => {
+      if (ws && ws.readyState === WebSocket.OPEN) ws.send(encodeRestart());
+    },
     debug: () => {
       const d: NetDebug = {
         snapshots: diagSnapshots,

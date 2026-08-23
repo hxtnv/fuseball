@@ -14,6 +14,10 @@ export interface Game {
   start(): void;
   stop(): void;
   setMoveVector(x: number, y: number): void;
+  kick(): void;
+  setSprint(down: boolean): void;
+  restart(): void;
+  toggleQuality(): void;
 }
 
 // screen-space state the Preact HUD reads (written each frame from the loop)
@@ -86,11 +90,9 @@ export const createGame = (
     canvas.height = Math.round(viewport.h * dpr);
   };
 
-  const onKey = (e: KeyboardEvent): void => {
-    if (e.key === "q" || e.key === "Q") {
-      quality = quality.name === "full" ? POTATO : FULL;
-      resize();
-    }
+  const toggleQuality = (): void => {
+    quality = quality.name === "full" ? POTATO : FULL;
+    resize();
   };
 
   const frame = (now: number): void => {
@@ -167,6 +169,7 @@ export const createGame = (
         }
       }
       hud.fps = Math.round(fps);
+      hud.stamina = net.localStamina();
       if (now >= pingAt) {
         hud.ping = net.ping();
         pingAt = now + 1000;
@@ -181,7 +184,6 @@ export const createGame = (
     start() {
       resize();
       window.addEventListener("resize", resize);
-      window.addEventListener("keydown", onKey);
       input.attach();
       net.connect();
       last = 0;
@@ -190,12 +192,23 @@ export const createGame = (
     stop() {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
-      window.removeEventListener("keydown", onKey);
       input.dispose();
       net.disconnect();
     },
     setMoveVector(x, y) {
       input.setVector(x, y);
     },
+    kick() {
+      input.setKick(true);
+      // release shortly after so a tap fires a single shot
+      setTimeout(() => input.setKick(false), 90);
+    },
+    setSprint(down) {
+      input.setSprint(down);
+    },
+    restart() {
+      net.requestRestart();
+    },
+    toggleQuality,
   };
 };

@@ -14,6 +14,7 @@ const spaceTeam = (state: GameState, team: Team): void => {
     p.y = FIELD.HEIGHT * ((i + 1) / (members.length + 1));
     p.vx = 0;
     p.vy = 0;
+    p.stamina = 1; // fresh legs at every kickoff
   });
 };
 
@@ -53,6 +54,7 @@ export const addPlayer = (
     y: FIELD.HEIGHT / 2,
     vx: 0,
     vy: 0,
+    stamina: 1,
   };
   state.players.push(player);
   return player;

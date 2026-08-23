@@ -21,7 +21,11 @@ export interface WallHit {
 
 // One tick of normalized movement. Shared by the authoritative sim and by the
 // client's prediction so the two stay in agreement.
-export const applyMovement = (pos: Vec2, input: PlayerInput): void => {
+export const applyMovement = (
+  pos: Vec2,
+  input: PlayerInput,
+  speed: number = PLAYER.SPEED,
+): void => {
   let dx = 0;
   let dy = 0;
   if (input.up) dy -= 1;
@@ -32,8 +36,8 @@ export const applyMovement = (pos: Vec2, input: PlayerInput): void => {
 
   // normalize so diagonal movement isn't faster than orthogonal
   const len = Math.hypot(dx, dy);
-  pos.x += (dx / len) * PLAYER.SPEED;
-  pos.y += (dy / len) * PLAYER.SPEED;
+  pos.x += (dx / len) * speed;
+  pos.y += (dy / len) * speed;
 };
 
 // Clamps a point to the play area (field + the two goal boxes) and reports which

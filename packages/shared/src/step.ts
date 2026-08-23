@@ -1,4 +1,4 @@
-import { BALL, DT, FIELD, PLAYER, ROUND } from "./constants";
+import { BALL, DT, FIELD, KICK, PLAYER, ROUND, SPRINT } from "./constants";
 import {
   GOAL_BOTTOM_Y,
   GOAL_TOP_Y,
@@ -78,6 +78,30 @@ const kickBall = (ball: BallState, player: PlayerState): boolean => {
   return true;
 };
 
+// an active kick launches the ball from the player at a fixed force, aimed along
+// the player->ball line, as long as the player is within reach
+const kickShot = (ball: BallState, player: PlayerState): boolean => {
+  const dx = ball.x - player.x;
+  const dy = ball.y - player.y;
+  const dist = Math.hypot(dx, dy);
+  if (dist >= KICK.RANGE) return false;
+
+  const nx = dist === 0 ? 1 : dx / dist;
+  const ny = dist === 0 ? 0 : dy / dist;
+  ball.vx = nx * KICK.FORCE;
+  ball.vy = ny * KICK.FORCE;
+
+  // pop it clear of the body so it doesn't cling after the shot
+  const contact = PLAYER_HALF + BALL_HALF;
+  if (dist < contact) {
+    const push = contact - dist;
+    ball.x += nx * push;
+    ball.y += ny * push;
+  }
+  ball.lastTouchedBy = player.id;
+  return true;
+};
+
 const constrainPlayer = (state: GameState, player: PlayerState): void => {
   constrainToArena(player, PLAYER_HALF); // players may enter the goal boxes
 
@@ -152,7 +176,18 @@ export const step = (state: GameState, inputs: InputMap): GameState => {
   }
 
   for (const player of state.players) {
-    applyMovement(player, inputs[player.id] ?? EMPTY_INPUT);
+    const input = inputs[player.id] ?? EMPTY_INPUT;
+    const moving = input.up || input.down || input.left || input.right;
+    // sprint burns stamina for extra speed; releasing it lets stamina recover
+    const sprinting = !!input.sprint && moving && player.stamina > 0;
+    if (sprinting) {
+      player.stamina = Math.max(0, player.stamina - SPRINT.DRAIN);
+      applyMovement(player, input, PLAYER.SPEED * SPRINT.SPEED_MULT);
+    } else {
+      if (!input.sprint)
+        player.stamina = Math.min(1, player.stamina + SPRINT.REGEN);
+      applyMovement(player, input);
+    }
   }
 
   resolvePlayerCollisions(state.players);
@@ -165,8 +200,10 @@ export const step = (state: GameState, inputs: InputMap): GameState => {
 
   let kickoffTouched = false;
   for (const player of state.players) {
-    const kicked = kickBall(state.ball, player);
-    if (kicked && player.team === state.startingTeam) kickoffTouched = true;
+    const input = inputs[player.id] ?? EMPTY_INPUT;
+    let touched = kickBall(state.ball, player);
+    if (input.kick && kickShot(state.ball, player)) touched = true;
+    if (touched && player.team === state.startingTeam) kickoffTouched = true;
   }
 
   for (const player of state.players) constrainPlayer(state, player);

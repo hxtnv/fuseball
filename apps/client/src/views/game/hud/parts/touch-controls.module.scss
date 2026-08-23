@@ -51,4 +51,24 @@
       display: none;
     }
   }
+
+  // sits just left of the kick button, hold to sprint
+  &__sprint {
+    position: absolute;
+    display: inline-flex;
+    right: calc(max(24px, env(safe-area-inset-right)) + 108px);
+    bottom: max(38px, env(safe-area-inset-bottom));
+    pointer-events: auto;
+
+    button {
+      width: 74px !important;
+      height: 74px !important;
+      border-radius: 50% !important;
+      background: rgba(0, 0, 0, 0.3);
+
+      &::after {
+        display: none;
+      }
+    }
+  }
 }

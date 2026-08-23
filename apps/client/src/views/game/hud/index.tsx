@@ -5,8 +5,9 @@ import { TEAM_COLORS } from "@fuseball/shared";
 import { Button, Modal } from "@/components/ui";
 import { Roster } from "./parts/roster";
 import { TouchControls } from "./parts/touch-controls";
+import { Endgame } from "./parts/endgame";
 // import { Minimap } from "./parts/minimap";
-// import { StaminaBar } from "./parts/stamina";
+import { StaminaBar } from "./parts/stamina";
 import type { HudStore } from "./store";
 import styles from "./hud.module.scss";
 import { TEAM_NAMES } from "@/lib/game/config";
@@ -29,9 +30,19 @@ interface GameHudProps {
   hud: HudStore;
   onLeave: () => void;
   onMove?: (x: number, y: number) => void;
+  onKick?: () => void;
+  onSprint?: (down: boolean) => void;
+  onRestart?: () => void;
 }
 
-export const GameHud = ({ hud, onLeave, onMove }: GameHudProps) => {
+export const GameHud = ({
+  hud,
+  onLeave,
+  onMove,
+  onKick,
+  onSprint,
+  onRestart,
+}: GameHudProps) => {
   const [confirm, setConfirm] = useState(false);
 
   useEffect(() => {
@@ -64,6 +75,8 @@ export const GameHud = ({ hud, onLeave, onMove }: GameHudProps) => {
 
   const status = hud.status.value;
   const scoringTeam = hud.lastScoringTeam.value;
+  const score0 = hud.score0.value;
+  const score1 = hud.score1.value;
 
   return (
     <>
@@ -135,10 +148,10 @@ export const GameHud = ({ hud, onLeave, onMove }: GameHudProps) => {
       <Roster players={hud.players} team={0} side="left" />
       <Roster players={hud.players} team={1} side="right" />
 
-      {/* <div class={styles.hud__corner}>
+      <div class={styles.hud__corner}>
         <StaminaBar value={hud.stamina} />
-        <Minimap players={hud.players} />
-      </div> */}
+        {/* <Minimap players={hud.players} /> */}
+      </div>
 
       <div class={styles.hud__controls}>
         <span>
@@ -151,6 +164,9 @@ export const GameHud = ({ hud, onLeave, onMove }: GameHudProps) => {
           <kbd>Space</kbd>
           <kbd>X</kbd> Kick
         </span>
+        <span>
+          <kbd>Shift</kbd> Sprint
+        </span>
         {/* <span>
           <kbd>Q</kbd> Graphics
         </span> */}
@@ -159,7 +175,20 @@ export const GameHud = ({ hud, onLeave, onMove }: GameHudProps) => {
         </span>
       </div>
 
-      <TouchControls onMove={onMove ?? (() => {})} />
+      <TouchControls
+        onMove={onMove ?? (() => {})}
+        onKick={onKick}
+        onSprint={onSprint}
+      />
+
+      <Endgame
+        open={status === "finished"}
+        score0={score0}
+        score1={score1}
+        players={hud.players}
+        onRestart={onRestart ?? (() => {})}
+        onLeave={onLeave}
+      />
 
       <Modal
         open={confirm}

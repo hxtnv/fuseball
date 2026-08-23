@@ -1,0 +1,62 @@
+.markdown {
+  font-family: var(--ui-font);
+  color: var(--ui-text-dim);
+  font-size: 14px;
+  line-height: 1.5;
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: #fff;
+    margin: 0 0 8px;
+    line-height: 1.2;
+  }
+  h1 {
+    font-size: 20px;
+  }
+  h2 {
+    font-size: 18px;
+  }
+  h3 {
+    font-size: 16px;
+  }
+
+  p {
+    margin: 0 0 10px;
+  }
+  a {
+    color: var(--ui-theme);
+    text-decoration: underline;
+  }
+  ul,
+  ol {
+    margin: 0 0 10px;
+    padding-left: 20px;
+  }
+  li {
+    margin: 2px 0;
+  }
+  code {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  img {
+    max-width: 100%;
+    border-radius: 6px;
+  }
+  strong {
+    color: #fff;
+  }
+  blockquote {
+    margin: 0 0 10px;
+    padding-left: 12px;
+    border-left: 3px solid var(--ui-line);
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}

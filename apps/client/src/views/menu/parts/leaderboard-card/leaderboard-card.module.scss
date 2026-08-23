@@ -29,63 +29,13 @@
     }
   }
 
-  &__podium {
+  // podium moved to the shared leaderboard-podium component
+  &__loading {
     display: grid;
     grid-template-columns: 1fr 1.15fr 1fr;
     align-items: end;
+    justify-items: center;
     gap: 6px;
     padding: 16px 10px 0;
-
-    &__slot {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      min-width: 0;
-      text-align: center;
-
-      &__name {
-        max-width: 100%;
-        font-family: var(--ui-font);
-        font-weight: 600;
-        font-size: 12px;
-        color: #fff;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      &__score {
-        font-family: var(--ui-font);
-        font-size: 11px;
-        color: var(--ui-gold);
-        font-variant-numeric: tabular-nums;
-      }
-
-      &__base {
-        width: 100%;
-        margin-top: 4px;
-        display: grid;
-        place-items: center;
-        border-radius: 6px 6px 0 0;
-        font-family: var(--ui-font);
-        font-weight: 800;
-        font-size: 15px;
-        color: rgba(0, 0, 0, 0.5);
-      }
-
-      &[data-rank="1"] &__base {
-        height: 42px;
-        background: linear-gradient(180deg, #ffdd85, #e6a71f);
-      }
-      &[data-rank="2"] &__base {
-        height: 30px;
-        background: linear-gradient(180deg, #eef2f8, #aab4c3);
-      }
-      &[data-rank="3"] &__base {
-        height: 22px;
-        background: linear-gradient(180deg, #eda06a, #b5652d);
-      }
-    }
   }
 }

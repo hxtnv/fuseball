@@ -5,7 +5,8 @@
 
   &__quick {
     gap: 16px;
-    font-size: 20px !important;
+    font-size: 26px !important;
+    height: 120px;
     padding: 22px 22px 24px !important;
     letter-spacing: 2px;
     animation: play-pop 460ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;

@@ -22,6 +22,7 @@ export const BALL = {
   GRAVITY: 1.2, // z acceleration per tick (px/tick^2)
   RESTITUTION: 0.6, // vertical bounce energy retained
   WALL_BOUNCE: 1, // horizontal/vertical wall restitution
+  MAX_SPEED: 60, // px/tick cap so a wild shot can't tunnel or fly off
 } as const;
 
 export const KICK = {

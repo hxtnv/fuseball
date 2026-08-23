@@ -8,6 +8,7 @@ interface PlayButtonsProps {
   onWarmup: () => void;
   onParty: () => void;
   ready: boolean;
+  online: number;
 }
 
 export const PlayButtons = ({
@@ -15,12 +16,13 @@ export const PlayButtons = ({
   onWarmup,
   onParty,
   ready,
+  online,
 }: PlayButtonsProps) => (
   <div class={styles.playButtons}>
     <Button
       block
       size="large"
-      iconSize={48}
+      iconSize={60}
       icon={<img src="/icons/other/trade.png" alt="" />}
       iconAfter={<PlayIcon />}
       class={styles.playButtons__quick}
@@ -63,7 +65,7 @@ export const PlayButtons = ({
     <div class={styles.playButtons__online}>
       <span class={styles.playButtons__online__dot} />
       <span>
-        <strong>1,204</strong> players online
+        <strong>{online.toLocaleString()}</strong> players online
       </span>
     </div>
   </div>

@@ -59,9 +59,9 @@ test("diagonal movement is not faster than orthogonal", () => {
 
 test("ball loses speed to friction", () => {
   const state = oneVsOne();
-  state.ball.vx = 100;
+  state.ball.vx = 40;
   step(state, noInput);
-  expect(state.ball.vx).toBeCloseTo(100 * 0.95, 6);
+  expect(state.ball.vx).toBeCloseTo(40 * 0.95, 6);
 });
 
 test("simulation is deterministic", () => {

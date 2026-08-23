@@ -60,6 +60,13 @@ export const computeBotInput = (
   bot: PlayerState,
   mem: BotMemory,
 ): PlayerInput => {
+  // during the opponent's kickoff the defending team waits instead of storming
+  // in, so the restart isn't instant chaos
+  if (state.status === "protected" && bot.team !== state.startingTeam) {
+    mem.think = 0; // re-plan the moment play goes live
+    return { up: false, down: false, left: false, right: false, kick: false };
+  }
+
   if (mem.think > 0) {
     mem.think -= 1;
     return mem.input;
@@ -113,19 +120,24 @@ export const computeBotInput = (
 
   const dx = targetX - bot.x;
   const dy = targetY - bot.y;
+  const far = Math.hypot(dx, dy);
   const input: PlayerInput = {
     up: false,
     down: false,
     left: false,
     right: false,
     kick: false,
+    sprint: false,
   };
   // only move if it's worth it — hovering near the target avoids the twitchiness
-  if (Math.hypot(dx, dy) > STOP) {
+  if (far > STOP) {
     input.left = dx < -DEAD;
     input.right = dx > DEAD;
     input.up = dy < -DEAD;
     input.down = dy > DEAD;
+    // sprint only to close a big gap, and rarely — constant sprinting looks silly
+    if (bot.stamina > 0.55 && far > 260 && Math.random() < 0.15)
+      input.sprint = true;
   }
 
   // kick when we're on the ball and roughly lined up toward the goal

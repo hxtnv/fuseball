@@ -67,6 +67,7 @@ interface Room {
   state: GameState;
   clients: Map<ServerWebSocket<ClientData>, Client>;
   bots: Map<number, Bot>; // playerId -> bot; filled to keep games full
+  goals: Map<number, number>; // playerId -> goals scored this match
   nextPlayerId: number;
   nextBotName: number;
 }
@@ -81,6 +82,7 @@ const createRoom = (): Room => {
     state: createGameState(),
     clients: new Map(),
     bots: new Map(),
+    goals: new Map(),
     nextPlayerId: 0,
     nextBotName: 0,
   };
@@ -213,6 +215,7 @@ const server = Bun.serve<ClientData>({
       fillBots(room); // instant play: keep the match full with bots
       if (room.state.status === "warmup" && room.state.players.length >= 2) {
         startMatch(room.state);
+        room.goals.clear();
       }
       ws.send(encodeWelcome(playerId));
       broadcastRoster(room);
@@ -227,7 +230,10 @@ const server = Bun.serve<ClientData>({
       }
       if (type === MSG.RESTART) {
         const room = rooms.get(ws.data.roomId);
-        if (room && room.state.status === "finished") startMatch(room.state);
+        if (room && room.state.status === "finished") {
+          startMatch(room.state);
+          room.goals.clear();
+        }
         return;
       }
       if (type !== MSG.INPUT) return;
@@ -280,7 +286,21 @@ const stepRoom = (room: Room): void => {
   }
 
   const before = room.state.status;
+  const s0 = room.state.score[0];
+  const s1 = room.state.score[1];
   step(room.state, inputs);
+
+  // credit the goal to whoever last touched the ball for the scoring team
+  if (room.state.score[0] > s0 || room.state.score[1] > s1) {
+    const team = room.state.score[0] > s0 ? 0 : 1;
+    const scorer = room.state.ball.lastTouchedBy;
+    if (scorer !== null) {
+      const p = room.state.players.find((pl) => pl.id === scorer);
+      if (p && p.team === team)
+        room.goals.set(scorer, (room.goals.get(scorer) ?? 0) + 1);
+    }
+  }
+
   // report once, on the tick the match ends; it then waits for a rematch request
   if (room.state.status === "finished" && before !== "finished") {
     reportMatch(room);
@@ -296,7 +316,11 @@ const reportMatch = (room: Room): void => {
   for (const client of room.clients.values()) {
     const p = room.state.players.find((pl) => pl.id === client.playerId);
     if (!p) continue;
-    results.push({ userId: client.userId, won: winner === p.team, goals: 0 });
+    results.push({
+      userId: client.userId,
+      won: winner === p.team,
+      goals: room.goals.get(client.playerId) ?? 0,
+    });
   }
   if (results.length === 0) return;
   fetch(`${CENTRAL_URL}/internal/match`, {

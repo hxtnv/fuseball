@@ -1,6 +1,7 @@
 import { ChevronRight, Trophy } from "lucide-react";
-import { Avatar, Box } from "@/components/ui";
-import { MOCK_LEADERBOARD, type LeaderRow } from "../../mock";
+import { Box, Skeleton } from "@/components/ui";
+import { padRows, useLeaderboard } from "../../hooks/use-leaderboard";
+import { LeaderboardPodium } from "../leaderboard-podium";
 import styles from "./leaderboard-card.module.scss";
 
 interface LeaderboardCardProps {
@@ -8,9 +9,7 @@ interface LeaderboardCardProps {
 }
 
 export const LeaderboardCard = ({ onOpen }: LeaderboardCardProps) => {
-  const [first, second, third] = MOCK_LEADERBOARD;
-  // arrange as 2nd - 1st - 3rd so the winner sits centre on the podium
-  const podium = [second, first, third].filter((r): r is LeaderRow => !!r);
+  const { rows, status } = useLeaderboard(3);
 
   return (
     <Box flush class={styles.leaderboard}>
@@ -20,24 +19,15 @@ export const LeaderboardCard = ({ onOpen }: LeaderboardCardProps) => {
         <ChevronRight size={16} />
       </button>
 
-      <div class={styles.leaderboard__podium}>
-        {podium.map((row) => (
-          <div
-            class={styles.leaderboard__podium__slot}
-            data-rank={row.rank}
-            key={row.rank}
-          >
-            <Avatar name={row.name} size={row.rank === 1 ? 52 : 42} />
-            <span class={styles.leaderboard__podium__slot__name}>
-              {row.name}
-            </span>
-            <span class={styles.leaderboard__podium__slot__score}>
-              {row.wins} W
-            </span>
-            <div class={styles.leaderboard__podium__slot__base}>{row.rank}</div>
-          </div>
-        ))}
-      </div>
+      {status === "ready" ? (
+        <LeaderboardPodium top3={padRows(rows, 3)} />
+      ) : (
+        <div class={styles.leaderboard__loading}>
+          <Skeleton width={42} height={54} radius={6} />
+          <Skeleton width={52} height={74} radius={6} />
+          <Skeleton width={42} height={40} radius={6} />
+        </div>
+      )}
     </Box>
   );
 };

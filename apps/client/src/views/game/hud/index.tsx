@@ -6,6 +6,7 @@ import { Button, Modal } from "@/components/ui";
 import { Roster } from "./parts/roster";
 import { TouchControls } from "./parts/touch-controls";
 import { Endgame } from "./parts/endgame";
+import { GoalBanner } from "./parts/goal-banner";
 // import { Minimap } from "./parts/minimap";
 import { StaminaBar } from "./parts/stamina";
 import type { HudStore } from "./store";
@@ -142,6 +143,8 @@ export const GameHud = ({
         <span>{pingText}</span>
         <span class={styles.hud__status__fps}>{hud.fps} fps</span>
       </div>
+
+      {status === "celebrating" && <GoalBanner team={scoringTeam} />}
 
       {/* <div className={styles.hud__watermark}>fuseball.io</div> */}
 

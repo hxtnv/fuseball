@@ -13,6 +13,7 @@
     "@fuseball/shared": "workspace:*",
     "@preact/signals": "^2.11.1",
     "lucide-react": "^1.33.0",
+    "marked": "^18.0.10",
     "preact": "^10.29.8"
   },
   "devDependencies": {

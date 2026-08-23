@@ -30,77 +30,37 @@ const KICKOFF_CIRCLE =
 
 const resolvePlayerCollisions = (players: PlayerState[]): void => {
   const minDist = PLAYER.SIZE; // half + half
-  for (let i = 0; i < players.length; i++) {
-    for (let j = i + 1; j < players.length; j++) {
-      const a = players[i]!;
-      const b = players[j]!;
-      let dx = a.x - b.x;
-      let dy = a.y - b.y;
-      let dist = Math.hypot(dx, dy);
-      if (dist === 0) {
-        // deterministic nudge so exactly-overlapping players separate
-        dx = 0.01;
-        dy = 0;
-        dist = 0.01;
-      }
-      if (dist < minDist) {
-        const overlap = (minDist - dist) / 2;
-        const nx = dx / dist;
-        const ny = dy / dist;
-        a.x += nx * overlap;
-        a.y += ny * overlap;
-        b.x -= nx * overlap;
-        b.y -= ny * overlap;
+  // a few relaxation passes so dense scrums settle instead of jittering
+  for (let iter = 0; iter < 4; iter++) {
+    for (let i = 0; i < players.length; i++) {
+      for (let j = i + 1; j < players.length; j++) {
+        const a = players[i]!;
+        const b = players[j]!;
+        let dx = a.x - b.x;
+        let dy = a.y - b.y;
+        let dist = Math.hypot(dx, dy);
+        if (dist === 0) {
+          // deterministic nudge so exactly-overlapping players separate
+          dx = 0.01;
+          dy = 0;
+          dist = 0.01;
+        }
+        if (dist < minDist) {
+          const overlap = (minDist - dist) / 2;
+          const nx = dx / dist;
+          const ny = dy / dist;
+          a.x += nx * overlap;
+          a.y += ny * overlap;
+          b.x -= nx * overlap;
+          b.y -= ny * overlap;
+        }
       }
     }
   }
 };
 
 // ball inherits the kicking player's momentum, directed from player to ball
-const kickBall = (ball: BallState, player: PlayerState): boolean => {
-  const dx = ball.x - player.x;
-  const dy = ball.y - player.y;
-  const dist = Math.hypot(dx, dy);
-  const contact = PLAYER_HALF + BALL_HALF;
-  if (dist >= contact) return false;
-
-  const nx = dist === 0 ? 1 : dx / dist;
-  const ny = dist === 0 ? 0 : dy / dist;
-  const strength = Math.hypot(player.vx, player.vy);
-  ball.vx = nx * strength;
-  ball.vy = ny * strength;
-
-  // shove the ball out of overlap so it doesn't stick to the player
-  const push = contact - dist;
-  ball.x += nx * push;
-  ball.y += ny * push;
-  ball.lastTouchedBy = player.id;
-  return true;
-};
-
-// an active kick launches the ball from the player at a fixed force, aimed along
-// the player->ball line, as long as the player is within reach
-const kickShot = (ball: BallState, player: PlayerState): boolean => {
-  const dx = ball.x - player.x;
-  const dy = ball.y - player.y;
-  const dist = Math.hypot(dx, dy);
-  if (dist >= KICK.RANGE) return false;
-
-  const nx = dist === 0 ? 1 : dx / dist;
-  const ny = dist === 0 ? 0 : dy / dist;
-  ball.vx = nx * KICK.FORCE;
-  ball.vy = ny * KICK.FORCE;
-
-  // pop it clear of the body so it doesn't cling after the shot
-  const contact = PLAYER_HALF + BALL_HALF;
-  if (dist < contact) {
-    const push = contact - dist;
-    ball.x += nx * push;
-    ball.y += ny * push;
-  }
-  ball.lastTouchedBy = player.id;
-  return true;
-};
+// (see applyBallKick, below, for how a single winning touch is chosen)
 
 const constrainPlayer = (state: GameState, player: PlayerState): void => {
   constrainToArena(player, PLAYER_HALF); // players may enter the goal boxes
@@ -125,12 +85,56 @@ const constrainPlayer = (state: GameState, player: PlayerState): void => {
   }
 };
 
-// integrates the ball for one tick; returns the scoring team if a goal happened
+// resolves the single strongest touch on the ball this tick: an active kick
+// (fixed force, within reach) beats a passive touch (the player's momentum).
+// Picking one winner stops a crowd from fighting over the ball's velocity.
+const applyBallKick = (
+  state: GameState,
+  inputs: InputMap,
+): PlayerState | null => {
+  const ball = state.ball;
+  const contact = PLAYER_HALF + BALL_HALF;
+  let best: PlayerState | null = null;
+  let bestStrength = -1;
+  for (const player of state.players) {
+    const input = inputs[player.id] ?? EMPTY_INPUT;
+    const dist = Math.hypot(ball.x - player.x, ball.y - player.y);
+    let strength = -1;
+    if (input.kick && dist < KICK.RANGE) strength = KICK.FORCE;
+    else if (dist < contact) strength = Math.hypot(player.vx, player.vy);
+    if (strength > bestStrength) {
+      bestStrength = strength;
+      best = player;
+    }
+  }
+  if (!best) return null;
+
+  const dx = ball.x - best.x;
+  const dy = ball.y - best.y;
+  const dist = Math.hypot(dx, dy);
+  const nx = dist === 0 ? 1 : dx / dist;
+  const ny = dist === 0 ? 0 : dy / dist;
+  ball.vx = nx * bestStrength;
+  ball.vy = ny * bestStrength;
+  if (dist < contact) {
+    const push = contact - dist;
+    ball.x += nx * push;
+    ball.y += ny * push;
+  }
+  ball.lastTouchedBy = best.id;
+  return best;
+};
+
+// integrates the ball for one tick; returns the scoring team if a goal happened.
+// Moves in sub-steps no larger than the ball radius so a fast shot can't skip
+// past a wall, and caps speed so it can't reach runaway/tunnelling velocities.
 const updateBall = (ball: BallState): Team | null => {
-  ball.x += ball.vx;
-  ball.y += ball.vy;
-  ball.vx *= BALL.FRICTION;
-  ball.vy *= BALL.FRICTION;
+  const speed = Math.hypot(ball.vx, ball.vy);
+  if (speed > BALL.MAX_SPEED) {
+    const s = BALL.MAX_SPEED / speed;
+    ball.vx *= s;
+    ball.vy *= s;
+  }
 
   // vertical (z) physics — dormant until a lob gives the ball vz
   if (ball.z > 0 || ball.vz !== 0) {
@@ -142,19 +146,27 @@ const updateBall = (ball: BallState): Team | null => {
     }
   }
 
-  // a goal is scored when the ball crosses a goal line within the goal band
-  const inGoalBand = ball.y > GOAL_TOP_Y && ball.y < GOAL_BOTTOM_Y;
+  const move = Math.hypot(ball.vx, ball.vy);
+  const steps = Math.max(1, Math.ceil(move / BALL_HALF));
   let scored: Team | null = null;
-  if (inGoalBand) {
-    if (ball.x < 0) scored = 1;
-    else if (ball.x > FIELD.WIDTH) scored = 0;
+  for (let i = 0; i < steps; i++) {
+    ball.x += ball.vx / steps;
+    ball.y += ball.vy / steps;
+
+    // a goal is scored when the ball crosses a goal line within the goal band
+    if (scored === null && ball.y > GOAL_TOP_Y && ball.y < GOAL_BOTTOM_Y) {
+      if (ball.x < 0) scored = 1;
+      else if (ball.x > FIELD.WIDTH) scored = 0;
+    }
+
+    // the goal boxes have collision, so the ball is contained and bounces
+    const hit = constrainToArena(ball, BALL_HALF);
+    if (hit.x !== 0) ball.vx = -ball.vx * BALL.WALL_BOUNCE;
+    if (hit.y !== 0) ball.vy = -ball.vy * BALL.WALL_BOUNCE;
   }
 
-  // the goal boxes have collision, so the ball is contained and bounces
-  const hit = constrainToArena(ball, BALL_HALF);
-  if (hit.x !== 0) ball.vx = -ball.vx * BALL.WALL_BOUNCE;
-  if (hit.y !== 0) ball.vy = -ball.vy * BALL.WALL_BOUNCE;
-
+  ball.vx *= BALL.FRICTION;
+  ball.vy *= BALL.FRICTION;
   return scored;
 };
 
@@ -184,7 +196,9 @@ export const step = (state: GameState, inputs: InputMap): GameState => {
       player.stamina = Math.max(0, player.stamina - SPRINT.DRAIN);
       applyMovement(player, input, PLAYER.SPEED * SPRINT.SPEED_MULT);
     } else {
-      if (!input.sprint)
+      // recover whenever not actively sprinting — including while holding sprint
+      // but standing still
+      if (!moving || !input.sprint)
         player.stamina = Math.min(1, player.stamina + SPRINT.REGEN);
       applyMovement(player, input);
     }
@@ -198,13 +212,8 @@ export const step = (state: GameState, inputs: InputMap): GameState => {
     p.vy = p.y - scratchPrevY[i]!;
   }
 
-  let kickoffTouched = false;
-  for (const player of state.players) {
-    const input = inputs[player.id] ?? EMPTY_INPUT;
-    let touched = kickBall(state.ball, player);
-    if (input.kick && kickShot(state.ball, player)) touched = true;
-    if (touched && player.team === state.startingTeam) kickoffTouched = true;
-  }
+  const kicker = applyBallKick(state, inputs);
+  const kickoffTouched = kicker?.team === state.startingTeam;
 
   for (const player of state.players) constrainPlayer(state, player);
 

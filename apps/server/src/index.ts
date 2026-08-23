@@ -6,14 +6,39 @@ import {
   signToken,
   verifyToken,
 } from "@fuseball/auth";
-import { initStore, type UserStore } from "./store";
+import { initStore, type NewsItem, type UserStore } from "./store";
 import { findServer, gameServers } from "./servers";
+import { exchangeGoogleCode, googleAuthUrl, googleConfigured } from "./google";
+import type { ServerWebSocket } from "bun";
 
 const port = Number(process.env.PORT ?? 3001);
 const INTERNAL_SECRET =
   process.env.INTERNAL_SECRET ?? "dev-internal-secret-change-me";
 
 let store: UserStore;
+
+// news is hand-authored and changes rarely — cache it so menu loads don't hit the DB
+const NEWS_TTL = 60_000;
+let newsCache: { at: number; limit: number; data: NewsItem[] } | null = null;
+
+// live presence: every open client (menu OR game) holds a /presence socket. The
+// count is deduped by userId, so multiple tabs from one account count once.
+interface PresenceData {
+  userId: string | null;
+}
+const presence = new Map<ServerWebSocket<PresenceData>, string | null>();
+const onlineCount = (): number => {
+  const ids = new Set<string>();
+  let anon = 0;
+  for (const uid of presence.values())
+    if (uid) ids.add(uid);
+    else anon++;
+  return ids.size + anon;
+};
+const broadcastOnline = (): void => {
+  const msg = JSON.stringify({ type: "online", count: onlineCount() });
+  for (const ws of presence.keys()) ws.send(msg);
+};
 
 const CORS = {
   "Access-Control-Allow-Origin": process.env.CLIENT_ORIGIN ?? "*",
@@ -37,11 +62,20 @@ const authUser = async (req: Request) => {
   return store.get(payload.userId);
 };
 
-const server = Bun.serve({
+const server = Bun.serve<PresenceData>({
   port,
-  async fetch(req) {
+  async fetch(req, server) {
     const url = new URL(req.url);
     const { pathname } = url;
+
+    // live online-count socket; the token (if any) lets us dedupe by user
+    if (pathname === "/presence") {
+      const token = url.searchParams.get("token");
+      const payload = token ? await verifyToken(token) : null;
+      if (server.upgrade(req, { data: { userId: payload?.userId ?? null } }))
+        return undefined;
+      return new Response("upgrade failed", { status: 400 });
+    }
 
     if (req.method === "OPTIONS")
       return new Response(null, { status: 204, headers: CORS });
@@ -91,6 +125,63 @@ const server = Bun.serve({
       if (!updated) return json({ error: "not_found" }, 404);
       const token = await signToken({ userId: updated.id, name: updated.name });
       return json({ token, user: updated });
+    }
+
+    // --- auth: begin Google OAuth (anon token rides along as state to link) ---
+    if (pathname === "/auth/google/start" && req.method === "GET") {
+      if (!googleConfigured())
+        return json({ error: "oauth_not_configured" }, 503);
+      const state = url.searchParams.get("token") ?? "";
+      return new Response(null, {
+        status: 302,
+        headers: { ...CORS, Location: googleAuthUrl(state) },
+      });
+    }
+
+    // --- auth: Google OAuth callback -> link/create account, back to client ---
+    if (pathname === "/auth/google/callback" && req.method === "GET") {
+      const clientUrl = process.env.CLIENT_URL ?? "http://localhost:5173";
+      const code = url.searchParams.get("code");
+      if (!code) return Response.redirect(`${clientUrl}#error=oauth`, 302);
+      const profile = await exchangeGoogleCode(code);
+      if (!profile) return Response.redirect(`${clientUrl}#error=oauth`, 302);
+      const anon = await verifyToken(url.searchParams.get("state") ?? "");
+      const user = await store.linkGoogle(anon?.userId ?? null, profile);
+      const token = await signToken({ userId: user.id, name: user.name });
+      return Response.redirect(
+        `${clientUrl}#token=${encodeURIComponent(token)}`,
+        302,
+      );
+    }
+
+    // --- leaderboard: top players by wins then goals (public, no auth) ---
+    if (pathname === "/leaderboard" && req.method === "GET") {
+      const limit = Math.min(
+        50,
+        Math.max(1, Number(url.searchParams.get("limit")) || 10),
+      );
+      const players = await store.topPlayers(limit);
+      return json({ players });
+    }
+
+    // --- news: hand-authored announcements (public, no auth) ---
+    if (pathname === "/news" && req.method === "GET") {
+      const limit = Math.min(
+        20,
+        Math.max(1, Number(url.searchParams.get("limit")) || 10),
+      );
+      if (
+        !newsCache ||
+        newsCache.limit !== limit ||
+        Date.now() - newsCache.at > NEWS_TTL
+      ) {
+        newsCache = {
+          at: Date.now(),
+          limit,
+          data: await store.listNews(limit),
+        };
+      }
+      return json({ news: newsCache.data });
     }
 
     // --- server picker: list game-server regions with live player counts ---
@@ -154,6 +245,18 @@ const server = Bun.serve({
       status: 200,
       headers: CORS,
     });
+  },
+  websocket: {
+    open(ws) {
+      presence.set(ws, ws.data.userId);
+      ws.send(JSON.stringify({ type: "online", count: onlineCount() }));
+      broadcastOnline();
+    },
+    close(ws) {
+      presence.delete(ws);
+      broadcastOnline();
+    },
+    message() {},
   },
 });
 

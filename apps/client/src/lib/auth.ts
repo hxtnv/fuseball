@@ -5,6 +5,9 @@ import { API } from "./game/config";
 export interface User {
   id: string;
   name: string;
+  isAnonymous: boolean;
+  friendCode: string | null;
+  balance: number;
   gamesPlayed: number;
   wins: number;
   goals: number;
@@ -30,7 +33,34 @@ export interface RoomInfo {
 const TOKEN_KEY = "fuseball.token";
 
 export const getToken = (): string | null => localStorage.getItem(TOKEN_KEY);
-const setToken = (t: string): void => localStorage.setItem(TOKEN_KEY, t);
+const setToken = (t: string): void => {
+  localStorage.setItem(TOKEN_KEY, t);
+  window.dispatchEvent(new Event("fuseball:token"));
+};
+
+// drop the stored token; callers then re-run ensureAuth() for a fresh anon account
+export const signOut = (): void => {
+  localStorage.removeItem(TOKEN_KEY);
+  window.dispatchEvent(new Event("fuseball:token"));
+};
+
+// URL that begins the Google OAuth redirect (carries the anon token so the
+// server can migrate this anonymous account into the signed-in one).
+export const googleSignInUrl = (token: string): string =>
+  `${API.baseUrl}/auth/google/start?token=${encodeURIComponent(token)}`;
+
+// If we just came back from the OAuth redirect with a #token=..., store it and
+// strip it from the URL so the app boots signed in.
+export const consumeRedirectToken = (): void => {
+  const m = window.location.hash.match(/token=([^&]+)/);
+  if (!m) return;
+  setToken(decodeURIComponent(m[1]!));
+  history.replaceState(
+    null,
+    "",
+    window.location.pathname + window.location.search,
+  );
+};
 
 // Load the stored account (validating its token), or create a fresh anonymous one.
 export const ensureAuth = async (): Promise<{ token: string; user: User }> => {
@@ -80,6 +110,39 @@ export const shuffleName = async (
   const data = (await res.json()) as { token: string; user: User };
   setToken(data.token);
   return data;
+};
+
+export interface LeaderboardEntry {
+  id: string;
+  name: string;
+  wins: number;
+  goals: number;
+  gamesPlayed: number;
+}
+
+export const fetchLeaderboard = async (
+  limit = 10,
+): Promise<LeaderboardEntry[]> => {
+  const res = await fetch(`${API.baseUrl}/leaderboard?limit=${limit}`);
+  if (!res.ok) return [];
+  const { players } = (await res.json()) as { players: LeaderboardEntry[] };
+  return players;
+};
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  excerpt: string;
+  description: string; // Markdown
+  image: string | null;
+  createdAt: string; // ISO
+}
+
+export const fetchNews = async (limit = 10): Promise<NewsItem[]> => {
+  const res = await fetch(`${API.baseUrl}/news?limit=${limit}`);
+  if (!res.ok) throw new Error("news_unavailable");
+  const { news } = (await res.json()) as { news: NewsItem[] };
+  return news;
 };
 
 export const fetchServers = async (): Promise<GameServerInfo[]> => {

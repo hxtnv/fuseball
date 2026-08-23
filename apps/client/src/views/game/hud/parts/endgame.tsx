@@ -30,7 +30,7 @@ export const Endgame = ({
       : `Team ${TEAM_NAMES[score0 > score1 ? 0 : 1]} wins!`;
 
   return (
-    <Modal open={open} onClose={() => {}} width={460} title={{ text: heading }}>
+    <Modal open={open} onClose={onLeave} width={460} title={{ text: heading }}>
       <div class={styles.endgame}>
         <div class={styles.endgame__score}>
           <span style={{ color: TEAM_COLORS[0] }}>{score0}</span>

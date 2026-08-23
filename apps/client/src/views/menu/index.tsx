@@ -1,13 +1,16 @@
 import { useEffect, useState } from "preact/hooks";
 import {
+  consumeRedirectToken,
   ensureAuth,
   fetchServers,
   renameUser,
   shuffleName,
+  signOut,
   type GameServerInfo,
   type User,
 } from "@/lib/auth";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, LogOut } from "lucide-react";
+import { Button, Modal } from "@/components/ui";
 import { TopBar } from "./parts/top-bar";
 import { ServerBox } from "./parts/server-box";
 import { NewsCard } from "./parts/news-card";
@@ -27,6 +30,7 @@ import { NewsModal } from "./parts/news-modal";
 import { SignInModal } from "./parts/sign-in-modal";
 import { useServersPing } from "./hooks/use-servers-ping";
 import styles from "./menu.module.scss";
+import { cn } from "@/lib/cn";
 
 export interface PlaySession {
   serverName: string;
@@ -37,6 +41,7 @@ export interface PlaySession {
 
 interface Props {
   onPlay: (session: PlaySession) => void;
+  online: number;
 }
 
 type ModalKind =
@@ -50,7 +55,7 @@ type ModalKind =
   | "signin"
   | null;
 
-export const MainMenu = ({ onPlay }: Props) => {
+export const MainMenu = ({ onPlay, online }: Props) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState("");
   const [servers, setServers] = useState<GameServerInfo[]>([]);
@@ -58,11 +63,13 @@ export const MainMenu = ({ onPlay }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [modal, setModal] = useState<ModalKind>(null);
+  const [signOutOpen, setSignOutOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
+        consumeRedirectToken(); // pick up a token from a Google OAuth redirect
         const auth = await ensureAuth();
         if (!alive) return;
         setUser(auth.user);
@@ -135,6 +142,19 @@ export const MainMenu = ({ onPlay }: Props) => {
     }
   };
 
+  // sign out drops the token and provisions a fresh anonymous account
+  const handleSignOut = async () => {
+    setSignOutOpen(false);
+    signOut();
+    try {
+      const auth = await ensureAuth();
+      setUser(auth.user);
+      setToken(auth.token);
+    } catch {
+      /* leave state as-is on failure */
+    }
+  };
+
   return (
     <div class={styles.menu}>
       <div class={styles.menu__bg}>
@@ -146,7 +166,9 @@ export const MainMenu = ({ onPlay }: Props) => {
       <div class={styles.menu__hud}>
         <div class={styles.menu__hud__top}>
           <TopBar
+            signedIn={user != null && !user.isAnonymous}
             onSignIn={() => setModal("signin")}
+            onSignOut={() => setSignOutOpen(true)}
             onSettings={() => setModal("settings")}
           />
         </div>
@@ -154,7 +176,7 @@ export const MainMenu = ({ onPlay }: Props) => {
         <div class={styles.menu__hud__content}>
           <div class={styles.menu__block}>
             {error && (
-              <div class={styles.menu__alert}>
+              <div class={cn(styles.menu__alert, "ui-box")}>
                 <AlertTriangle size={18} />
                 <span>{error}</span>
               </div>
@@ -177,6 +199,7 @@ export const MainMenu = ({ onPlay }: Props) => {
                 onWarmup={() => play()}
                 onParty={() => setModal("party")}
                 ready={ready}
+                online={online}
               />
             </div>
 
@@ -185,7 +208,10 @@ export const MainMenu = ({ onPlay }: Props) => {
                 user={user}
                 onEditProfile={() => setModal("profile")}
               />
-              <WalletStrip coins={1250} onRewards={() => setModal("rewards")} />
+              <WalletStrip
+                coins={user?.balance ?? 0}
+                onRewards={() => setModal("rewards")}
+              />
               <FriendsRail onInvite={() => setModal("party")} />
             </div>
           </div>
@@ -219,7 +245,32 @@ export const MainMenu = ({ onPlay }: Props) => {
       />
       <PartyModal open={modal === "party"} onClose={closeModal} />
       <NewsModal open={modal === "news"} onClose={closeModal} />
-      <SignInModal open={modal === "signin"} onClose={closeModal} />
+      <SignInModal
+        open={modal === "signin"}
+        onClose={closeModal}
+        token={token}
+        user={user}
+      />
+
+      <Modal
+        open={signOutOpen}
+        onClose={() => setSignOutOpen(false)}
+        width={380}
+        title={{ text: "Sign out?", icon: <LogOut /> }}
+      >
+        <p class={styles.menu__confirm}>
+          You'll drop back to a guest account. Sign in again anytime to restore
+          your progress.
+        </p>
+        <div class={styles.menu__confirm__actions}>
+          <Button variant="secondary" onClick={() => setSignOutOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleSignOut}>
+            Sign out
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

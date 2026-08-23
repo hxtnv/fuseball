@@ -14,10 +14,11 @@
     "dev:all": "bun --filter '*' dev",
     "build": "bun --filter @fuseball/client build",
     "typecheck": "bun --filter '*' typecheck",
-    "db:generate": "bun --filter @fuseball/db db:generate",
-    "db:push": "bun --filter @fuseball/db db:push",
-    "db:migrate": "bun --filter @fuseball/db db:migrate",
-    "db:studio": "bun --filter @fuseball/db db:studio"
+    "db:generate": "bun x prisma generate --schema packages/db/prisma/schema.prisma",
+    "db:push": "bun x prisma db push --schema packages/db/prisma/schema.prisma",
+    "db:pull": "bun x prisma db pull --schema packages/db/prisma/schema.prisma",
+    "db:migrate": "bun x prisma migrate dev --schema packages/db/prisma/schema.prisma",
+    "db:studio": "bun x prisma studio --schema packages/db/prisma/schema.prisma"
   },
   "devDependencies": {
     "typescript": "^7.0.2"

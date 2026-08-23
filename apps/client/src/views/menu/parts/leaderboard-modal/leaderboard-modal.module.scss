@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  margin-top: 16px;
 
   &__row {
     display: grid;
@@ -13,8 +14,8 @@
     background: rgba(0, 0, 0, 0.3);
     font-family: var(--ui-font);
 
-    &[data-top="true"] {
-      background: rgba(44, 181, 128, 0.18);
+    &[data-empty="true"] {
+      opacity: 0.4;
     }
 
     &__rank {

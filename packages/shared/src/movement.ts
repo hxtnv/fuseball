@@ -40,46 +40,54 @@ export const applyMovement = (
   pos.y += (dy / len) * speed;
 };
 
+const clampN = (v: number, lo: number, hi: number): number =>
+  v < lo ? lo : v > hi ? hi : v;
+
 // Clamps a point to the play area (field + the two goal boxes) and reports which
-// walls it hit — the ball uses this to bounce, players to stay contained.
+// walls it hit — the ball uses this to bounce, players to stay contained. The
+// area is the union of three rectangles; when outside all of them we snap to the
+// nearest one, which keeps the concave goal-mouth corners leak- and teleport-free.
 export const constrainToArena = (obj: Vec2, half: number): WallHit => {
+  const fx0 = half;
+  const fx1 = FIELD.WIDTH - half;
+  const fy0 = half;
+  const fy1 = FIELD.HEIGHT - half;
+  const by0 = GOAL_TOP_Y + half;
+  const by1 = GOAL_BOTTOM_Y - half;
+  const lx0 = -GOAL_DEPTH + half;
+  const rx1 = FIELD.WIDTH + GOAL_DEPTH - half;
+
+  const inField = obj.x >= fx0 && obj.x <= fx1 && obj.y >= fy0 && obj.y <= fy1;
+  const inLeft = obj.x >= lx0 && obj.x <= fx0 && obj.y >= by0 && obj.y <= by1;
+  const inRight = obj.x >= fx1 && obj.x <= rx1 && obj.y >= by0 && obj.y <= by1;
+  if (inField || inLeft || inRight) return { x: 0, y: 0 };
+
+  // outside every rectangle: project onto each and keep the nearest (minimal move)
+  let bestX = clampN(obj.x, fx0, fx1);
+  let bestY = clampN(obj.y, fy0, fy1);
+  let bestD = (bestX - obj.x) ** 2 + (bestY - obj.y) ** 2;
+
+  const lxc = clampN(obj.x, lx0, fx0);
+  const lyc = clampN(obj.y, by0, by1);
+  const ld = (lxc - obj.x) ** 2 + (lyc - obj.y) ** 2;
+  if (ld < bestD) {
+    bestD = ld;
+    bestX = lxc;
+    bestY = lyc;
+  }
+
+  const rxc = clampN(obj.x, fx1, rx1);
+  const ryc = clampN(obj.y, by0, by1);
+  const rd = (rxc - obj.x) ** 2 + (ryc - obj.y) ** 2;
+  if (rd < bestD) {
+    bestX = rxc;
+    bestY = ryc;
+  }
+
   const hit: WallHit = { x: 0, y: 0 };
-  const inGoalBand = obj.y > GOAL_TOP_Y && obj.y < GOAL_BOTTOM_Y;
-
-  if (inGoalBand) {
-    const backLeft = -GOAL_DEPTH + half;
-    const backRight = FIELD.WIDTH + GOAL_DEPTH - half;
-    if (obj.x < backLeft) {
-      obj.x = backLeft;
-      hit.x = -1;
-    } else if (obj.x > backRight) {
-      obj.x = backRight;
-      hit.x = 1;
-    }
-  } else if (obj.x < half) {
-    obj.x = half;
-    hit.x = -1;
-  } else if (obj.x > FIELD.WIDTH - half) {
-    obj.x = FIELD.WIDTH - half;
-    hit.x = 1;
-  }
-
-  const inGoalBox = obj.x < 0 || obj.x > FIELD.WIDTH;
-  if (inGoalBox) {
-    if (obj.y < GOAL_TOP_Y + half) {
-      obj.y = GOAL_TOP_Y + half;
-      hit.y = -1;
-    } else if (obj.y > GOAL_BOTTOM_Y - half) {
-      obj.y = GOAL_BOTTOM_Y - half;
-      hit.y = 1;
-    }
-  } else if (obj.y < half) {
-    obj.y = half;
-    hit.y = -1;
-  } else if (obj.y > FIELD.HEIGHT - half) {
-    obj.y = FIELD.HEIGHT - half;
-    hit.y = 1;
-  }
-
+  if (bestX !== obj.x) hit.x = bestX > obj.x ? -1 : 1;
+  if (bestY !== obj.y) hit.y = bestY > obj.y ? -1 : 1;
+  obj.x = bestX;
+  obj.y = bestY;
   return hit;
 };

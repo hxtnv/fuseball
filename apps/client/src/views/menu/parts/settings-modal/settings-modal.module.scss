@@ -16,4 +16,46 @@
       color: #fff;
     }
   }
+
+  &__volume {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &__slider {
+      width: 160px;
+      height: 6px;
+      appearance: none;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.5);
+      outline: none;
+      cursor: pointer;
+
+      &::-webkit-slider-thumb {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--ui-theme);
+        border: 2px solid var(--ui-border);
+        cursor: pointer;
+      }
+      &::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--ui-theme);
+        border: 2px solid var(--ui-border);
+        cursor: pointer;
+      }
+    }
+
+    &__value {
+      min-width: 28px;
+      text-align: right;
+      font-family: var(--ui-font);
+      font-variant-numeric: tabular-nums;
+      color: var(--ui-text-dim);
+    }
+  }
 }

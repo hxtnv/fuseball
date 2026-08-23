@@ -153,24 +153,66 @@ export interface AdminStats {
   new7d: number;
   activeToday: number;
   active7d: number;
+  mau: number;
+  stickiness: number;
+  weeklyChurn: number;
   totalGames: number;
   totalWins: number;
   totalGoals: number;
+  totalSessions: number;
+  totalPlaytimeSec: number;
+  avgSessionSec: number;
+  midMatchQuits: number;
+  completionRate: number;
+  quitRate: number;
   onlineNow: number;
   serversOnline: number;
   serversTotal: number;
 }
 
+export interface AdminCharts {
+  ccu: { t: number; v: number }[];
+  newUsers: { d: string; v: number }[];
+  dau: { d: string; v: number }[];
+  retention: { label: string; value: number }[];
+  hourly: { label: string; value: number }[];
+  weekday: { label: string; value: number }[];
+}
+
+export interface AdminActivity {
+  hourly: { label: string; value: number }[];
+  weekday: { label: string; value: number }[];
+}
+
 export interface AdminData {
   stats: AdminStats;
   top: LeaderboardEntry[];
+  charts: AdminCharts;
 }
+
+export const fetchActivity = async (
+  from: string,
+  to: string,
+): Promise<AdminActivity> => {
+  const token = getToken();
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const res = await fetch(
+    `${API.baseUrl}/admin/activity?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&tz=${encodeURIComponent(tz)}`,
+    { headers: token ? { Authorization: `Bearer ${token}` } : {} },
+  );
+  if (!res.ok) throw new Error(String(res.status));
+  return (await res.json()) as AdminActivity;
+};
 
 export const fetchAdminStats = async (): Promise<AdminData> => {
   const token = getToken();
-  const res = await fetch(`${API.baseUrl}/admin/stats`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const res = await fetch(
+    `${API.baseUrl}/admin/stats?tz=${encodeURIComponent(tz)}`,
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    },
+  );
   if (!res.ok) throw new Error(String(res.status));
   return (await res.json()) as AdminData;
 };

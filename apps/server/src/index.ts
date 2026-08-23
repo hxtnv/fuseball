@@ -53,6 +53,17 @@ const json = (data: unknown, status = 200): Response =>
     headers: { "Content-Type": "application/json", ...CORS },
   });
 
+// validate an IANA timezone from the client; fall back to UTC if bogus
+const safeTz = (tz: string | null): string => {
+  if (!tz) return "UTC";
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return tz;
+  } catch {
+    return "UTC";
+  }
+};
+
 // Resolve the authenticated user from the Authorization header, or null.
 const authUser = async (req: Request) => {
   const token = bearer(req.headers.get("authorization"));
@@ -204,6 +215,7 @@ const server = Bun.serve<PresenceData>({
         }),
       );
       const top = await store.topPlayers(10);
+      const charts = await store.charts(safeTz(url.searchParams.get("tz")));
       return json({
         stats: {
           ...base,
@@ -212,7 +224,22 @@ const server = Bun.serve<PresenceData>({
           serversTotal: gameServers.length,
         },
         top,
+        charts,
       });
+    }
+
+    // --- admin: activity buckets for a date range (admin only) ---
+    if (pathname === "/admin/activity" && req.method === "GET") {
+      const user = await authUser(req);
+      if (!user?.isAdmin) return json({ error: "forbidden" }, 403);
+      const from = url.searchParams.get("from");
+      const to = url.searchParams.get("to");
+      const activity = await store.activity(
+        from ? new Date(from) : null,
+        to ? new Date(to) : null,
+        safeTz(url.searchParams.get("tz")),
+      );
+      return json(activity);
     }
 
     // --- server picker: list game-server regions with live player counts ---
@@ -272,6 +299,26 @@ const server = Bun.serve<PresenceData>({
       return json({ ok: true });
     }
 
+    // --- internal: game server reports a finished play session ---
+    if (pathname === "/internal/session" && req.method === "POST") {
+      if (req.headers.get("x-internal-secret") !== INTERNAL_SECRET)
+        return json({ error: "forbidden" }, 403);
+      const body = (await req.json().catch(() => ({}))) as {
+        userId?: string;
+        region?: string | null;
+        durationSec?: number;
+        quitMidMatch?: boolean;
+      };
+      if (body.userId)
+        await store.recordSession({
+          userId: body.userId,
+          region: body.region ?? null,
+          durationSec: Math.max(0, Math.round(body.durationSec ?? 0)),
+          quitMidMatch: !!body.quitMidMatch,
+        });
+      return json({ ok: true });
+    }
+
     return new Response("fuseball central server", {
       status: 200,
       headers: CORS,
@@ -292,6 +339,8 @@ const server = Bun.serve<PresenceData>({
 });
 
 store = await initStore();
+// sample concurrent players once a minute for the CCU-over-time chart
+setInterval(() => void store.recordCcu(onlineCount()), 60_000);
 console.log(
   `[server] http://localhost:${server.port} (v${GAME_VERSION}, store=${store.kind})`,
 );

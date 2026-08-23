@@ -1,5 +1,6 @@
 .admin {
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto; // body is overflow:hidden, so this view scrolls itself
   background:
     radial-gradient(
       120% 90% at 50% -10%,
@@ -75,6 +76,66 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 12px;
+  }
+
+  &__charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  &__panel {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--ui-line);
+    border-radius: 10px;
+    padding: 14px 16px 16px;
+
+    &__title {
+      margin: 0 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    &__hint {
+      margin: -4px 0 12px;
+      font-size: 12px;
+      color: var(--ui-text-dim);
+      line-height: 1.4;
+    }
+  }
+
+  &__activityHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    h2 {
+      margin: 0;
+    }
+  }
+
+  &__range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &__select {
+      min-width: 150px;
+    }
+
+    &__date {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--ui-line);
+      border-radius: 8px;
+      color: #fff;
+      font-family: var(--ui-font);
+      font-size: 13px;
+      padding: 6px 10px;
+      color-scheme: dark;
+    }
   }
 
   &__table {
@@ -172,5 +233,57 @@
     font-size: 12px;
     color: var(--ui-theme);
     font-weight: 600;
+  }
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: 160px;
+
+  &__empty {
+    height: 160px;
+    display: grid;
+    place-items: center;
+    color: var(--ui-text-dim);
+    font-size: 13px;
+  }
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 160px;
+
+  &__col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+
+    &__track {
+      flex: 1;
+      width: 100%;
+      max-width: 26px;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    &__fill {
+      width: 100%;
+      min-height: 2px;
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(var(--ui-theme-hi), var(--ui-theme));
+    }
+
+    &__label {
+      font-size: 10px;
+      color: var(--ui-text-dim);
+      font-variant-numeric: tabular-nums;
+    }
   }
 }

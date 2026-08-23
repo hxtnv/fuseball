@@ -34,6 +34,7 @@ const port = Number(process.env.PORT ?? 3002);
 const TICK_MS = DT * 1000;
 const MAX_INPUT_QUEUE = 10; // safety cap on a client's jitter buffer
 const CENTRAL_URL = process.env.CENTRAL_URL ?? "http://localhost:3001";
+const REGION = process.env.GAME_REGION ?? null;
 const INTERNAL_SECRET =
   process.env.INTERNAL_SECRET ?? "dev-internal-secret-change-me";
 
@@ -52,6 +53,7 @@ interface Client {
   playerId: number;
   userId: string; // authenticated account id (from the validated JWT)
   name: string;
+  startedAt: number; // ms when the session (WS connection) began
   queue: QueuedInput[]; // jitter buffer: one input consumed per tick
   lastRecvSeq: number; // highest seq enqueued (drops stale/duplicate packets)
   ackSeq: number; // seq of the last input actually applied
@@ -208,6 +210,7 @@ const server = Bun.serve<ClientData>({
         playerId,
         userId: ws.data.userId,
         name: ws.data.name,
+        startedAt: Date.now(),
         queue: [],
         lastRecvSeq: 0,
         ackSeq: 0,
@@ -252,6 +255,7 @@ const server = Bun.serve<ClientData>({
       if (!room) return;
       const client = room.clients.get(ws);
       if (client) {
+        reportSession(client, room.state.status);
         removePlayer(room.state, client.playerId);
         room.clients.delete(ws);
       }
@@ -309,6 +313,27 @@ const stepRoom = (room: Room): void => {
 
 // Report a finished match to the central server so it can persist per-user stats.
 // Fire-and-forget: the game loop must never block on the central server.
+// Report a finished play session (WS lifetime) so central can track playtime and
+// mid-match quits. Fire-and-forget, like reportMatch.
+const reportSession = (client: Client, status: string): void => {
+  const durationSec = Math.round((Date.now() - client.startedAt) / 1000);
+  // leaving while the match is actually running counts as a mid-match quit
+  const quitMidMatch = status !== "warmup" && status !== "finished";
+  fetch(`${CENTRAL_URL}/internal/session`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-internal-secret": INTERNAL_SECRET,
+    },
+    body: JSON.stringify({
+      userId: client.userId,
+      region: REGION,
+      durationSec,
+      quitMidMatch,
+    }),
+  }).catch(() => undefined);
+};
+
 const reportMatch = (room: Room): void => {
   const [a, b] = room.state.score;
   const winner = a === b ? -1 : a > b ? 0 : 1; // -1 = draw

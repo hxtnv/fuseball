@@ -45,3 +45,27 @@ model News {
 
   @@index([createdAt])
 }
+
+// One play session (a WS connection to a game server). Powers playtime, session
+// length, and mid-match quit metrics.
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  region       String?
+  durationSec  Int      @default(0)
+  quitMidMatch Boolean  @default(false) // disconnected while a match was in progress
+  startedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
+}
+
+// Periodic sample of concurrent online players, for the CCU-over-time chart.
+model CcuSample {
+  id     String   @id @default(cuid())
+  online Int
+  at     DateTime @default(now())
+
+  @@index([at])
+}

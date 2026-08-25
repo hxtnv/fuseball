@@ -1,4 +1,4 @@
-import type { JSX } from "preact";
+import type { JSX, CSSProperties } from "preact";
 import { cn } from "@/lib/cn";
 import styles from "./avatar.module.scss";
 
@@ -13,6 +13,10 @@ interface AvatarProps {
   /** show a corner status dot when provided */
   onlineStatus?: OnlineStatus;
   class?: string;
+  onHover?: {
+    icon: JSX.Element;
+    onClick: () => void;
+  };
 }
 
 const initials = (name: string) =>
@@ -29,8 +33,9 @@ export const Avatar = ({
   size = 34,
   onlineStatus,
   class: cls,
+  onHover,
 }: AvatarProps) => {
-  const style: JSX.CSSProperties = {
+  const style: CSSProperties = {
     width: `${size}px`,
     height: `${size}px`,
     fontSize: `${Math.round(size * 0.36)}px`,
@@ -38,7 +43,11 @@ export const Avatar = ({
   };
 
   return (
-    <span class={cn(styles.avatar, cls)} style={style}>
+    <span
+      class={cn(styles.avatar, cls, onHover && styles.avatar__hoverable)}
+      style={style}
+      onClick={onHover?.onClick}
+    >
       {skin ? (
         <img
           src={`/emojis/${skin}.png`}
@@ -48,6 +57,8 @@ export const Avatar = ({
       ) : (
         initials(name)
       )}
+
+      {onHover && <span class={styles.avatar__hoverIcon}>{onHover.icon}</span>}
 
       {onlineStatus && (
         <span

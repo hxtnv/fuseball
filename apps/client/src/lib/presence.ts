@@ -9,10 +9,12 @@ const presenceUrl = (): string => {
 };
 
 // Holds a persistent socket to the central server for as long as the app is open
-// (menu or game), and returns the live online count it broadcasts. Reconnects
-// when the token changes so the server can dedupe the count by user.
-export const usePresence = (): number => {
+// (menu or game), and returns the live online count plus whether the socket is
+// currently connected. Reconnects when the token changes so the server can
+// dedupe the count by user.
+export const usePresence = (): { online: number; connected: boolean } => {
   const [online, setOnline] = useState(0);
+  const [connected, setConnected] = useState(true); // optimistic, avoids a boot flash
 
   useEffect(() => {
     let ws: WebSocket | null = null;
@@ -21,6 +23,7 @@ export const usePresence = (): number => {
 
     const connect = (): void => {
       ws = new WebSocket(presenceUrl());
+      ws.onopen = () => setConnected(true);
       ws.onmessage = (e) => {
         try {
           const msg = JSON.parse(e.data as string) as {
@@ -33,7 +36,9 @@ export const usePresence = (): number => {
         }
       };
       ws.onclose = () => {
-        if (!closed) retry = setTimeout(connect, 2000); // auto-reconnect
+        if (closed) return;
+        setConnected(false); // surfaces the reconnecting state in real time
+        retry = setTimeout(connect, 2000); // auto-reconnect
       };
     };
 
@@ -62,5 +67,5 @@ export const usePresence = (): number => {
     };
   }, []);
 
-  return online;
+  return { online, connected };
 };

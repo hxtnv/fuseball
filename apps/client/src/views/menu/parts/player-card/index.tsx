@@ -1,13 +1,19 @@
 import { Avatar, Box, Button, Skeleton } from "@/components/ui";
 import type { User } from "@/lib/auth";
 import styles from "./player-card.module.scss";
+import { PencilIcon } from "lucide-react";
 
 interface PlayerCardProps {
   user: User | null;
+  connected: boolean;
   onEditProfile: () => void;
 }
 
-export const PlayerCard = ({ user, onEditProfile }: PlayerCardProps) => {
+export const PlayerCard = ({
+  user,
+  connected,
+  onEditProfile,
+}: PlayerCardProps) => {
   if (!user) {
     return (
       <Box class={styles.playerCard}>
@@ -23,9 +29,9 @@ export const PlayerCard = ({ user, onEditProfile }: PlayerCardProps) => {
           <Skeleton height={52} radius={6} />
           <Skeleton height={52} radius={6} />
         </div>
-        <Button block variant="secondary" size="small" disabled>
+        {/* <Button block variant="secondary" size="small" disabled>
           Edit profile
-        </Button>
+        </Button> */}
       </Box>
     );
   }
@@ -49,10 +55,17 @@ export const PlayerCard = ({ user, onEditProfile }: PlayerCardProps) => {
           name={user.name}
           skin={user.skin}
           size={58}
-          onlineStatus="online"
+          onlineStatus={connected ? "online" : "offline"}
+          onHover={{
+            icon: <PencilIcon />,
+            onClick: onEditProfile,
+          }}
         />
         <div class={styles.playerCard__top__name}>
-          <span class={styles.playerCard__top__name__text}>{user.name}</span>
+          <p class={styles.playerCard__top__name__text}>
+            <span>{user.name}</span>
+            <PencilIcon onClick={onEditProfile} />
+          </p>
           <div class={styles.playerCard__level}>
             <div class={styles.playerCard__level__text}>
               <span>Level {level}</span>
@@ -85,9 +98,9 @@ export const PlayerCard = ({ user, onEditProfile }: PlayerCardProps) => {
         </div>
       </div>
 
-      <Button block variant="secondary" size="small" onClick={onEditProfile}>
+      {/* <Button block variant="secondary" size="small" onClick={onEditProfile}>
         Edit profile
-      </Button>
+      </Button> */}
     </Box>
   );
 };

@@ -37,7 +37,7 @@ export const SPRINT = {
 } as const;
 
 export const ROUND = {
-  TIME: 120, // round length in seconds
+  TIME: 10, // round length in seconds
   PROTECTED_TIME: 6, // kickoff protection in seconds
   CELEBRATION_TIME: 3.5, // goal celebration length in seconds (players keep moving)
 } as const;

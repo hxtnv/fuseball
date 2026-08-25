@@ -321,8 +321,10 @@ const stepRoom = (room: Room): void => {
     const scorer = room.state.ball.lastTouchedBy;
     if (scorer !== null) {
       const p = room.state.players.find((pl) => pl.id === scorer);
-      if (p && p.team === team)
+      if (p && p.team === team) {
         room.goals.set(scorer, (room.goals.get(scorer) ?? 0) + 1);
+        broadcastRoster(room); // refresh goal tallies for the end-game screen
+      }
     }
   }
 
@@ -362,9 +364,10 @@ const reportMatch = (room: Room): void => {
   for (const client of room.clients.values()) {
     const p = room.state.players.find((pl) => pl.id === client.playerId);
     if (!p) continue;
+    const result = winner === -1 ? "draw" : winner === p.team ? "win" : "loss";
     results.push({
       userId: client.userId,
-      won: winner === p.team,
+      result,
       goals: room.goals.get(client.playerId) ?? 0,
     });
   }
@@ -395,6 +398,7 @@ const broadcastRoster = (room: Room): void => {
       team: p?.team ?? 0,
       name: client.name,
       skin: client.skin,
+      goals: room.goals.get(client.playerId) ?? 0,
     });
   }
   for (const [botId, bot] of room.bots) {
@@ -404,6 +408,7 @@ const broadcastRoster = (room: Room): void => {
       team: p?.team ?? 0,
       name: bot.name,
       skin: bot.skin,
+      goals: room.goals.get(botId) ?? 0,
     });
   }
   const msg = encodeRoster(entries);

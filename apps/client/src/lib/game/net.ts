@@ -124,7 +124,10 @@ export const createNetClient = (url: string): NetClient => {
 
   const pending: PendingInput[] = [];
   const buffer: TimedSnapshot[] = [];
-  const roster = new Map<number, { name: string; skin: string }>(); // playerId -> name + emoji skin
+  const roster = new Map<
+    number,
+    { name: string; skin: string; goals: number }
+  >(); // playerId -> name + emoji skin + goals
   let predicted: GameState | null = null;
 
   let smoothPing = 0;
@@ -207,7 +210,7 @@ export const createNetClient = (url: string): NetClient => {
       } else if (type === MSG.ROSTER) {
         roster.clear();
         for (const e of decodeRoster(data))
-          roster.set(e.id, { name: e.name, skin: e.skin });
+          roster.set(e.id, { name: e.name, skin: e.skin, goals: e.goals });
       }
     };
     ws.onclose = () => {
@@ -369,6 +372,7 @@ export const createNetClient = (url: string): NetClient => {
       const entry = roster.get(lp.id);
       p.name = entry?.name;
       p.skin = entry?.skin;
+      p.goals = entry?.goals;
       if (lp.id === myId && smoothingReady) {
         p.x = renderLocal.x;
         p.y = renderLocal.y;

@@ -4,7 +4,8 @@ import {
   ensureAuth,
   fetchServers,
   renameUser,
-  shuffleName,
+  selectEmoji,
+  unlockEmoji,
   signOut,
   type GameServerInfo,
   type User,
@@ -24,6 +25,7 @@ import { LeaderboardModal } from "./parts/leaderboard-modal";
 import { RewardsModal } from "./parts/rewards-modal";
 import { SettingsModal } from "./parts/settings-modal";
 import { EditProfileModal } from "./parts/edit-profile-modal";
+import { StoreModal } from "./parts/store-modal";
 import { ServerModal } from "./parts/server-modal";
 import { PartyModal } from "./parts/party-modal";
 import { NewsModal } from "./parts/news-modal";
@@ -38,11 +40,13 @@ export interface PlaySession {
   token: string;
   roomId?: string; // undefined = quick play
   skin?: string; // active emoji slug
+  user?: User; // snapshot for the end-game screen (level, coins)
 }
 
 interface Props {
   onPlay: (session: PlaySession) => void;
   online: number;
+  connected: boolean;
 }
 
 type ModalKind =
@@ -53,10 +57,11 @@ type ModalKind =
   | "servers"
   | "news"
   | "profile"
+  | "store"
   | "signin"
   | null;
 
-export const MainMenu = ({ onPlay, online }: Props) => {
+export const MainMenu = ({ onPlay, online, connected }: Props) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState("");
   const [servers, setServers] = useState<GameServerInfo[]>([]);
@@ -115,16 +120,27 @@ export const MainMenu = ({ onPlay, online }: Props) => {
       token,
       roomId,
       skin: user?.skin,
+      user: user ?? undefined,
     });
   };
 
-  const saveName = async (name: string) => {
-    if (!token) return;
+  // save name + emoji together; only the changed parts hit the API
+  const saveProfile = async (name: string, skin: string) => {
+    if (!token || !user) return;
     setBusy(true);
     try {
-      const { token: t, user: u } = await renameUser(token, name);
-      setToken(t);
-      setUser(u);
+      let nextToken = token;
+      let nextUser = user;
+      if (name !== user.name) {
+        const r = await renameUser(nextToken, name);
+        nextToken = r.token;
+        nextUser = r.user;
+        setToken(r.token);
+      }
+      if (skin && skin !== user.skin) {
+        nextUser = await selectEmoji(nextToken, skin);
+      }
+      setUser(nextUser);
       setModal(null);
     } catch {
       /* keep the modal open on failure */
@@ -133,16 +149,14 @@ export const MainMenu = ({ onPlay, online }: Props) => {
     }
   };
 
-  const shuffle = async () => {
+  // store: grant ownership, then (optionally) equip — parent owns user state
+  const buyEmoji = async (slug: string) => {
     if (!token) return;
-    setBusy(true);
-    try {
-      const { token: t, user: u } = await shuffleName(token);
-      setToken(t);
-      setUser(u);
-    } finally {
-      setBusy(false);
-    }
+    setUser(await unlockEmoji(token, slug));
+  };
+  const equipEmoji = async (slug: string) => {
+    if (!token) return;
+    setUser(await selectEmoji(token, slug));
   };
 
   // sign out drops the token and provisions a fresh anonymous account
@@ -178,10 +192,10 @@ export const MainMenu = ({ onPlay, online }: Props) => {
 
         <div class={styles.menu__hud__content}>
           <div class={styles.menu__block}>
-            {error && (
+            {(error || !connected) && (
               <div class={cn(styles.menu__alert, "ui-box")}>
                 <AlertTriangle size={18} />
-                <span>{error}</span>
+                <span>{error ?? "Connection lost. Reconnecting…"}</span>
               </div>
             )}
 
@@ -210,11 +224,12 @@ export const MainMenu = ({ onPlay, online }: Props) => {
             <div class={styles.menu__block__side}>
               <PlayerCard
                 user={user}
+                connected={connected}
                 onEditProfile={() => setModal("profile")}
               />
               <WalletStrip
                 coins={user?.balance ?? 0}
-                onRewards={() => setModal("rewards")}
+                onStore={() => setModal("store")}
               />
               <FriendsRail onInvite={() => setModal("party")} />
             </div>
@@ -235,10 +250,17 @@ export const MainMenu = ({ onPlay, online }: Props) => {
           user={user}
           busy={busy}
           onClose={closeModal}
-          onSave={saveName}
-          onShuffle={shuffle}
+          onSave={saveProfile}
+          onOpenStore={() => setModal("store")}
         />
       )}
+      <StoreModal
+        open={modal === "store"}
+        user={user}
+        onClose={closeModal}
+        onBuy={buyEmoji}
+        onEquip={equipEmoji}
+      />
       <ServerModal
         open={modal === "servers"}
         onClose={closeModal}

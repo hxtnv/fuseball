@@ -3,6 +3,45 @@
   flex-direction: column;
   gap: 16px;
 
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__label {
+    font-family: var(--ui-font);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ui-text-dim);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-height: 228px;
+    overflow-y: auto;
+    padding: 2px;
+    // slim, themed scrollbar (never the default chunky one)
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+
   &__actions {
     display: flex;
     justify-content: flex-end;

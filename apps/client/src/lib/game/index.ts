@@ -27,6 +27,8 @@ export interface HudPlayer {
   x: number;
   y: number;
   name: string;
+  skin?: string; // emoji slug
+  goals: number; // goals scored this match
 }
 
 export interface HudData {
@@ -39,6 +41,7 @@ export interface HudData {
   celebrationRemaining: number;
   lastScoringTeam: Team | null;
   localTeam: Team | null;
+  localId: number | null;
   fps: number;
   ping: number | null;
   players: HudPlayer[];
@@ -64,6 +67,7 @@ export const createGame = (
     celebrationRemaining: 0,
     lastScoringTeam: null,
     localTeam: null,
+    localId: null,
     fps: 60,
     ping: null,
     players: [],
@@ -156,6 +160,7 @@ export const createGame = (
           me != null
             ? (snapshot.players.find((p) => p.id === me)?.team ?? null)
             : null;
+        hud.localId = me ?? null;
         // ~12Hz is plenty for the minimap/roster and keeps signal churn low
         if (now >= playersAt) {
           hud.players = snapshot.players.map((p) => ({
@@ -164,6 +169,8 @@ export const createGame = (
             x: p.x,
             y: p.y,
             name: p.name ?? `P${p.id}`,
+            skin: p.skin,
+            goals: p.goals ?? 0,
           }));
           playersAt = now + 80;
         }

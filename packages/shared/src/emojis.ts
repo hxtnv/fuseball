@@ -15,22 +15,34 @@ export interface Emoji {
 const titleCase = (slug: string): string =>
   slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-export const EMOJIS: Emoji[] = EMOJI_SLUGS.map((slug) => ({
-  slug,
-  label: titleCase(slug),
-  image: `/emojis/${slug}.png`,
-  price: 100,
-}));
-
-const EMOJI_SET = new Set<string>(EMOJI_SLUGS);
-export const isValidSkin = (slug: string): boolean => EMOJI_SET.has(slug);
-
 // free starters — a random one is granted + equipped on account creation
 export const NEW_PLAYER_EMOJIS = [
   "slightly-smiling-face",
   "grinning-face",
   "smiling-face-with-sunglasses",
 ];
+
+// Placeholder pricing: deterministic coin tiers keyed off the slug so the store
+// shows variety when sorted by price. Starters are free. Curate a real table later.
+const PRICE_TIERS = [
+  500, 900, 1500, 2500, 4000, 6000, 9000, 14000, 22000, 35000,
+];
+const priceFor = (slug: string): number => {
+  if (NEW_PLAYER_EMOJIS.includes(slug)) return 0;
+  let h = 0;
+  for (const c of slug) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return PRICE_TIERS[h % PRICE_TIERS.length]!;
+};
+
+export const EMOJIS: Emoji[] = EMOJI_SLUGS.map((slug) => ({
+  slug,
+  label: titleCase(slug),
+  image: `/emojis/${slug}.png`,
+  price: priceFor(slug),
+}));
+
+const EMOJI_SET = new Set<string>(EMOJI_SLUGS);
+export const isValidSkin = (slug: string): boolean => EMOJI_SET.has(slug);
 
 export const randomStarter = (): string =>
   NEW_PLAYER_EMOJIS[Math.floor(Math.random() * NEW_PLAYER_EMOJIS.length)]!;

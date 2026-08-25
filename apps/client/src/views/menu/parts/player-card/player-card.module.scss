@@ -44,33 +44,60 @@
     &__name {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 2px;
       min-width: 0;
       flex: 1;
 
       &__text {
         font-family: var(--ui-font);
         font-weight: 600;
-        font-size: 19px;
+        font-size: 18px;
         color: #fff;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: calc(100% - 48px);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        span {
+          width: auto;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        svg {
+          height: 16px;
+          width: 16px;
+          cursor: pointer;
+          opacity: 0;
+          color: var(--ui-text-dim);
+          transition: opacity 200ms;
+          flex-shrink: 0;
+        }
       }
+    }
+  }
+
+  &:hover {
+    .playerCard__top__name__text svg {
+      opacity: 1;
     }
   }
 
   &__level {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 2px;
 
     &__text {
       display: flex;
       justify-content: space-between;
       font-family: var(--ui-font);
-      font-size: 12px;
+      font-size: 10px;
       color: var(--ui-text-dim);
     }
 

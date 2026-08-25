@@ -1,8 +1,23 @@
-import { generateName } from "@fuseball/auth";
+import {
+  DEFAULT_EMOJI,
+  EMOJIS,
+  NEW_PLAYER_EMOJIS,
+  generateName,
+  matchCoins,
+  randomStarter,
+  type MatchResult,
+} from "@fuseball/shared";
 import type { GoogleProfile } from "./google";
 import { isoWeek, prevWeekStart, weekStartOf } from "./week";
 import { awardDescription, badgeForRank } from "./badges";
-import { DEFAULT_EMOJI, isValidSkin, randomStarter } from "@fuseball/shared";
+
+// emoji slug -> coin price, for server-authoritative store purchases
+const EMOJI_PRICE = new Map(EMOJIS.map((e) => [e.slug, e.price]));
+
+// outcome of a store purchase
+export type UnlockResult =
+  | { ok: true; user: PublicUser }
+  | { ok: false; reason: "not_found" | "insufficient" };
 
 // a badge earned by a player, with a per-award flavour line
 export interface BadgeAward {
@@ -124,8 +139,8 @@ export interface UserStore {
   get(id: string): Promise<PublicUser | null>;
   rename(id: string, name: string): Promise<PublicUser | null>;
   selectSkin(id: string, slug: string): Promise<PublicUser | null>;
-  unlockSkin(id: string, slug: string): Promise<PublicUser | null>;
-  recordMatch(id: string, won: boolean, goals: number): Promise<void>;
+  unlockSkin(id: string, slug: string): Promise<UnlockResult>;
+  recordMatch(id: string, result: MatchResult, goals: number): Promise<void>;
   recordSession(session: SessionInput): Promise<void>;
   recordCcu(online: number): Promise<void>;
   weeklyTop(limit: number): Promise<LeaderRow[]>;
@@ -232,7 +247,7 @@ const createMemoryStore = (): UserStore => {
         balance: 0,
         badges: [] as BadgeAward[],
         skin,
-        ownedSkins: [skin],
+        ownedSkins: [...NEW_PLAYER_EMOJIS],
         gamesPlayed: 0,
         wins: 0,
         goals: 0,
@@ -245,10 +260,12 @@ const createMemoryStore = (): UserStore => {
     async get(id) {
       const u = users.get(id);
       if (!u) return null;
-      // legacy accounts with no skin get a starter
+      // legacy accounts get a random starter equipped + all starters owned
       if (!u.skin) {
         u.skin = randomStarter();
-        if (!u.ownedSkins?.length) u.ownedSkins = [u.skin];
+        u.ownedSkins = [
+          ...new Set([...(u.ownedSkins ?? []), ...NEW_PLAYER_EMOJIS]),
+        ];
       }
       return u;
     },
@@ -267,16 +284,22 @@ const createMemoryStore = (): UserStore => {
     },
     async unlockSkin(id, slug) {
       const u = users.get(id);
-      if (!u || !isValidSkin(slug)) return u ?? null;
-      if (!u.ownedSkins.includes(slug)) u.ownedSkins = [...u.ownedSkins, slug];
-      return u;
+      if (!u) return { ok: false, reason: "not_found" };
+      if (u.ownedSkins.includes(slug)) return { ok: true, user: u }; // already owned, no charge
+      const price = EMOJI_PRICE.get(slug) ?? 0;
+      if (u.balance < price) return { ok: false, reason: "insufficient" };
+      u.balance -= price;
+      u.ownedSkins = [...u.ownedSkins, slug];
+      return { ok: true, user: u };
     },
-    async recordMatch(id, won, goals) {
+    async recordMatch(id, result, goals) {
       const u = users.get(id);
       if (!u) return;
+      const won = result === "win";
       u.gamesPlayed += 1;
       if (won) u.wins += 1;
       u.goals += goals;
+      u.balance += matchCoins(goals, result);
       u.lastSeenMs = Date.now();
       const wk = weekStartOf().getTime();
       const key = `${id}|${wk}`;
@@ -447,7 +470,7 @@ const createMemoryStore = (): UserStore => {
         balance: 0,
         badges: [] as BadgeAward[],
         skin,
-        ownedSkins: [skin],
+        ownedSkins: [...NEW_PLAYER_EMOJIS],
         gamesPlayed: 0,
         wins: 0,
         goals: 0,
@@ -514,7 +537,7 @@ const createPrismaStore = async (): Promise<UserStore> => {
             ...data,
             friendCode: makeFriendCode(),
             skin,
-            ownedSkins: [skin],
+            ownedSkins: [...NEW_PLAYER_EMOJIS],
           },
         });
       } catch (err) {
@@ -596,7 +619,9 @@ const createPrismaStore = async (): Promise<UserStore> => {
       if (!u.friendCode) patch.friendCode = makeFriendCode();
       if (!u.skin) {
         patch.skin = randomStarter();
-        if (!u.ownedSkins.length) patch.ownedSkins = [patch.skin];
+        patch.ownedSkins = [
+          ...new Set([...u.ownedSkins, ...NEW_PLAYER_EMOJIS]),
+        ];
       }
       if (Object.keys(patch).length) {
         const filled = await prisma.user
@@ -624,21 +649,27 @@ const createPrismaStore = async (): Promise<UserStore> => {
       );
     },
     async unlockSkin(id, slug) {
-      if (!isValidSkin(slug)) {
-        const u = await prisma.user.findUnique({ where: { id } });
-        return u ? toPublic(u) : null;
-      }
       const u = await prisma.user.findUnique({ where: { id } });
-      if (!u) return null;
-      if (u.ownedSkins.includes(slug)) return toPublic(u);
-      return toPublic(
-        await prisma.user.update({
-          where: { id },
-          data: { ownedSkins: { push: slug } },
-        }),
-      );
+      if (!u) return { ok: false, reason: "not_found" };
+      if (u.ownedSkins.includes(slug)) return { ok: true, user: toPublic(u) }; // already owned
+      const price = EMOJI_PRICE.get(slug) ?? 0;
+      // atomic guard: only charge if still affordable and not yet owned
+      const res = await prisma.user.updateMany({
+        where: {
+          id,
+          balance: { gte: price },
+          NOT: { ownedSkins: { has: slug } },
+        },
+        data: { balance: { decrement: price }, ownedSkins: { push: slug } },
+      });
+      if (res.count === 0) return { ok: false, reason: "insufficient" };
+      const updated = await prisma.user.findUnique({ where: { id } });
+      return updated
+        ? { ok: true, user: toPublic(updated) }
+        : { ok: false, reason: "not_found" };
     },
-    async recordMatch(id, won, goals) {
+    async recordMatch(id, result, goals) {
+      const won = result === "win";
       await prisma.user
         .update({
           where: { id },
@@ -646,6 +677,7 @@ const createPrismaStore = async (): Promise<UserStore> => {
             gamesPlayed: { increment: 1 },
             wins: { increment: won ? 1 : 0 },
             goals: { increment: goals },
+            balance: { increment: matchCoins(goals, result) },
             lastSeenAt: new Date(),
           },
         })

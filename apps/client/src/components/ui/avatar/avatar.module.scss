@@ -10,6 +10,29 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.2);
 
+  &__image {
+    opacity: initial;
+    transition: opacity 200ms;
+  }
+
+  &__hoverIcon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+    }
+  }
+
   &__dot {
     position: absolute;
     right: 4%;
@@ -20,6 +43,7 @@
     min-height: 10px;
     border-radius: 50%;
     border: 2px solid var(--ui-border);
+    transition: opacity 200ms;
 
     &--online {
       background: var(--ui-theme);
@@ -29,6 +53,24 @@
     }
     &--offline {
       background: #7a828e;
+    }
+  }
+
+  &.avatar__hoverable:hover {
+    cursor: pointer;
+
+    .avatar {
+      &__hoverIcon {
+        opacity: 1;
+      }
+
+      &__image {
+        opacity: 0.5;
+      }
+
+      &__dot {
+        opacity: 0;
+      }
     }
   }
 }

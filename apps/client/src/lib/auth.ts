@@ -110,19 +110,6 @@ export const renameUser = async (
   return data;
 };
 
-export const shuffleName = async (
-  token: string,
-): Promise<{ token: string; user: User }> => {
-  const res = await fetch(`${API.baseUrl}/auth/shuffle`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error("shuffle failed");
-  const data = (await res.json()) as { token: string; user: User };
-  setToken(data.token);
-  return data;
-};
-
 export interface LeaderboardEntry {
   id: string;
   name: string;
@@ -158,15 +145,8 @@ export const fetchBadges = async (): Promise<Badge[]> => {
   return badges;
 };
 
-export interface Emoji {
-  slug: string;
-  label: string;
-  image: string;
-  price: number;
-}
-
 // The emoji catalog + `Emoji` type are imported directly from @fuseball/shared
-// (no fetch — they ship in the bundle). This only wraps the auth-guarded mutation.
+// (no fetch — they ship in the bundle). These wrap the auth-guarded mutations.
 export const selectEmoji = async (
   token: string,
   slug: string,
@@ -180,6 +160,28 @@ export const selectEmoji = async (
     body: JSON.stringify({ slug }),
   });
   if (!res.ok) throw new Error("select_emoji failed");
+  const { user } = (await res.json()) as { user: User };
+  return user;
+};
+
+export const unlockEmoji = async (
+  token: string,
+  slug: string,
+): Promise<User> => {
+  const res = await fetch(`${API.baseUrl}/emojis/unlock`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ slug }),
+  });
+  if (!res.ok) {
+    const { error } = (await res.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    throw new Error(error ?? "unlock_emoji failed"); // e.g. "insufficient"
+  }
   const { user } = (await res.json()) as { user: User };
   return user;
 };

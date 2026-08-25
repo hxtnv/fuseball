@@ -41,6 +41,7 @@ export const GameCanvas = ({ session, onLeave }: Props) => {
       <div class={styles.game__grain} />
       <GameHud
         hud={hud}
+        user={session.user}
         onLeave={onLeave}
         onMove={(x, y) => gameRef.current?.setMoveVector(x, y)}
         onKick={() => gameRef.current?.kick()}

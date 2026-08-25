@@ -1,5 +1,14 @@
-import { useState } from "preact/hooks";
-import { Box, Button, Input, Modal, Select, Skeleton } from "@/components/ui";
+import { useEffect, useRef, useState } from "preact/hooks";
+import {
+  Box,
+  Button,
+  Input,
+  Modal,
+  Select,
+  Skeleton,
+  Toaster,
+  toast,
+} from "@/components/ui";
 import { cn } from "@/lib/cn";
 import styles from "./ui-showcase.module.scss";
 
@@ -24,10 +33,13 @@ export const UiShowcase = () => {
   const [server, setServer] = useState("local");
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const loadTimer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(loadTimer.current), []);
 
   const fakeLoad = () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 1200);
+    clearTimeout(loadTimer.current);
+    loadTimer.current = setTimeout(() => setLoading(false), 1200);
   };
 
   return (
@@ -135,6 +147,33 @@ export const UiShowcase = () => {
           </Box>
         </div>
 
+        {/* Toasts */}
+        <Box>
+          <h3 class={styles.showcase__heading}>Toasts</h3>
+          <div class={styles.showcase__row}>
+            <Button
+              variant="secondary"
+              onClick={() =>
+                toast.info("Heads up — matchmaking is warming up.")
+              }
+            >
+              Info toast
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => toast.success("Emoji unlocked!")}
+            >
+              Success toast
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => toast.error("Not enough coins for that emoji.")}
+            >
+              Error toast
+            </Button>
+          </div>
+        </Box>
+
         {/* Box variants */}
         <div class={styles.showcase__grid}>
           <Box>
@@ -172,6 +211,8 @@ export const UiShowcase = () => {
           <Button onClick={() => setModalOpen(false)}>Confirm</Button>
         </div>
       </Modal>
+
+      <Toaster />
     </div>
   );
 };

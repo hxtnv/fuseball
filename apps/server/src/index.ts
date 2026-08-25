@@ -1,11 +1,10 @@
-import { GAME_VERSION, isValidSkin } from "@fuseball/shared";
 import {
-  bearer,
-  generateName,
+  GAME_VERSION,
+  isValidSkin,
   sanitizeName,
-  signToken,
-  verifyToken,
-} from "@fuseball/auth";
+  type MatchResult,
+} from "@fuseball/shared";
+import { bearer, signToken, verifyToken } from "@fuseball/auth";
 import { initStore, type NewsItem, type UserStore } from "./store";
 import { findServer, gameServers } from "./servers";
 import { exchangeGoogleCode, googleAuthUrl, googleConfigured } from "./google";
@@ -131,16 +130,6 @@ const server = Bun.serve<PresenceData>({
       return json({ token, user: updated });
     }
 
-    // --- auth: shuffle to a fresh random name (generation stays server-side) ---
-    if (pathname === "/auth/shuffle" && req.method === "POST") {
-      const user = await authUser(req);
-      if (!user) return json({ error: "unauthorized" }, 401);
-      const updated = await store.rename(user.id, generateName());
-      if (!updated) return json({ error: "not_found" }, 404);
-      const token = await signToken({ userId: updated.id, name: updated.name });
-      return json({ token, user: updated });
-    }
-
     // --- auth: begin Google OAuth (anon token rides along as state to link) ---
     if (pathname === "/auth/google/start" && req.method === "GET") {
       if (!googleConfigured())
@@ -195,16 +184,20 @@ const server = Bun.serve<PresenceData>({
       return json({ user: updated });
     }
 
-    // --- emojis: grant ownership of an emoji (no purchase flow yet) ---
+    // --- emojis: buy an emoji, deducting its coin price from the balance ---
     if (pathname === "/emojis/unlock" && req.method === "POST") {
       const user = await authUser(req);
       if (!user) return json({ error: "unauthorized" }, 401);
       const body = (await req.json().catch(() => ({}))) as { slug?: string };
       if (!body.slug || !isValidSkin(body.slug))
         return json({ error: "invalid_skin" }, 400);
-      const updated = await store.unlockSkin(user.id, body.slug);
-      if (!updated) return json({ error: "not_found" }, 404);
-      return json({ user: updated });
+      const result = await store.unlockSkin(user.id, body.slug);
+      if (!result.ok)
+        return json(
+          { error: result.reason },
+          result.reason === "insufficient" ? 402 : 404,
+        );
+      return json({ user: result.user });
     }
 
     // --- news: hand-authored announcements (public, no auth) ---
@@ -323,10 +316,10 @@ const server = Bun.serve<PresenceData>({
       if (req.headers.get("x-internal-secret") !== INTERNAL_SECRET)
         return json({ error: "forbidden" }, 403);
       const body = (await req.json().catch(() => ({}))) as {
-        results?: { userId: string; won: boolean; goals?: number }[];
+        results?: { userId: string; result?: MatchResult; goals?: number }[];
       };
       for (const r of body.results ?? [])
-        await store.recordMatch(r.userId, r.won, r.goals ?? 0);
+        await store.recordMatch(r.userId, r.result ?? "loss", r.goals ?? 0);
       return json({ ok: true });
     }
 

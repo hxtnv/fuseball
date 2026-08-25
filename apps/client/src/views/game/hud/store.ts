@@ -12,6 +12,7 @@ export interface HudStore {
   celebrationRemaining: Signal<number>;
   lastScoringTeam: Signal<Team | null>;
   localTeam: Signal<Team | null>;
+  localId: Signal<number | null>;
   fps: Signal<number>;
   ping: Signal<number | null>;
   players: Signal<HudPlayer[]>;
@@ -28,6 +29,7 @@ export const createHudStore = (): HudStore => ({
   celebrationRemaining: signal(0),
   lastScoringTeam: signal<Team | null>(null),
   localTeam: signal<Team | null>(null),
+  localId: signal<number | null>(null),
   fps: signal(60),
   ping: signal<number | null>(null),
   players: signal<HudPlayer[]>([]),
@@ -45,6 +47,7 @@ export const applyHud = (store: HudStore, h: HudData): void => {
   store.celebrationRemaining.value = h.celebrationRemaining;
   store.lastScoringTeam.value = h.lastScoringTeam;
   store.localTeam.value = h.localTeam;
+  store.localId.value = h.localId;
   store.fps.value = h.fps;
   store.ping.value = h.ping;
   store.players.value = h.players;

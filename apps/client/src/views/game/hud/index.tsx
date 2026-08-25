@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { LogOut } from "lucide-react";
 import { TEAM_COLORS } from "@fuseball/shared";
 import { Button, Modal } from "@/components/ui";
+import type { User } from "@/lib/auth";
 import { Roster } from "./parts/roster";
 import { TouchControls } from "./parts/touch-controls";
 import { Endgame } from "./parts/endgame";
@@ -29,6 +30,7 @@ const STATUS_DETAILS: Record<string, { text: string; color: string }> = {
 
 interface GameHudProps {
   hud: HudStore;
+  user?: User;
   onLeave: () => void;
   onMove?: (x: number, y: number) => void;
   onKick?: () => void;
@@ -38,6 +40,7 @@ interface GameHudProps {
 
 export const GameHud = ({
   hud,
+  user,
   onLeave,
   onMove,
   onKick,
@@ -189,6 +192,8 @@ export const GameHud = ({
         score0={score0}
         score1={score1}
         players={hud.players}
+        localId={hud.localId}
+        user={user}
         onRestart={onRestart ?? (() => {})}
         onLeave={onLeave}
       />

@@ -125,6 +125,7 @@ export interface SnapshotPlayer {
   stamina?: number; // 0..1
   name?: string; // filled in client-side from the roster (not sent in every snapshot)
   skin?: string; // emoji slug, filled in client-side from the roster
+  goals?: number; // filled in client-side from the roster
 }
 
 export interface Snapshot {
@@ -266,6 +267,7 @@ export interface RosterEntry {
   team: Team;
   name: string;
   skin: string; // emoji slug
+  goals: number; // goals scored this match
 }
 
 const textEncoder = new TextEncoder();
@@ -276,7 +278,7 @@ export const encodeRoster = (entries: RosterEntry[]): ArrayBuffer => {
   const skins = entries.map((e) => textEncoder.encode(e.skin.slice(0, 48)));
   let size = 2; // type + count
   for (let i = 0; i < entries.length; i++)
-    size += 4 + names[i]!.length + skins[i]!.length; // id + team + nameLen + skinLen + bytes
+    size += 5 + names[i]!.length + skins[i]!.length; // id + team + nameLen + skinLen + goals + bytes
   const buf = new ArrayBuffer(size);
   const v = new DataView(buf);
   const bytes = new Uint8Array(buf);
@@ -295,6 +297,7 @@ export const encodeRoster = (entries: RosterEntry[]): ArrayBuffer => {
     v.setUint8(o++, s.length);
     bytes.set(s, o);
     o += s.length;
+    v.setUint8(o++, Math.min(255, e.goals));
   }
   return buf;
 };
@@ -314,7 +317,8 @@ export const decodeRoster = (data: ArrayBuffer | Uint8Array): RosterEntry[] => {
     const skinLen = v.getUint8(o++);
     const skin = textDecoder.decode(bytes.subarray(o, o + skinLen));
     o += skinLen;
-    entries.push({ id, team, name, skin });
+    const goals = v.getUint8(o++);
+    entries.push({ id, team, name, skin, goals });
   }
   return entries;
 };

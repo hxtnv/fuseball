@@ -6,6 +6,8 @@ type OnlineStatus = "online" | "in-game" | "offline";
 
 interface AvatarProps {
   name: string;
+  /** active emoji slug; renders the emoji, falling back to initials */
+  skin?: string;
   /** diameter in px */
   size?: number;
   /** show a corner status dot when provided */
@@ -13,7 +15,6 @@ interface AvatarProps {
   class?: string;
 }
 
-// TODO: swap initials for real avatar art later
 const initials = (name: string) =>
   (
     name.match(/[A-Z]/g)?.slice(0, 2).join("") ?? name.slice(0, 2)
@@ -24,6 +25,7 @@ const hueFromName = (name: string) =>
 
 export const Avatar = ({
   name,
+  skin,
   size = 34,
   onlineStatus,
   class: cls,
@@ -32,12 +34,21 @@ export const Avatar = ({
     width: `${size}px`,
     height: `${size}px`,
     fontSize: `${Math.round(size * 0.36)}px`,
-    background: `hsl(${hueFromName(name)} 55% 42%)`,
+    ...(skin ? {} : { background: `hsl(${hueFromName(name)} 55% 42%)` }),
   };
 
   return (
     <span class={cn(styles.avatar, cls)} style={style}>
-      {initials(name)}
+      {skin ? (
+        <img
+          src={`/emojis/${skin}.png`}
+          alt={name}
+          class={styles.avatar__image}
+        />
+      ) : (
+        initials(name)
+      )}
+
       {onlineStatus && (
         <span
           class={cn(styles.avatar__dot, styles[`avatar__dot--${onlineStatus}`])}

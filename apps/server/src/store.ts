@@ -1,5 +1,19 @@
 import { generateName } from "@fuseball/auth";
 import type { GoogleProfile } from "./google";
+import { isoWeek, prevWeekStart, weekStartOf } from "./week";
+import { awardDescription, badgeForRank } from "./badges";
+import { DEFAULT_EMOJI, isValidSkin, randomStarter } from "@fuseball/shared";
+
+// a badge earned by a player, with a per-award flavour line
+export interface BadgeAward {
+  name: string; // catalog badge id (see BADGES)
+  description: string; // e.g. "Top 1 · Week 16, 2026"
+  awardedAt: string; // ISO
+}
+
+// coerce the Prisma `Json` column into typed awards
+const asBadges = (v: unknown): BadgeAward[] =>
+  Array.isArray(v) ? (v as BadgeAward[]) : [];
 
 // short, shareable id for adding friends later (avoids ambiguous chars)
 const CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -21,9 +35,21 @@ export interface PublicUser {
   isAdmin: boolean;
   friendCode: string | null;
   balance: number;
+  badges: BadgeAward[];
+  skin: string; // active emoji slug
+  ownedSkins: string[]; // emoji slugs the player owns
   gamesPlayed: number;
   wins: number;
   goals: number;
+}
+
+export interface LeaderRow {
+  id: string;
+  name: string;
+  wins: number;
+  goals: number;
+  badges: BadgeAward[];
+  skin: string;
 }
 
 export interface AdminStats {
@@ -97,9 +123,13 @@ export interface UserStore {
   createAnon(): Promise<PublicUser>;
   get(id: string): Promise<PublicUser | null>;
   rename(id: string, name: string): Promise<PublicUser | null>;
+  selectSkin(id: string, slug: string): Promise<PublicUser | null>;
+  unlockSkin(id: string, slug: string): Promise<PublicUser | null>;
   recordMatch(id: string, won: boolean, goals: number): Promise<void>;
   recordSession(session: SessionInput): Promise<void>;
   recordCcu(online: number): Promise<void>;
+  weeklyTop(limit: number): Promise<LeaderRow[]>;
+  settleDueWeeks(): Promise<void>;
   charts(tz: string): Promise<AdminCharts>;
   activity(from: Date | null, to: Date | null, tz: string): Promise<Activity>;
   topPlayers(limit: number): Promise<PublicUser[]>;
@@ -128,6 +158,12 @@ const createMemoryStore = (): UserStore => {
   >();
   const sessions: (SessionInput & { at: number })[] = [];
   const ccu: { t: number; v: number }[] = [];
+  // weekly leaderboard scores keyed by `userId|weekStartMs`
+  const weekly = new Map<
+    string,
+    { userId: string; weekStart: number; wins: number; goals: number }
+  >();
+  const settled = new Set<number>();
   // average players-online buckets by hour + weekday (in `tz`) over a range
   const computeActivity = (
     from: Date | null,
@@ -186,6 +222,7 @@ const createMemoryStore = (): UserStore => {
     kind: "memory",
     async createAnon() {
       const now = Date.now();
+      const skin = randomStarter();
       const user = {
         id: crypto.randomUUID(),
         name: generateName(),
@@ -193,6 +230,9 @@ const createMemoryStore = (): UserStore => {
         isAdmin: false,
         friendCode: makeFriendCode(),
         balance: 0,
+        badges: [] as BadgeAward[],
+        skin,
+        ownedSkins: [skin],
         gamesPlayed: 0,
         wins: 0,
         goals: 0,
@@ -203,12 +243,32 @@ const createMemoryStore = (): UserStore => {
       return user;
     },
     async get(id) {
-      return users.get(id) ?? null;
+      const u = users.get(id);
+      if (!u) return null;
+      // legacy accounts with no skin get a starter
+      if (!u.skin) {
+        u.skin = randomStarter();
+        if (!u.ownedSkins?.length) u.ownedSkins = [u.skin];
+      }
+      return u;
     },
     async rename(id, name) {
       const u = users.get(id);
       if (!u) return null;
       u.name = name;
+      return u;
+    },
+    async selectSkin(id, slug) {
+      const u = users.get(id);
+      if (!u) return null;
+      if (!u.ownedSkins.includes(slug)) return u; // must own it first
+      u.skin = slug;
+      return u;
+    },
+    async unlockSkin(id, slug) {
+      const u = users.get(id);
+      if (!u || !isValidSkin(slug)) return u ?? null;
+      if (!u.ownedSkins.includes(slug)) u.ownedSkins = [...u.ownedSkins, slug];
       return u;
     },
     async recordMatch(id, won, goals) {
@@ -218,6 +278,17 @@ const createMemoryStore = (): UserStore => {
       if (won) u.wins += 1;
       u.goals += goals;
       u.lastSeenMs = Date.now();
+      const wk = weekStartOf().getTime();
+      const key = `${id}|${wk}`;
+      const w = weekly.get(key) ?? {
+        userId: id,
+        weekStart: wk,
+        wins: 0,
+        goals: 0,
+      };
+      w.wins += won ? 1 : 0;
+      w.goals += goals;
+      weekly.set(key, w);
     },
     async recordSession(session) {
       sessions.push({ ...session, at: Date.now() });
@@ -227,6 +298,47 @@ const createMemoryStore = (): UserStore => {
     async recordCcu(online) {
       ccu.push({ t: Date.now(), v: online });
       if (ccu.length > 2000) ccu.shift();
+    },
+    async weeklyTop(limit) {
+      const wk = weekStartOf().getTime();
+      return [...weekly.values()]
+        .filter((w) => w.weekStart === wk)
+        .sort((a, b) => b.wins - a.wins || b.goals - a.goals)
+        .slice(0, limit)
+        .map((w) => {
+          const u = users.get(w.userId);
+          return {
+            id: w.userId,
+            name: u?.name ?? "?",
+            wins: w.wins,
+            goals: w.goals,
+            badges: u?.badges ?? [],
+            skin: u?.skin || DEFAULT_EMOJI,
+          };
+        });
+    },
+    async settleDueWeeks() {
+      const prev = prevWeekStart().getTime();
+      if (settled.has(prev)) return;
+      const { week, year } = isoWeek(new Date(prev));
+      const awardedAt = new Date().toISOString();
+      [...weekly.values()]
+        .filter((w) => w.weekStart === prev)
+        .sort((a, b) => b.wins - a.wins || b.goals - a.goals)
+        .slice(0, 10)
+        .forEach((w, i) => {
+          const u = users.get(w.userId);
+          if (u)
+            u.badges = [
+              ...u.badges,
+              {
+                name: badgeForRank(i),
+                description: awardDescription(i, week, year),
+                awardedAt,
+              },
+            ];
+        });
+      settled.add(prev);
     },
     async charts(tz) {
       const now = Date.now();
@@ -325,6 +437,7 @@ const createMemoryStore = (): UserStore => {
         return anon;
       }
       const now = Date.now();
+      const skin = randomStarter();
       const user = {
         id: crypto.randomUUID(),
         name: name || generateName(),
@@ -332,6 +445,9 @@ const createMemoryStore = (): UserStore => {
         isAdmin: false,
         friendCode: makeFriendCode(),
         balance: 0,
+        badges: [] as BadgeAward[],
+        skin,
+        ownedSkins: [skin],
         gamesPlayed: 0,
         wins: 0,
         goals: 0,
@@ -362,6 +478,9 @@ const createPrismaStore = async (): Promise<UserStore> => {
     isAdmin: boolean;
     friendCode: string | null;
     balance: number;
+    badges: unknown;
+    skin: string | null;
+    ownedSkins: string[];
     gamesPlayed: number;
     wins: number;
     goals: number;
@@ -372,6 +491,9 @@ const createPrismaStore = async (): Promise<UserStore> => {
     isAdmin: u.isAdmin,
     friendCode: u.friendCode,
     balance: u.balance,
+    badges: asBadges(u.badges),
+    skin: u.skin || DEFAULT_EMOJI,
+    ownedSkins: u.ownedSkins,
     gamesPlayed: u.gamesPlayed,
     wins: u.wins,
     goals: u.goals,
@@ -386,8 +508,14 @@ const createPrismaStore = async (): Promise<UserStore> => {
   }) => {
     for (let i = 0; ; i++) {
       try {
+        const skin = randomStarter();
         return await prisma.user.create({
-          data: { ...data, friendCode: makeFriendCode() },
+          data: {
+            ...data,
+            friendCode: makeFriendCode(),
+            skin,
+            ownedSkins: [skin],
+          },
         });
       } catch (err) {
         if (i >= 4) throw err; // give up after a few tries
@@ -459,10 +587,20 @@ const createPrismaStore = async (): Promise<UserStore> => {
     async get(id) {
       const u = await prisma.user.findUnique({ where: { id } });
       if (!u) return null;
-      // backfill a friend code for accounts created before the column existed
-      if (!u.friendCode) {
+      // backfill fields for accounts created before their columns existed
+      const patch: {
+        friendCode?: string;
+        skin?: string;
+        ownedSkins?: string[];
+      } = {};
+      if (!u.friendCode) patch.friendCode = makeFriendCode();
+      if (!u.skin) {
+        patch.skin = randomStarter();
+        if (!u.ownedSkins.length) patch.ownedSkins = [patch.skin];
+      }
+      if (Object.keys(patch).length) {
         const filled = await prisma.user
-          .update({ where: { id }, data: { friendCode: makeFriendCode() } })
+          .update({ where: { id }, data: patch })
           .catch(() => u);
         return toPublic(filled);
       }
@@ -477,6 +615,29 @@ const createPrismaStore = async (): Promise<UserStore> => {
         return null;
       }
     },
+    async selectSkin(id, slug) {
+      const u = await prisma.user.findUnique({ where: { id } });
+      if (!u) return null;
+      if (!u.ownedSkins.includes(slug)) return toPublic(u); // must own it
+      return toPublic(
+        await prisma.user.update({ where: { id }, data: { skin: slug } }),
+      );
+    },
+    async unlockSkin(id, slug) {
+      if (!isValidSkin(slug)) {
+        const u = await prisma.user.findUnique({ where: { id } });
+        return u ? toPublic(u) : null;
+      }
+      const u = await prisma.user.findUnique({ where: { id } });
+      if (!u) return null;
+      if (u.ownedSkins.includes(slug)) return toPublic(u);
+      return toPublic(
+        await prisma.user.update({
+          where: { id },
+          data: { ownedSkins: { push: slug } },
+        }),
+      );
+    },
     async recordMatch(id, won, goals) {
       await prisma.user
         .update({
@@ -486,6 +647,25 @@ const createPrismaStore = async (): Promise<UserStore> => {
             wins: { increment: won ? 1 : 0 },
             goals: { increment: goals },
             lastSeenAt: new Date(),
+          },
+        })
+        .catch(() => undefined);
+      // mirror into this week's leaderboard score
+      const weekStart = weekStartOf();
+      await prisma.weeklyScore
+        .upsert({
+          where: { userId_weekStart: { userId: id, weekStart } },
+          create: {
+            userId: id,
+            weekStart,
+            wins: won ? 1 : 0,
+            goals,
+            games: 1,
+          },
+          update: {
+            wins: { increment: won ? 1 : 0 },
+            goals: { increment: goals },
+            games: { increment: 1 },
           },
         })
         .catch(() => undefined);
@@ -501,6 +681,58 @@ const createPrismaStore = async (): Promise<UserStore> => {
     async recordCcu(online) {
       await prisma.ccuSample
         .create({ data: { online } })
+        .catch(() => undefined);
+    },
+    async weeklyTop(limit) {
+      const rows = await prisma.weeklyScore.findMany({
+        where: { weekStart: weekStartOf() },
+        orderBy: [{ wins: "desc" }, { goals: "desc" }],
+        take: limit,
+        include: {
+          user: { select: { name: true, badges: true, skin: true } },
+        },
+      });
+      return rows.map((r) => ({
+        id: r.userId,
+        name: r.user.name,
+        wins: r.wins,
+        goals: r.goals,
+        badges: asBadges(r.user.badges),
+        skin: r.user.skin || DEFAULT_EMOJI,
+      }));
+    },
+    async settleDueWeeks() {
+      const weekStart = prevWeekStart();
+      // idempotent: skip if already settled
+      const done = await prisma.weeklySettlement.findUnique({
+        where: { weekStart },
+      });
+      if (done) return;
+      const { week, year } = isoWeek(weekStart);
+      const awardedAt = new Date().toISOString();
+      const top = await prisma.weeklyScore.findMany({
+        where: { weekStart },
+        orderBy: [{ wins: "desc" }, { goals: "desc" }],
+        take: 10,
+        include: { user: { select: { badges: true } } },
+      });
+      for (let i = 0; i < top.length; i++) {
+        const award: BadgeAward = {
+          name: badgeForRank(i),
+          description: awardDescription(i, week, year),
+          awardedAt,
+        };
+        // Json columns don't support `push`; read-modify-write instead
+        const next = [...asBadges(top[i]!.user.badges), award];
+        await prisma.user
+          .update({
+            where: { id: top[i]!.userId },
+            data: { badges: next as unknown as object[] },
+          })
+          .catch(() => undefined);
+      }
+      await prisma.weeklySettlement
+        .create({ data: { weekStart } })
         .catch(() => undefined);
     },
     async charts(tz) {

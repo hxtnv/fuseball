@@ -124,6 +124,7 @@ export interface SnapshotPlayer {
   y: number;
   stamina?: number; // 0..1
   name?: string; // filled in client-side from the roster (not sent in every snapshot)
+  skin?: string; // emoji slug, filled in client-side from the roster
 }
 
 export interface Snapshot {
@@ -264,6 +265,7 @@ export interface RosterEntry {
   id: number;
   team: Team;
   name: string;
+  skin: string; // emoji slug
 }
 
 const textEncoder = new TextEncoder();
@@ -271,8 +273,10 @@ const textDecoder = new TextDecoder();
 
 export const encodeRoster = (entries: RosterEntry[]): ArrayBuffer => {
   const names = entries.map((e) => textEncoder.encode(e.name.slice(0, 32)));
+  const skins = entries.map((e) => textEncoder.encode(e.skin.slice(0, 48)));
   let size = 2; // type + count
-  for (const n of names) size += 3 + n.length; // id + team + len + bytes
+  for (let i = 0; i < entries.length; i++)
+    size += 4 + names[i]!.length + skins[i]!.length; // id + team + nameLen + skinLen + bytes
   const buf = new ArrayBuffer(size);
   const v = new DataView(buf);
   const bytes = new Uint8Array(buf);
@@ -282,11 +286,15 @@ export const encodeRoster = (entries: RosterEntry[]): ArrayBuffer => {
   for (let i = 0; i < entries.length; i++) {
     const e = entries[i]!;
     const n = names[i]!;
+    const s = skins[i]!;
     v.setUint8(o++, e.id);
     v.setUint8(o++, e.team);
     v.setUint8(o++, n.length);
     bytes.set(n, o);
     o += n.length;
+    v.setUint8(o++, s.length);
+    bytes.set(s, o);
+    o += s.length;
   }
   return buf;
 };
@@ -300,10 +308,13 @@ export const decodeRoster = (data: ArrayBuffer | Uint8Array): RosterEntry[] => {
   for (let i = 0; i < count; i++) {
     const id = v.getUint8(o++);
     const team = v.getUint8(o++) as Team;
-    const len = v.getUint8(o++);
-    const name = textDecoder.decode(bytes.subarray(o, o + len));
-    o += len;
-    entries.push({ id, team, name });
+    const nameLen = v.getUint8(o++);
+    const name = textDecoder.decode(bytes.subarray(o, o + nameLen));
+    o += nameLen;
+    const skinLen = v.getUint8(o++);
+    const skin = textDecoder.decode(bytes.subarray(o, o + skinLen));
+    o += skinLen;
+    entries.push({ id, team, name, skin });
   }
   return entries;
 };

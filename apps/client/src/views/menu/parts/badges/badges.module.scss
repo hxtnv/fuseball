@@ -1,0 +1,11 @@
+.badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+
+  &__img {
+    display: block;
+    object-fit: contain;
+  }
+}

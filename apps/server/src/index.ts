@@ -1,4 +1,4 @@
-import { GAME_VERSION } from "@fuseball/shared";
+import { GAME_VERSION, isValidSkin } from "@fuseball/shared";
 import {
   bearer,
   generateName,
@@ -9,6 +9,8 @@ import {
 import { initStore, type NewsItem, type UserStore } from "./store";
 import { findServer, gameServers } from "./servers";
 import { exchangeGoogleCode, googleAuthUrl, googleConfigured } from "./google";
+import { BADGES } from "./badges";
+import { nextWeekStart } from "./week";
 import type { ServerWebSocket } from "bun";
 
 const port = Number(process.env.PORT ?? 3001);
@@ -166,14 +168,43 @@ const server = Bun.serve<PresenceData>({
       );
     }
 
-    // --- leaderboard: top players by wins then goals (public, no auth) ---
+    // --- leaderboard: weekly top players (resets Monday 00:00 UTC) ---
     if (pathname === "/leaderboard" && req.method === "GET") {
       const limit = Math.min(
         50,
         Math.max(1, Number(url.searchParams.get("limit")) || 10),
       );
-      const players = await store.topPlayers(limit);
-      return json({ players });
+      const players = await store.weeklyTop(limit);
+      return json({ players, resetsAt: nextWeekStart().getTime() });
+    }
+
+    // --- badges: the badge catalog (public; name -> label + image) ---
+    if (pathname === "/badges" && req.method === "GET") {
+      return json({ badges: BADGES });
+    }
+
+    // --- emojis: equip an owned emoji as the active skin ---
+    if (pathname === "/emojis/select" && req.method === "POST") {
+      const user = await authUser(req);
+      if (!user) return json({ error: "unauthorized" }, 401);
+      const body = (await req.json().catch(() => ({}))) as { slug?: string };
+      if (!body.slug || !isValidSkin(body.slug))
+        return json({ error: "invalid_skin" }, 400);
+      const updated = await store.selectSkin(user.id, body.slug);
+      if (!updated) return json({ error: "not_found" }, 404);
+      return json({ user: updated });
+    }
+
+    // --- emojis: grant ownership of an emoji (no purchase flow yet) ---
+    if (pathname === "/emojis/unlock" && req.method === "POST") {
+      const user = await authUser(req);
+      if (!user) return json({ error: "unauthorized" }, 401);
+      const body = (await req.json().catch(() => ({}))) as { slug?: string };
+      if (!body.slug || !isValidSkin(body.slug))
+        return json({ error: "invalid_skin" }, 400);
+      const updated = await store.unlockSkin(user.id, body.slug);
+      if (!updated) return json({ error: "not_found" }, 404);
+      return json({ user: updated });
     }
 
     // --- news: hand-authored announcements (public, no auth) ---
@@ -339,6 +370,9 @@ const server = Bun.serve<PresenceData>({
 });
 
 store = await initStore();
+// award badges for any completed-but-unsettled week, then check hourly
+void store.settleDueWeeks();
+setInterval(() => void store.settleDueWeeks(), 3_600_000);
 // sample concurrent players once a minute for the CCU-over-time chart
 setInterval(() => void store.recordCcu(onlineCount()), 60_000);
 console.log(

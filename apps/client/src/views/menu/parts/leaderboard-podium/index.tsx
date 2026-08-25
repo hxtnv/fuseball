@@ -1,4 +1,5 @@
 import { Avatar } from "@/components/ui";
+import { Badges } from "../badges";
 import type { LbRow } from "../../hooks/use-leaderboard";
 import styles from "./leaderboard-podium.module.scss";
 
@@ -24,12 +25,17 @@ export const LeaderboardPodium = ({ top3 }: LeaderboardPodiumProps) => {
           {row.empty ? (
             <div class={styles.podium__slot__ph} />
           ) : (
-            <Avatar name={row.name} size={row.rank === 1 ? 52 : 42} />
+            <Avatar
+              name={row.name}
+              skin={row.skin}
+              size={row.rank === 1 ? 52 : 42}
+            />
           )}
           <span class={styles.podium__slot__name}>{row.name}</span>
           <span class={styles.podium__slot__score}>
             {row.empty ? "–" : `${row.wins} W`}
           </span>
+          {!row.empty && <Badges awards={row.badges} size={16} />}
           <div class={styles.podium__slot__base}>{row.rank}</div>
         </div>
       ))}

@@ -19,7 +19,12 @@ export const GameCanvas = ({ session, onLeave }: Props) => {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    const wsUrl = buildWsUrl(session.wsUrl, session.token, session.roomId);
+    const wsUrl = buildWsUrl(
+      session.wsUrl,
+      session.token,
+      session.roomId,
+      session.skin,
+    );
     const game = createGame(canvas, wsUrl, (h) => applyHud(hud, h));
     gameRef.current = game;
     game.start();

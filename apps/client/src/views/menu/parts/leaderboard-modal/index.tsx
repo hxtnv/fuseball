@@ -1,7 +1,9 @@
-import { Trophy } from "lucide-react";
+import { Clock, Trophy } from "lucide-react";
 import { Modal, Skeleton } from "@/components/ui";
 import { padRows, useLeaderboard } from "../../hooks/use-leaderboard";
+import { useCountdown } from "../../hooks/use-countdown";
 import { LeaderboardPodium } from "../leaderboard-podium";
+import { Badges } from "../badges";
 import styles from "./leaderboard-modal.module.scss";
 
 interface LeaderboardModalProps {
@@ -10,7 +12,8 @@ interface LeaderboardModalProps {
 }
 
 export const LeaderboardModal = ({ open, onClose }: LeaderboardModalProps) => {
-  const { rows, status } = useLeaderboard(10);
+  const { rows, status, resetsAt } = useLeaderboard(10);
+  const countdown = useCountdown(resetsAt);
   const padded = padRows(rows, 10);
 
   return (
@@ -18,8 +21,13 @@ export const LeaderboardModal = ({ open, onClose }: LeaderboardModalProps) => {
       open={open}
       onClose={onClose}
       width={460}
-      title={{ text: "Leaderboard", icon: <Trophy /> }}
+      title={{ text: "Weekly Leaderboard", icon: <Trophy /> }}
     >
+      <div class={styles.leaderboard__reset}>
+        <Clock size={13} />
+        Resets in {countdown || "…"}
+      </div>
+
       {status !== "ready" ? (
         <div class={styles.leaderboard}>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -38,7 +46,10 @@ export const LeaderboardModal = ({ open, onClose }: LeaderboardModalProps) => {
                 data-empty={row.empty ? "true" : undefined}
               >
                 <span class={styles.leaderboard__row__rank}>#{row.rank}</span>
-                <span class={styles.leaderboard__row__name}>{row.name}</span>
+                <span class={styles.leaderboard__row__name}>
+                  {row.name}
+                  {!row.empty && <Badges awards={row.badges} size={14} />}
+                </span>
                 <span class={styles.leaderboard__row__stat}>
                   {row.empty ? "–" : `${row.wins} wins`}
                 </span>

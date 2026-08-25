@@ -37,6 +37,7 @@ export interface PlaySession {
   wsUrl: string; // base ws url of the chosen server
   token: string;
   roomId?: string; // undefined = quick play
+  skin?: string; // active emoji slug
 }
 
 interface Props {
@@ -113,6 +114,7 @@ export const MainMenu = ({ onPlay, online }: Props) => {
       wsUrl: selected.wsUrl,
       token,
       roomId,
+      skin: user?.skin,
     });
   };
 

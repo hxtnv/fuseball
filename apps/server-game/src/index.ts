@@ -42,6 +42,7 @@ interface ClientData {
   roomId: string;
   userId: string;
   name: string;
+  skin: string;
 }
 
 interface QueuedInput {
@@ -53,6 +54,7 @@ interface Client {
   playerId: number;
   userId: string; // authenticated account id (from the validated JWT)
   name: string;
+  skin: string; // active emoji slug
   startedAt: number; // ms when the session (WS connection) began
   queue: QueuedInput[]; // jitter buffer: one input consumed per tick
   lastRecvSeq: number; // highest seq enqueued (drops stale/duplicate packets)
@@ -62,7 +64,19 @@ interface Client {
 interface Bot {
   mem: BotMemory;
   name: string;
+  skin: string; // emoji slug, so bots render like everyone else
 }
+
+// a handful of common faces so bots blend in with human players
+const BOT_SKINS = [
+  "grinning-face",
+  "slightly-smiling-face",
+  "smiling-face-with-sunglasses",
+  "nerd-face",
+  "cowboy-hat-face",
+];
+const randomBotSkin = (): string =>
+  BOT_SKINS[Math.floor(Math.random() * BOT_SKINS.length)]!;
 
 interface Room {
   id: string;
@@ -110,6 +124,7 @@ const addBot = (room: Room): void => {
   room.bots.set(id, {
     mem: createBotMemory(hasDefender ? "attacker" : "defender"),
     name: botName(room.nextBotName++),
+    skin: randomBotSkin(),
   });
 };
 
@@ -187,7 +202,12 @@ const server = Bun.serve<ClientData>({
       const room = pickRoom(url.searchParams.get("room"));
       if (
         server.upgrade(req, {
-          data: { roomId: room.id, userId: payload.userId, name: payload.name },
+          data: {
+            roomId: room.id,
+            userId: payload.userId,
+            name: payload.name,
+            skin: url.searchParams.get("skin") ?? "",
+          },
         })
       )
         return;
@@ -210,6 +230,7 @@ const server = Bun.serve<ClientData>({
         playerId,
         userId: ws.data.userId,
         name: ws.data.name,
+        skin: ws.data.skin,
         startedAt: Date.now(),
         queue: [],
         lastRecvSeq: 0,
@@ -373,11 +394,17 @@ const broadcastRoster = (room: Room): void => {
       id: client.playerId,
       team: p?.team ?? 0,
       name: client.name,
+      skin: client.skin,
     });
   }
   for (const [botId, bot] of room.bots) {
     const p = room.state.players.find((pl) => pl.id === botId);
-    entries.push({ id: botId, team: p?.team ?? 0, name: bot.name });
+    entries.push({
+      id: botId,
+      team: p?.team ?? 0,
+      name: bot.name,
+      skin: bot.skin,
+    });
   }
   const msg = encodeRoster(entries);
   for (const ws of room.clients.keys()) ws.send(msg);

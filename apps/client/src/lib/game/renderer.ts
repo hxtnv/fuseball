@@ -55,6 +55,30 @@ const drawDisc = (
   ctx.stroke();
 };
 
+// custom emoji "skins" drawn in place of the flat player disc. Images are
+// loaded once per slug and reused across every frame + player.
+const emojiCache = new Map<string, HTMLImageElement>();
+const emojiImage = (slug: string): HTMLImageElement => {
+  let img = emojiCache.get(slug);
+  if (!img) {
+    img = new Image();
+    img.src = `/emojis/${slug}.png`;
+    emojiCache.set(slug, img);
+  }
+  return img;
+};
+
+const drawEmoji = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  img: HTMLImageElement,
+): void => {
+  const s = size * 1.2; // reads a touch larger than the disc it replaces
+  ctx.drawImage(img, x - s / 2, y - s / 2, s, s);
+};
+
 // name tag above a player — its colour is how teams are distinguished
 const drawTag = (
   ctx: CanvasRenderingContext2D,
@@ -74,23 +98,14 @@ const drawTag = (
   ctx.fillText(text, x, y);
 };
 
-const drawPlayers = (
-  ctx: CanvasRenderingContext2D,
-  state: Snapshot,
-  localId: number,
-): void => {
+const drawPlayers = (ctx: CanvasRenderingContext2D, state: Snapshot): void => {
   for (const p of state.players) {
     drawEntityShadow(ctx, p.x, p.y, PLAYER.SIZE);
-    drawDisc(ctx, p.x, p.y, PLAYER.SIZE, COLORS.playerBody);
-
-    // if (p.id === localId) {
-    //   // highlight ring so you can spot yourself at a glance
-    //   ctx.beginPath();
-    //   ctx.arc(p.x, p.y, PLAYER.SIZE / 2 + 4, 0, TWO_PI);
-    //   ctx.lineWidth = 3;
-    //   ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-    //   ctx.stroke();
-    // }
+    // draw the player's emoji skin, falling back to the disc while it loads
+    const img = p.skin ? emojiImage(p.skin) : null;
+    if (img && img.complete && img.naturalWidth > 0)
+      drawEmoji(ctx, p.x, p.y, PLAYER.SIZE, img);
+    else drawDisc(ctx, p.x, p.y, PLAYER.SIZE, COLORS.playerBody);
   }
 };
 
@@ -169,7 +184,7 @@ export const render = (
 
   drawStripes(ctx, bounds);
   drawFieldLines(ctx);
-  drawPlayers(ctx, state, localId);
+  drawPlayers(ctx, state);
   drawBall(ctx, state);
   drawGoalShadow(ctx); // darkens the goal recess (stripes + any player/ball inside)
   drawGoalNets(ctx); // white net on top, so the mesh stays bright

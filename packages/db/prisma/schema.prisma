@@ -26,11 +26,36 @@ model User {
   gamesPlayed Int      @default(0)
   wins        Int      @default(0)
   goals       Int      @default(0)
+  badges      Json     @default("[]") // [{ name, description, awardedAt }]
+  skin        String? // active emoji slug
+  ownedSkins  String[] @default([]) // emoji slugs the player owns
   lastSeenAt  DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  weeklyScores WeeklyScore[]
+
   @@index([wins, goals])
+}
+
+// Per-week score for the weekly leaderboard (resets each Monday 00:00 UTC).
+model WeeklyScore {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  weekStart DateTime // Monday 00:00 UTC of the score's week
+  wins      Int      @default(0)
+  goals     Int      @default(0)
+  games     Int      @default(0)
+
+  @@unique([userId, weekStart])
+  @@index([weekStart, wins, goals])
+}
+
+// Marks a completed week as "settled" (badges awarded) so it happens once.
+model WeeklySettlement {
+  weekStart DateTime @id
+  settledAt DateTime @default(now())
 }
 
 // Hand-authored news/announcements shown on the menu. Insert rows manually

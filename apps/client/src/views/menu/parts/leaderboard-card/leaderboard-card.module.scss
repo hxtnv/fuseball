@@ -27,6 +27,16 @@
       letter-spacing: 1px;
       color: var(--ui-text-dim);
     }
+
+    &__timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--ui-font);
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      color: var(--ui-text-dim);
+    }
   }
 
   // podium moved to the shared leaderboard-podium component

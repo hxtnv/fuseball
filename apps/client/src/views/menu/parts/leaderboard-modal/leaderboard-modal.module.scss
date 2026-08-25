@@ -4,6 +4,16 @@
   gap: 4px;
   margin-top: 16px;
 
+  &__reset {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--ui-font);
+    font-size: 13px;
+    color: var(--ui-text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
   &__row {
     display: grid;
     grid-template-columns: 34px 1fr auto auto;
@@ -24,7 +34,11 @@
     }
 
     &__name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       color: #fff;
+      min-width: 0;
     }
 
     &__stat {

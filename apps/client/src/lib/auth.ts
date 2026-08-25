@@ -2,6 +2,13 @@ import { API } from "./game/config";
 
 // Client-side auth + central-server API. All account logic lives on the server;
 // this just stores the issued token and talks to the endpoints.
+// a badge earned by a player, with a per-award flavour line
+export interface BadgeAward {
+  name: string;
+  description: string;
+  awardedAt: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -9,6 +16,9 @@ export interface User {
   isAdmin: boolean;
   friendCode: string | null;
   balance: number;
+  badges: BadgeAward[];
+  skin: string; // active emoji slug
+  ownedSkins: string[]; // emoji slugs the player owns
   gamesPlayed: number;
   wins: number;
   goals: number;
@@ -118,16 +128,60 @@ export interface LeaderboardEntry {
   name: string;
   wins: number;
   goals: number;
-  gamesPlayed: number;
+  badges: BadgeAward[];
+  skin: string;
+}
+
+export interface LeaderboardResult {
+  players: LeaderboardEntry[];
+  resetsAt: number; // epoch ms of the next weekly reset (Monday 00:00 UTC)
 }
 
 export const fetchLeaderboard = async (
   limit = 10,
-): Promise<LeaderboardEntry[]> => {
+): Promise<LeaderboardResult> => {
   const res = await fetch(`${API.baseUrl}/leaderboard?limit=${limit}`);
+  if (!res.ok) return { players: [], resetsAt: 0 };
+  return (await res.json()) as LeaderboardResult;
+};
+
+export interface Badge {
+  name: string;
+  label: string;
+  image: string;
+}
+
+export const fetchBadges = async (): Promise<Badge[]> => {
+  const res = await fetch(`${API.baseUrl}/badges`);
   if (!res.ok) return [];
-  const { players } = (await res.json()) as { players: LeaderboardEntry[] };
-  return players;
+  const { badges } = (await res.json()) as { badges: Badge[] };
+  return badges;
+};
+
+export interface Emoji {
+  slug: string;
+  label: string;
+  image: string;
+  price: number;
+}
+
+// The emoji catalog + `Emoji` type are imported directly from @fuseball/shared
+// (no fetch — they ship in the bundle). This only wraps the auth-guarded mutation.
+export const selectEmoji = async (
+  token: string,
+  slug: string,
+): Promise<User> => {
+  const res = await fetch(`${API.baseUrl}/emojis/select`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ slug }),
+  });
+  if (!res.ok) throw new Error("select_emoji failed");
+  const { user } = (await res.json()) as { user: User };
+  return user;
 };
 
 export interface NewsItem {
@@ -236,9 +290,11 @@ export const buildWsUrl = (
   wsUrl: string,
   token: string,
   roomId?: string,
+  skin?: string,
 ): string => {
   const u = new URL(wsUrl);
   u.searchParams.set("token", token);
   if (roomId) u.searchParams.set("room", roomId);
+  if (skin) u.searchParams.set("skin", skin);
   return u.toString();
 };

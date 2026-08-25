@@ -45,7 +45,12 @@ export const PlayerCard = ({ user, onEditProfile }: PlayerCardProps) => {
       </div>
 
       <div class={styles.playerCard__top}>
-        <Avatar name={user.name} size={58} onlineStatus="online" />
+        <Avatar
+          name={user.name}
+          skin={user.skin}
+          size={58}
+          onlineStatus="online"
+        />
         <div class={styles.playerCard__top__name}>
           <span class={styles.playerCard__top__name__text}>{user.name}</span>
           <div class={styles.playerCard__level}>
